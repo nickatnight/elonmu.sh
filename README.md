@@ -11,7 +11,7 @@ MaaS is a free API for fetching random news articles who mention our Lord and Sa
 
 # Why?
 
-To troll the interwebs :clown:...and to ramp up on TypeScript/Node/ExpressJS. This API is bascially a thin wrapper around [NewsAPI](https://newsapi.org/)
+To troll the interwebs 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is bascially a thin wrapper around [NewsAPI](https://newsapi.org/)
 
 Enjoy
 
