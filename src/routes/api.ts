@@ -8,7 +8,15 @@ export const register = ( app: express.Application ) => {
     app.get( `/api`, async ( req: any, res ) => {
         try {
             const axiosGet = await axios.get(`${NEWS_API_URL}?q=elon%20musk&apiKey=${process.env.NEWS_API_KEY}`);
-            res.json(axiosGet.data.articles[Math.floor(Math.random() * 100)]);
+            const randomArticle = axiosGet.data.articles[Math.floor(Math.random() * 100)];
+            const article = {
+                source: randomArticle.source.name,
+                title: randomArticle.title,
+                description: randomArticle.description,
+                url: randomArticle.url,
+                urlImage: randomArticle.urlToImage
+            };
+            res.json( {...article} );
         }
         catch (e) {
             const err = e as Error;
