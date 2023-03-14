@@ -1,3 +1,10 @@
+<p align="center">
+    <a href="https://github.com/nickatnight/elonmu.sh/actions">
+        <img alt="GitHub Actions status" src="https://github.com/nickatnight/elonmu.sh/actions/workflows/main.yml/badge.svg">
+    </a>
+    <a href="https://github.com/nickatnight/elonmu.sh/releases"><img alt="Release Status" src="https://img.shields.io/github/v/release/nickatnight/elonmu.sh"></a>
+</p>
+
 # elonmu.sh
 
 MaaS is a free API for fetching random news articles who mention our Lord and Savior Elon Musk
