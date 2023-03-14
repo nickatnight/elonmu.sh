@@ -1,10 +1,10 @@
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
-import * as routes from "./routes";
+import * as routes from './routes';
 
 dotenv.config();
 const port = process.env.PORT;
-const app: Express = express();
+const app: express.Express = express();
 
 // Configure Express to parse incoming JSON data
 app.use( express.json() );
