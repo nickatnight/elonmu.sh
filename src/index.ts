@@ -1,15 +1,18 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
+import * as routes from "./routes";
 
 dotenv.config();
-
-const app: Express = express();
 const port = process.env.PORT;
+const app: Express = express();
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Phony Stark checking in for duty...');
-});
+// Configure Express to parse incoming JSON data
+app.use( express.json() );
+
+// Configure routes
+routes.register( app );
 
 app.listen(port, () => {
+  // tslint:disable-next-line:no-console
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
