@@ -1,17 +1,10 @@
 import * as express from 'express';
-import axios from 'axios';
-
-const NEWS_API_URL = 'https://newsapi.org/v2/everything';
-const LANG = 'en';
+import { fetchNewsArticle } from '../services/news.service';
 
 export const register = (app: express.Application) => {
   app.get(`/api`, async (req: any, res) => {
     try {
-      const axiosGet = await axios.get(
-        `${NEWS_API_URL}?q=elon%20musk&language=${LANG}&apiKey=${process.env.NEWS_API_KEY}`
-      );
-      const randomArticle =
-        axiosGet.data.articles[Math.floor(Math.random() * 100)];
+      const randomArticle = await fetchNewsArticle();
       const article = {
         source: randomArticle.source.name,
         title: randomArticle.title,
