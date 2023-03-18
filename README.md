@@ -7,7 +7,7 @@
 
 # elonmu.sh
 
-MaaS is a free API for fetching random news articles who mention our Lord and Savior Elon Musk
+MaaS is a free API for fetching random news articles which mention our Lord and Savior...Elon Musk
 
 # Why?
 
