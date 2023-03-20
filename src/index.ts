@@ -22,6 +22,11 @@ app.use(
 // Configure routes
 routes.register(app);
 
+// Configure Errors
+app.use((req, res, next) => {
+  res.status(404).send('does not compute...');
+});
+
 app.listen(port, () => {
   // tslint:disable-next-line:no-console
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
