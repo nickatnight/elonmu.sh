@@ -18,7 +18,7 @@ $ curl --request GET \
        --header 'accept: application/json'
 ```
 
-Example response:
+Example 200 response:
 
 ```json
 {
@@ -28,6 +28,14 @@ Example response:
   "url": "https://markets.businessinsider.com/news/stocks/elon-musk-tesla-investor-day-ai-electric-vehicles-self-driving-2023-3",
   "urlImage": "https://i.insider.com/64007dd7ce4a630019955630?width=1200&format=jpeg",
   "publishDate": "2023-03-02T11:37:41Z"
+}
+```
+
+Example 400 response:
+
+```json
+{
+  "error": "There was an error with NewsAPI. Please try again later."
 }
 ```
 
