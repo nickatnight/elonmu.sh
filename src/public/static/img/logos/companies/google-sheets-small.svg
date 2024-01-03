@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2500px" height="3480px" viewBox="0 0 2500 3480" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+    <title>google-sheets-small</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="google-sheets-small">
+            <path d="M2500,3279 C2500,3390 2410,3480 2299,3480 L201,3480 C90,3480 0,3390 0,3279 L0,203 C0,92 90,2 201,2 L1550,2 L2500,975 L2500,3279 Z" id="Shape" fill="#23A566" fill-rule="nonzero"></path>
+            <path d="M1655,950 L2500,1758 L2498,974 L2497,974 L1750,974 C1716,974 1684,966 1656,951 L1655,951 L1655,950 Z" id="Shape" fill="#1C8F5A" fill-rule="nonzero"></path>
+            <path d="M2500,973 L1749,973 C1638,973 1548,883 1548,772 L1548,0 L2500,973 Z" id="Shape" fill="#8ED1B1" fill-rule="nonzero"></path>
+            <path d="M1900,2836 L600,2836 L600,1710 L1900,1710 L1900,2836 Z M1330,1871 L1330,2072 L1739,2072 L1739,1871 L1330,1871 Z M1330,2193 L1330,2381 L1739,2381 L1739,2193 L1330,2193 Z M1330,2501 L1330,2675 L1739,2675 L1739,2501 L1330,2501 Z M1169,2675 L1169,2501 L760,2501 L760,2675 L1169,2675 Z M1169,2380 L1169,2192 L760,2192 L760,2380 L1169,2380 Z M1169,2072 L1169,1871 L760,1871 L760,2072 L1169,2072 Z" id="Shape" fill="#FFFFFF"></path>
+        </g>
+    </g>
+</svg>
