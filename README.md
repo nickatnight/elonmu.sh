@@ -41,6 +41,6 @@ Example 400 response:
 
 ## Why?
 
-For fun 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is bascially a thin wrapper around [NewsAPI](https://newsapi.org/), and deployed using DigitalOceans App Platform.
+For fun 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is basically a thin wrapper around [NewsAPI](https://newsapi.org/), and deployed using DigitalOceans App Platform.
 
 Enjoy
