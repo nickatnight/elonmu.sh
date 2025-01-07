@@ -1,0 +1,26 @@
+services:
+  hugo:
+    image: klakegg/hugo:0.111.3-ext-alpine
+    command: server -D --poll 700ms
+    volumes:
+      - ./hugo:/src
+    ports:
+      - "1313:1313"
+
+  expressjs:
+    environment:
+      - PORT=8080
+      - NODE_ENV=development
+    build:
+      context: expressjs
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    command: npm run dev
+    restart: always
+    volumes:
+      - ./hugo/public/css:/usr/src/app/src/public/css
+      - ./hugo/public/js:/usr/src/app/src/public/js
+      - ./hugo/public/images:/usr/src/app/src/public/images
+      - ./hugo/public/fonts:/usr/src/app/src/public/fonts
+      - ./hugo/public/index.html:/usr/src/app/src/public/index.html
