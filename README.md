@@ -31,7 +31,7 @@ Example 200 response:
 }
 ```
 
-Example 502 response (NewsAPI failed or was unreachable):
+Example 200 response when NewsAPI fails or is unreachable (the service itself is healthy, so it still returns 200):
 
 ```json
 {

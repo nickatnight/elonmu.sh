@@ -19,14 +19,16 @@ export const register = (app: express.Application) => {
       let errorMessage = '';
       let status = 500;
       if (err instanceof AxiosError) {
+        // NewsAPI failures return 200: this server is healthy, only the
+        // upstream call failed. 500 is reserved for our own errors.
         if (err.response) {
           // The client was given an error response (5xx, 4xx)
-          status = 502;
+          status = 200;
           errorMessage =
             'There was an error with NewsAPI. Please try again later.';
         } else if (err.request) {
           // The client never received a response, and the request was never left
-          status = 502;
+          status = 200;
           errorMessage =
             'There was an error with request. Please try again later.';
         } else {

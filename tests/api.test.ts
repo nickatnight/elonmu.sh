@@ -49,7 +49,7 @@ describe('GET /api', () => {
     });
   });
 
-  it('returns 502 when NewsAPI responds with an error', async () => {
+  it('returns 200 with an error when NewsAPI responds with an error', async () => {
     spyOn(axios, 'get').mockRejectedValue(
       new AxiosError('401', 'ERR_BAD_REQUEST', undefined, {}, {
         status: 401
@@ -57,20 +57,20 @@ describe('GET /api', () => {
     );
 
     expect(await getApi()).toEqual({
-      status: 502,
+      status: 200,
       body: {
         error: 'There was an error with NewsAPI. Please try again later.'
       }
     });
   });
 
-  it('returns 502 when NewsAPI never responds', async () => {
+  it('returns 200 with an error when NewsAPI never responds', async () => {
     spyOn(axios, 'get').mockRejectedValue(
       new AxiosError('timeout', 'ECONNABORTED', undefined, {})
     );
 
     expect(await getApi()).toEqual({
-      status: 502,
+      status: 200,
       body: {
         error: 'There was an error with request. Please try again later.'
       }
