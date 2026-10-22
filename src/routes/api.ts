@@ -17,13 +17,16 @@ export const register = (app: express.Application) => {
       res.json({ ...article });
     } catch (err: unknown) {
       let errorMessage = '';
+      let status = 500;
       if (err instanceof AxiosError) {
         if (err.response) {
           // The client was given an error response (5xx, 4xx)
+          status = 502;
           errorMessage =
             'There was an error with NewsAPI. Please try again later.';
         } else if (err.request) {
           // The client never received a response, and the request was never left
+          status = 502;
           errorMessage =
             'There was an error with request. Please try again later.';
         } else {
@@ -33,7 +36,7 @@ export const register = (app: express.Application) => {
       } else {
         errorMessage = 'An unknown error occurred. Please try again later.';
       }
-      res.json({ error: errorMessage });
+      res.status(status).json({ error: errorMessage });
     }
   });
 };
