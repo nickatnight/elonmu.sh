@@ -14,7 +14,8 @@
     "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "test": "bun test"
+    "test": "bun test",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun test"
   },
   "keywords": [
     "funny",

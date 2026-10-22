@@ -10,24 +10,19 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [16.x, 17.x, 18.x, 19.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         name: Check out repo
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          bun-version: 1.4.4
 
-      - name: npm ci, lint, test
+      - name: Install, format check, lint, typecheck, test
         run: |
-          npm ci
-          npm run format:check
-          npm run lint:check
+          bun install --frozen-lockfile
+          bun run check
 
   create-release:
     permissions:
