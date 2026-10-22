@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
-    "format:check": "biome format ."
+    "format:check": "biome format .",
+    "test": "bun test"
   },
   "keywords": [
     "funny",
