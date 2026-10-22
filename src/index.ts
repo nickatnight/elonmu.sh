@@ -1,5 +1,5 @@
 import express from 'express';
-import path from 'path';
+import path from 'node:path';
 import * as routes from './routes';
 
 const port = process.env.PORT;
@@ -21,11 +21,10 @@ app.use(
 routes.register(app);
 
 // Configure Errors
-app.use((req, res, next) => {
+app.use((_req, res) => {
   res.status(404).send('does not compute...');
 });
 
 app.listen(port, () => {
-  // tslint:disable-next-line:no-console
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });

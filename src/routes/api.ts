@@ -1,9 +1,9 @@
-import * as express from 'express';
+import type * as express from 'express';
 import { AxiosError } from 'axios';
 import { fetchNewsArticle } from '../services/news.service';
 
 export const register = (app: express.Application) => {
-  app.get(`/api`, async (req: any, res) => {
+  app.get(`/api`, async (_req, res) => {
     try {
       const randomArticle = await fetchNewsArticle();
       const article = {

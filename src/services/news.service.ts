@@ -1,4 +1,4 @@
-import * as querystring from 'querystring';
+import * as querystring from 'node:querystring';
 import axios from 'axios';
 
 const NEWS_API_URL = 'https://newsapi.org/v2/everything';
