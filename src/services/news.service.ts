@@ -13,8 +13,9 @@ export async function fetchNewsArticle() {
   const url = `${NEWS_API_URL}?${querystring.stringify(data)}`;
   const axiosGet = await axios.get(url);
   // free api version limits to only fetching first page of results,
-  // so randomize the returned article (default page size 100)
-  const randomArticle = axiosGet.data.articles[Math.floor(Math.random() * 100)];
+  // so randomize the returned article
+  const { articles } = axiosGet.data;
+  const randomArticle = articles[Math.floor(Math.random() * articles.length)];
 
   return randomArticle;
 }
