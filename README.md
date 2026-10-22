@@ -31,12 +31,26 @@ Example 200 response:
 }
 ```
 
-Example 400 response:
+Example 502 response (NewsAPI failed or was unreachable):
 
 ```json
 {
   "error": "There was an error with NewsAPI. Please try again later."
 }
+```
+
+Any other failure returns a 500 with the same `{ "error": "..." }` shape.
+
+## Development
+
+Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key.
+
+```shell
+$ bun install
+$ cp .env.example .env    # then set NEWS_API_KEY
+$ bun run dev             # http://localhost:8080, restarts on changes
+$ bun test
+$ bun run check           # format check, lint, typecheck, tests (what CI runs)
 ```
 
 ## Why?
