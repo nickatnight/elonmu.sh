@@ -15,7 +15,8 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "test": "bun test",
-    "check": "bun run format:check && bun run lint && bun run typecheck && bun test"
+    "check:static": "bun run format:check && bun run lint && bun run typecheck",
+    "check": "bun run check:static && bun test"
   },
   "keywords": [
     "funny",
