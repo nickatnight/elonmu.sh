@@ -1,4 +1,14 @@
-import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn
+} from 'bun:test';
+import axios from 'axios';
+import { fetchNewsArticle } from '../src/services/news.service';
 import { newsApiArticle } from './fixtures';
 
 const articles = [
@@ -6,15 +16,19 @@ const articles = [
   { ...newsApiArticle, title: 'second' },
   { ...newsApiArticle, title: 'third' }
 ];
-const get = mock(async (_url: string) => ({ data: { articles } }));
 
-mock.module('axios', () => ({ default: { get } }));
+// spyOn rather than mock.module('axios'): module mocks persist for the rest
+// of the bun test run and would strip AxiosError from later test files.
+let get: ReturnType<typeof spyOn<typeof axios, 'get'>>;
+const originalApiKey = process.env.NEWS_API_KEY;
 
-const { fetchNewsArticle } = await import('../src/services/news.service');
+beforeEach(() => {
+  get = spyOn(axios, 'get').mockResolvedValue({ data: { articles } });
+});
 
 afterEach(() => {
   mock.restore();
-  get.mockClear();
+  process.env.NEWS_API_KEY = originalApiKey;
 });
 
 describe('fetchNewsArticle', () => {

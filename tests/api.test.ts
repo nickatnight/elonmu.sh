@@ -1,22 +1,27 @@
-import { afterAll, beforeAll, describe, expect, it, mock } from 'bun:test';
-import { AxiosError, type AxiosResponse } from 'axios';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  mock,
+  spyOn
+} from 'bun:test';
+import axios, { AxiosError, type AxiosResponse } from 'axios';
+import { createApp } from '../src/app';
 import { newsApiArticle } from './fixtures';
 import { startTestServer, type TestServer } from './helpers';
 
-let fetchNewsArticle: () => Promise<unknown>;
-
-mock.module('../src/services/news.service', () => ({
-  fetchNewsArticle: () => fetchNewsArticle()
-}));
-
-// Imported after mock.module so the route picks up the mocked service.
-const { createApp } = await import('../src/app');
-
+// NewsAPI is stubbed at axios.get rather than with mock.module: module mocks
+// persist across bun test files and would leak into the service tests.
 let server: TestServer;
 
 beforeAll(async () => {
   server = await startTestServer(createApp());
 });
+
+afterEach(() => mock.restore());
 
 afterAll(() => server.close());
 
@@ -27,7 +32,9 @@ const getApi = async () => {
 
 describe('GET /api', () => {
   it('maps a NewsAPI article to the public shape', async () => {
-    fetchNewsArticle = async () => newsApiArticle;
+    spyOn(axios, 'get').mockResolvedValue({
+      data: { articles: [newsApiArticle] }
+    });
 
     expect(await getApi()).toEqual({
       status: 200,
@@ -43,11 +50,11 @@ describe('GET /api', () => {
   });
 
   it('returns 502 when NewsAPI responds with an error', async () => {
-    fetchNewsArticle = async () => {
-      throw new AxiosError('401', 'ERR_BAD_REQUEST', undefined, {}, {
+    spyOn(axios, 'get').mockRejectedValue(
+      new AxiosError('401', 'ERR_BAD_REQUEST', undefined, {}, {
         status: 401
-      } as AxiosResponse);
-    };
+      } as AxiosResponse)
+    );
 
     expect(await getApi()).toEqual({
       status: 502,
@@ -58,9 +65,9 @@ describe('GET /api', () => {
   });
 
   it('returns 502 when NewsAPI never responds', async () => {
-    fetchNewsArticle = async () => {
-      throw new AxiosError('timeout', 'ECONNABORTED', undefined, {});
-    };
+    spyOn(axios, 'get').mockRejectedValue(
+      new AxiosError('timeout', 'ECONNABORTED', undefined, {})
+    );
 
     expect(await getApi()).toEqual({
       status: 502,
@@ -71,9 +78,7 @@ describe('GET /api', () => {
   });
 
   it('returns 500 when the request could not be made', async () => {
-    fetchNewsArticle = async () => {
-      throw new AxiosError('bad config');
-    };
+    spyOn(axios, 'get').mockRejectedValue(new AxiosError('bad config'));
 
     expect(await getApi()).toEqual({
       status: 500,
@@ -82,7 +87,7 @@ describe('GET /api', () => {
   });
 
   it('returns 500 for non-Axios errors', async () => {
-    fetchNewsArticle = async () => undefined;
+    spyOn(axios, 'get').mockResolvedValue({ data: { articles: [] } });
 
     expect(await getApi()).toEqual({
       status: 500,
