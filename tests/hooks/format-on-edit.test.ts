@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 import { rmSync } from 'node:fs';
-import { mkdtemp, cp } from 'node:fs/promises';
+import { cp, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { isBiomeTarget } from '../../.claude/hooks/lib';
@@ -56,6 +56,22 @@ describe('format-on-edit hook', () => {
     expect(await Bun.file(fixture).text()).toBe(
       "export const answer = { a: 'b' };\n"
     );
+  });
+
+  it('leaves import order alone, matching what CI checks', async () => {
+    // CI runs `biome format` and `biome lint`, not the organize-imports assist,
+    // so reordering imports would add unrelated churn to every edited file.
+    const source = [
+      "import express from 'express';",
+      "import path from 'node:path';",
+      '',
+      'export const app = express();',
+      "export const dir = path.join('a', 'b');",
+      ''
+    ].join('\n');
+    await Bun.write(fixture, source);
+    expect(await formatOnEdit(fixture)).toEqual({ exitCode: 0, stderr: '' });
+    expect(await Bun.file(fixture).text()).toBe(source);
   });
 
   it('reports lint errors that --write cannot fix with exit 2', async () => {

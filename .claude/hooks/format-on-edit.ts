@@ -31,6 +31,9 @@ if (filePath !== null && isBiomeTarget(filePath, projectDir)) {
       biome,
       'check',
       '--write',
+      // Format + lint only, the same as CI (format:check, lint). Assist
+      // actions such as organize-imports would reorder untouched code.
+      '--assist-enabled=false',
       '--error-on-warnings',
       '--files-ignore-unknown=true',
       '--no-errors-on-unmatched',
