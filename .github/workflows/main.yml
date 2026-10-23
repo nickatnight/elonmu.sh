@@ -2,6 +2,8 @@ name: ci
 
 on:
   push:
+    # Render deploys a main commit only after its checks pass
+    branches: [main]
     tags:
       - '*'
   pull_request:
