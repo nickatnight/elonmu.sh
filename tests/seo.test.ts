@@ -35,6 +35,7 @@ describe('GET /robots.txt', () => {
 
   it('still carries the security headers', async () => {
     const res = await fetch(`${server.url}/robots.txt`);
+    expect(res.status).toBe(200);
     expect(res.headers.get('content-security-policy')).toBeTruthy();
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
   });

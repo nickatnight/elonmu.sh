@@ -5,7 +5,10 @@ import { securityHeaders } from './middleware/security-headers';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
-const CRAWLER_FILES = new Set(['robots.txt', 'sitemap.xml']);
+// Full paths, so only the root files match (not e.g. static/robots.txt)
+const CRAWLER_FILES = new Set(
+  ['robots.txt', 'sitemap.xml'].map((file) => path.join(publicDir, file))
+);
 
 // Static files are cached for a year, so each URL carries a hash of the file's
 // contents: a changed file gets a new URL on the next deploy. Hashed once per
@@ -44,7 +47,7 @@ export const createApp = (): express.Express => {
     express.static(publicDir, {
       maxAge: 31557600000,
       setHeaders: (res, filePath) => {
-        if (CRAWLER_FILES.has(path.basename(filePath))) {
+        if (CRAWLER_FILES.has(filePath)) {
           res.setHeader('Cache-Control', 'public, max-age=86400');
         }
       }
