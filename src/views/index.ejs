@@ -15,8 +15,8 @@
     <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 
-    <link rel="stylesheet" href="<%= assets.css %>" />
-    <script src="<%= assets.js %>" defer></script>
+    <link rel="stylesheet" href="<%= asset('static/css/main.css') %>" />
+    <script src="<%= asset('static/js/main.js') %>" defer></script>
 
     <!-- Facebook Meta Tags -->
     <meta property="og:url" content="https://elonmu.sh/" />
@@ -170,7 +170,48 @@
   <span class="tok-key">"error"</span>: <span class="tok-str">"There was an error with NewsAPI. Please try again later."</span>
 }</code></pre>
           </figure>
+          <figure class="illus">
+            <img
+              src="<%= asset('static/img/rud.jpg') %>"
+              width="960"
+              height="536"
+              alt="A rocket breaking apart mid-flight"
+              loading="lazy"
+            />
+            <figcaption>Fig. 1: a 500, in production.</figcaption>
+          </figure>
         </div>
+      </section>
+      <section class="praise" id="testimonials" aria-labelledby="testimonials-title" data-reveal>
+        <h2 id="testimonials-title">What developers are saying</h2>
+        <figure class="praise__lead">
+          <blockquote>
+            <p>We replaced our news team with a single curl. Morale is down, but uptime is divine.</p>
+          </blockquote>
+          <figcaption>Priya Null, CTO at a Series Z startup</figcaption>
+        </figure>
+        <img
+          class="praise__portrait"
+          src="<%= asset('static/img/testimonials/priya.jpg') %>"
+          width="640"
+          height="640"
+          alt=""
+          loading="lazy"
+        />
+        <figure class="praise__quote">
+          <img src="<%= asset('static/img/testimonials/sam.jpg') %>" width="80" height="80" alt="" loading="lazy" />
+          <blockquote>
+            <p>I asked for one random article and received exactly one random article. I have never felt so seen.</p>
+          </blockquote>
+          <figcaption>Sam Segfault, weekend developer</figcaption>
+        </figure>
+        <figure class="praise__quote">
+          <img src="<%= asset('static/img/testimonials/jordan.jpg') %>" width="80" height="80" alt="" loading="lazy" />
+          <blockquote>
+            <p>No key, no signup, no SDK. Ten out of ten, would <code>GET</code> again.</p>
+          </blockquote>
+          <figcaption>Jordan Byte, staff engineer at Hypothetical Corp</figcaption>
+        </figure>
       </section>
       <p class="sr-only announce" aria-live="polite"></p>
     </main>
@@ -229,6 +270,7 @@
             <a href="https://github.com/twitter/twemoji">Twemoji</a>,
             <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
           </li>
+          <li>Portraits and illustration: AI-generated. The people are fictional.</li>
         </ul>
       </div>
       <p class="footer__legal">

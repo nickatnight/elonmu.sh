@@ -316,6 +316,69 @@ pre {
   color: var(--muted);
 }
 
+/* Testimonials: one large voice, two small ones, the speaker's portrait. */
+.praise {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2.5rem 2rem;
+  margin: 0 var(--margin);
+  padding: clamp(6rem, 10vw, 10rem) 0;
+}
+
+.praise h2 {
+  grid-column: 1 / 8;
+  font-size: var(--step-head);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.praise blockquote {
+  margin: 0;
+}
+
+.praise figcaption {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.praise__lead {
+  grid-column: 1 / 8;
+  align-self: center;
+}
+
+.praise__lead p {
+  font-size: clamp(1.5rem, 1rem + 1.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.praise__portrait {
+  grid-column: 9 / 13;
+  grid-row: 1 / 4;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.praise__quote {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  column-gap: 1.25rem;
+  grid-column: span 4;
+}
+
+.praise__quote img {
+  grid-row: 1 / 3;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.praise__quote figcaption {
+  grid-column: 2;
+}
+
 @keyframes rise {
   from {
     transform: translateY(105%);
@@ -332,6 +395,20 @@ pre {
 @media (max-width: 56rem) {
   .hero {
     display: block;
+  }
+
+  .praise {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .praise > *,
+  .praise h2 {
+    grid-column: 1;
+  }
+
+  .praise__portrait {
+    grid-row: auto;
+    max-width: 18rem;
   }
 
   .hero__lead {
@@ -530,6 +607,17 @@ a.card__link[href] {
 
 .copy[hidden] {
   display: none;
+}
+
+.illus img {
+  width: 100%;
+  height: auto;
+}
+
+.illus figcaption {
+  margin-top: 0.75rem;
+  color: var(--code-muted);
+  font-size: var(--step-small);
 }
 
 /* Real tables keep their lines. */

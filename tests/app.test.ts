@@ -103,6 +103,12 @@ describe('GET /', () => {
     for (const button of buttons) expect(button).toContain('hidden');
   });
 
+  it('has a testimonials section that says its people are fictional', () => {
+    expect(html).toContain('id="testimonials"');
+    expect(html.match(/<blockquote/g)?.length).toBe(3);
+    expect(html).toContain('AI-generated');
+  });
+
   it('announces console results politely', () => {
     expect(html).toContain('aria-live="polite"');
   });
