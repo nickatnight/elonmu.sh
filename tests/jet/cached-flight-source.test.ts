@@ -126,6 +126,52 @@ describe('CachedFlightSource', () => {
     expect(inner.calls).toBe(3);
   });
 
+  it('warns, naming the stale data, whenever it serves the last good result', async () => {
+    const inner = new ScriptedSource();
+    const clock = new FakeClock('2026-07-01T00:00:00.000Z');
+    const logger = new FakeLogger();
+    const cached = new CachedFlightSource(inner, clock, TTL, logger);
+    await cached.fetchFlights(YEAR);
+    clock.advance(TTL);
+    inner.failing = true;
+    await cached.fetchFlights(YEAR);
+    clock.advance(TTL);
+    await cached.fetchFlights(YEAR);
+    // One warning per failed refresh, so a long outage stays visible.
+    expect(logger.warnings).toHaveLength(2);
+    expect(logger.warnings[0].msg).toContain('serving stale flights');
+    expect(logger.warnings[0].meta).toEqual({
+      error: 'upstream down',
+      staleSince: '2026-07-01T00:00:00.000Z'
+    });
+  });
+
+  it('warns when a refresh fails with nothing to fall back on', async () => {
+    const inner = new ScriptedSource();
+    const logger = new FakeLogger();
+    const cached = new CachedFlightSource(
+      inner,
+      new FakeClock('2026-07-01T00:00:00.000Z'),
+      TTL,
+      logger
+    );
+    inner.failing = true;
+    await expect(cached.fetchFlights(YEAR)).rejects.toThrow('upstream down');
+    expect(logger.warnings).toHaveLength(1);
+    expect(logger.warnings[0].msg).toContain('no data to serve');
+  });
+
+  it('stays quiet while refreshes succeed', async () => {
+    const inner = new ScriptedSource();
+    const clock = new FakeClock('2026-07-01T00:00:00.000Z');
+    const logger = new FakeLogger();
+    const cached = new CachedFlightSource(inner, clock, TTL, logger);
+    await cached.fetchFlights(YEAR);
+    clock.advance(TTL);
+    await cached.fetchFlights(YEAR);
+    expect(logger.warnings).toEqual([]);
+  });
+
   it('throws when the upstream fails and nothing has loaded yet', async () => {
     const { inner, cached } = setup();
     inner.failing = true;

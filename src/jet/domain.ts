@@ -33,6 +33,9 @@ export type Totals = {
 
 export type JetSnapshot = {
   year: number;
+  // When this snapshot was assembled (ISO 8601). The flight data behind it
+  // can be older: up to the cache TTL normally, and longer while the
+  // upstream is failing (the server logs each failed refresh).
   updatedAt: string;
   attribution: Attribution;
   // Newest first.

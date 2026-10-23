@@ -8,6 +8,9 @@ import { BlueskyFlightSource } from './sources/bluesky/bluesky-flight-source';
 
 const systemClock: Clock = { now: () => new Date() };
 
+// How long a crawl of the feed is reused before the next refresh.
+const CACHE_TTL_MS = 5 * 60_000;
+
 const http: HttpGet = async <T>(url: string) =>
   (await axios.get<T>(url, { timeout: 10_000 })).data;
 
@@ -26,7 +29,7 @@ export const createJetModule = (): JetQuery => {
     clock: systemClock
   });
   return new JetService(
-    new CachedFlightSource(source, systemClock),
+    new CachedFlightSource(source, systemClock, CACHE_TTL_MS, logger),
     systemClock
   );
 };

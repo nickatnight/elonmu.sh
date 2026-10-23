@@ -1,11 +1,15 @@
 import type { Attribution, Flight } from './domain';
-import type { Clock, FlightSource } from './ports';
+import type { Clock, FlightSource, Logger } from './ports';
+
+const silent: Logger = { warn: () => {} };
 
 // Adds caching to any FlightSource without changing it:
 // - a result is reused for `ttlMs` (5 minutes by default);
 // - concurrent callers share one in-flight request;
 // - when a refresh fails, the last good result for the same `since` is
 //   served; with nothing to fall back on, the error is thrown.
+// Every failed refresh is logged, so an upstream outage hidden behind stale
+// data still shows up in the logs.
 export class CachedFlightSource implements FlightSource {
   private last: { at: number; since: number; flights: Flight[] } | null = null;
   private inFlight: { since: number; promise: Promise<Flight[]> } | null = null;
@@ -13,7 +17,8 @@ export class CachedFlightSource implements FlightSource {
   constructor(
     private readonly inner: FlightSource,
     private readonly clock: Clock,
-    private readonly ttlMs = 5 * 60_000
+    private readonly ttlMs = 5 * 60_000,
+    private readonly logger: Logger = silent
   ) {}
 
   get attribution(): Attribution {
@@ -33,7 +38,15 @@ export class CachedFlightSource implements FlightSource {
           return flights;
         },
         (err: unknown) => {
-          if (last) return last.flights;
+          const error = err instanceof Error ? err.message : String(err);
+          if (last) {
+            this.logger.warn('jet: refresh failed, serving stale flights', {
+              error,
+              staleSince: new Date(last.at).toISOString()
+            });
+            return last.flights;
+          }
+          this.logger.warn('jet: refresh failed, no data to serve', { error });
           throw err;
         }
       );
