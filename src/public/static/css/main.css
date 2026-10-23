@@ -1,39 +1,46 @@
-/* elonmu.sh: an order of service for Musk as a Service. */
+/* elonmu.sh: landing hero with a live console, API reference below. */
 
 :root {
   color-scheme: dark light;
 
-  --bg: #161c1a;
-  --surface: #1f2725;
-  --ink: #e3e2da;
-  --muted: #a3a9a2;
-  --accent: #9fc7b8;
-  --accent-ink: #161c1a;
+  --bg: #0d0f12;
+  --surface: #13161b;
+  --raised: #1a1e25;
+  --code-bg: #08090b;
+  --code-bar: #111317;
+  --code-ink: #d6dae1;
+  --code-muted: #8a93a1;
+  --ink: #e8eaee;
+  --muted: #a1a8b3;
+  --accent: #e31937;
+  --accent-ink: #ffffff;
+  --ok: #7ed492;
+  --tok-key: #8cc4ff;
+  --tok-str: #a8d9a1;
 
-  --font: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-code:
-    ui-monospace, "SF Mono", Menlo, Consolas, monospace; /* taste-skill-ignore: literal code only */
+    ui-monospace, "SF Mono", Menlo, Consolas, monospace; /* taste-skill-ignore: code only */
 
-  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --step-body: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
-  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  --step-hero: clamp(4.25rem, 11.4vw, 11rem);
+  --step-small: 0.875rem;
+  --step-body: 1.0625rem;
+  --step-lead: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --step-head: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+  --step-hero: clamp(3.5rem, 2rem + 8.5vw, 9.5rem);
 
-  --margin: clamp(1rem, 0.6rem + 1.6vw, 1.5rem);
-  --gap: 1.5rem;
-  --section: clamp(7.5rem, 4rem + 9vw, 13rem);
+  --margin: clamp(1rem, 0.5rem + 2vw, 2rem);
+  --topbar: 3.75rem;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --bg: #ecebe4;
-    --surface: #e0dfd6;
-    --ink: #161c1a;
-    --muted: #4c534f;
-    --accent: #2b6152;
-    --accent-ink: #f4f3ee;
+    --bg: #ffffff;
+    --surface: #f3f4f6;
+    --raised: #e9ebef;
+    --ink: #111418;
+    --muted: #59606b;
+    --accent: #c8102e;
   }
 }
 
@@ -45,6 +52,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--topbar) + 1rem);
 }
 
 body {
@@ -53,7 +61,7 @@ body {
   color: var(--ink);
   font-family: var(--font);
   font-size: var(--step-body);
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -63,6 +71,7 @@ h2,
 h3,
 p,
 ul,
+pre,
 figure {
   margin: 0;
 }
@@ -75,121 +84,101 @@ svg {
 
 a {
   color: inherit;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-}
-
-a:hover {
-  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-
-code {
+code,
+pre {
   font-family: var(--font-code);
-  font-size: 0.85em;
+  font-size: 0.875rem;
 }
 
 .skip {
   position: absolute;
   left: var(--margin);
   top: -4rem;
-  z-index: 10;
+  z-index: 20;
   padding: 0.5rem 1rem;
   background: var(--accent);
   color: var(--accent-ink);
 }
 
 .skip:focus {
-  top: var(--margin);
+  top: 0.5rem;
 }
 
-/* One button shape for the whole page: square, flat, accent. */
+/* One button shape for the page: square, flat, accent. */
 .button {
   display: inline-block;
-  padding: 0.55em 1.1em;
+  padding: 0.45rem 1rem;
   background: var(--accent);
   color: var(--accent-ink);
-  font: 500 var(--step-body) / 1.2 var(--font);
+  font-weight: 600;
+  font-size: var(--step-small);
   text-decoration: none;
-  transition: transform 160ms var(--ease-out);
+  transition: transform 150ms var(--ease-out);
 }
 
 .button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .button:active {
   transform: translateY(1px);
 }
 
-/* Navigation: one compact line. */
-.nav {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+/* Top bar */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
   align-items: center;
-  padding: var(--margin);
+  justify-content: space-between;
+  height: var(--topbar);
+  padding: 0 var(--margin);
   background: var(--bg);
 }
 
-.nav__mark {
-  font-size: var(--step-lead);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
   text-decoration: none;
 }
 
-.nav__links {
+.topbar__actions {
   display: flex;
-  gap: 2rem;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: var(--step-small);
 }
 
-.nav .button {
-  justify-self: end;
-}
-
-main {
-  position: relative;
-  z-index: 1;
-  background: var(--bg);
-}
-
-/* Hero: shouted title, the launch rising beneath it. */
+/* Hero: the name, one sentence, and the API answering. */
 .hero {
   display: grid;
-  grid-template-columns: 1fr minmax(0, 27vw) 1fr;
-  grid-template-rows: auto 1fr;
-  column-gap: var(--gap);
-  height: calc(100svh - 4.5rem);
-  min-height: 34rem;
-  padding: 0 var(--margin);
-  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 3rem;
+  padding: clamp(2.5rem, 8vh, 6rem) var(--margin) clamp(5rem, 10vw, 9rem);
 }
 
 .hero__title {
-  grid-column: 1 / -1;
-  padding-top: 6svh;
   font-size: var(--step-hero);
-  font-weight: 500;
-  line-height: 0.88;
-  letter-spacing: -0.025em;
-  text-align: center;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
 }
 
 .line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.06em;
+  padding-bottom: 0.08em;
 }
 
 .line > span {
@@ -201,75 +190,115 @@ main {
   animation-delay: 110ms;
 }
 
-.hero__photo {
-  position: relative;
-  z-index: -1;
-  grid-column: 2;
-  grid-row: 2;
-  margin-top: -1.2vw;
-  animation: lift 1200ms var(--ease-out) 150ms both;
-}
-
-.hero__photo img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: top;
-}
-
-.hero__lead,
-.hero__fact {
-  grid-row: 2;
-  align-self: start;
-  max-width: 18rem;
-  margin-top: 2.5rem;
-  animation: fade 700ms ease-out 600ms both;
-}
-
 .hero__lead {
-  grid-column: 1;
+  align-self: end;
+  max-width: 30ch;
+  padding-bottom: 0.5rem;
+  font-size: var(--step-lead);
+  line-height: 1.45;
+  animation: fade 700ms ease-out 450ms both;
 }
 
-.hero__fact {
-  grid-column: 3;
-  justify-self: end;
-  color: var(--muted);
+/* The console: a real-size fragment of the API's request and response. */
+.console {
+  grid-column: 1 / -1;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+  background: var(--code-bg);
+  color: var(--code-ink);
+  animation: fade 900ms var(--ease-out) 650ms both;
 }
 
-/* Footer: ground and ink swap; the page slides away to reveal it. */
+.console__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--code-bar);
+  font-family: var(--font);
+  font-size: var(--step-small);
+}
+
+.console__method {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.console__status {
+  margin-left: auto;
+  color: var(--code-muted);
+}
+
+.console__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+}
+
+.card {
+  padding: clamp(1.5rem, 3vw, 2.75rem);
+}
+
+.card__meta {
+  color: var(--code-muted);
+  font-size: var(--step-small);
+}
+
+.card__title {
+  margin-top: 0.75rem;
+  font-size: var(--step-head);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.card__desc {
+  margin-top: 1rem;
+  max-width: 46ch;
+  color: var(--code-ink);
+}
+
+.card__link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+.json {
+  overflow-x: auto;
+  padding: clamp(1.5rem, 3vw, 2.75rem);
+  background: var(--code-bar);
+  line-height: 1.8;
+}
+
+.tok-key {
+  color: var(--tok-key);
+}
+
+.tok-str {
+  color: var(--tok-str);
+}
+
+/* Footer */
 .footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  min-height: 100svh;
-  padding: 2.5rem var(--margin) 1.25rem;
-  background: var(--ink);
-  color: var(--bg);
-}
-
-.footer__cols {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--gap);
-  font-size: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 12rem)) 1fr;
+  gap: 2rem;
+  padding: 3rem var(--margin) 2rem;
+  background: var(--surface);
+  font-size: var(--step-small);
 }
 
 .footer h2 {
-  font-size: 1rem;
-  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: var(--step-small);
 }
 
 .footer ul {
   padding: 0;
   list-style: none;
-  opacity: 0.78;
+  color: var(--muted);
 }
 
 .footer li + li {
-  margin-top: 0.25rem;
+  margin-top: 0.3rem;
 }
 
 .social {
@@ -278,20 +307,10 @@ main {
   gap: 0.5rem;
 }
 
-.footer__mark {
-  grid-row: 3;
-  width: 100%;
-  height: auto;
-  margin-bottom: 1.25rem;
-  fill: currentColor;
-  font-family: var(--font);
-  font-size: 230px;
-  font-weight: 500;
-}
-
 .footer__legal {
-  grid-row: 4;
-  font-size: var(--step-small);
+  align-self: end;
+  justify-self: end;
+  color: var(--muted);
 }
 
 @keyframes rise {
@@ -300,74 +319,46 @@ main {
   }
 }
 
-@keyframes lift {
-  from {
-    opacity: 0;
-    transform: translateY(12%);
-  }
-}
-
 @keyframes fade {
   from {
     opacity: 0;
-    transform: translateY(1rem);
+    transform: translateY(1.25rem);
   }
 }
 
-@media (max-width: 47.99rem) {
-  .nav {
-    grid-template-columns: 1fr auto;
-  }
-
-  .nav__links {
-    display: none;
-  }
-
+@media (max-width: 56rem) {
   .hero {
     display: block;
-    height: auto;
-    min-height: 0;
-    overflow: visible;
   }
 
-  .hero__title {
-    padding-top: 4svh;
-    font-size: 17vw;
-    text-align: left;
-  }
-
-  .hero__photo {
-    width: 64%;
-    height: 62svh;
-    margin: 1.5rem auto 0;
-    overflow: hidden;
-  }
-
-  .hero__lead,
-  .hero__fact {
-    max-width: none;
+  .hero__lead {
     margin-top: 2rem;
   }
 
-  .hero__fact {
-    margin-top: 1rem;
+  .console__body {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .footer__cols {
+  .console__status {
+    display: none;
+  }
+}
+
+@media (max-width: 48rem) {
+  .footer {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 2rem;
   }
 
   .footer__legal {
-    font-size: 0.8125rem;
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .line > span,
-  .hero__photo,
   .hero__lead,
-  .hero__fact {
+  .console {
     animation: none;
   }
 

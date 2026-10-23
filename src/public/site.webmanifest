@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "short_name": "",
+  "name": "MaaS | Musk as a Service",
+  "short_name": "elonmu.sh",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#161c1a",
+  "background_color": "#161c1a",
   "display": "standalone"
 }
