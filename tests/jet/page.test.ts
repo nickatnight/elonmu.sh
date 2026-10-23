@@ -97,6 +97,12 @@ describe('GET /jet', () => {
     expect(buttons[0]).toContain('aria-pressed="true"');
   });
 
+  it('has a polite live region for filter results', () => {
+    expect(html.full).toMatch(
+      /<p class="sr-only jet__status" aria-live="polite"><\/p>/
+    );
+  });
+
   it('hides the globe area from assistive tech and shows a still Earth without JS', () => {
     const globe =
       html.full.match(/<div class="jet__globe"[^>]*>[\s\S]*?<\/div>/)?.[0] ??

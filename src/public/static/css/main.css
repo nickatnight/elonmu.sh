@@ -985,6 +985,41 @@ a.card__link[href] {
   font-weight: 600;
 }
 
+/* With a live globe, the route becomes the "show on globe" button. */
+.flight__show {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.flight__show:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.flight:has(.flight__show) {
+  cursor: pointer;
+}
+
+.flight.is-selected {
+  background: var(--surface);
+}
+
+/* Globe tooltips (globe.gl places and positions the container). */
+.jet-tip {
+  font-family: var(--font);
+  font-size: var(--step-small);
+  line-height: 1.4;
+}
+
+.jet-tip p:first-child {
+  font-weight: 600;
+}
+
 .flight__note {
   font-size: var(--step-small);
 }

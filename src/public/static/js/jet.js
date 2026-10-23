@@ -117,6 +117,34 @@ export const toScene = (snapshot, tail) => {
   return scene;
 };
 
+const rad = (/** @type {number} */ d) => (d * Math.PI) / 180;
+const deg = (/** @type {number} */ r) => (r * 180) / Math.PI;
+
+/**
+ * Where the globe should look to show `flight`: the great-circle midpoint
+ * of its arc (the same curve globe.gl draws), else its one known end.
+ * @param {Flight} flight
+ * @returns {{ lat: number, lng: number } | null}
+ */
+export const focusPoint = (flight) => {
+  const { from, to } = flight;
+  if (from && to && !samePlace(from, to)) {
+    const v = (/** @type {Place} */ p) => [
+      Math.cos(rad(p.lat)) * Math.cos(rad(p.lon)),
+      Math.cos(rad(p.lat)) * Math.sin(rad(p.lon)),
+      Math.sin(rad(p.lat))
+    ];
+    // The normalised sum of the two unit vectors is the arc's midpoint.
+    const [x, y, z] = v(from).map((c, i) => c + v(to)[i]);
+    return {
+      lat: deg(Math.atan2(z, Math.hypot(x, y))),
+      lng: deg(Math.atan2(y, x))
+    };
+  }
+  const end = to ?? from;
+  return end ? { lat: end.lat, lng: end.lon } : null;
+};
+
 // Centred over the continental US, where most flights are.
 const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
 
@@ -124,9 +152,19 @@ const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
  * Mounts globe.gl in `pane`. Returns { render, focus, destroy }; swapping
  * the globe library means rewriting only this function.
  * @param {HTMLElement} pane
- * @param {{ texture: string, reducedMotion: boolean }} options
+ * @param {{
+ *   texture: string,
+ *   reducedMotion: boolean,
+ *   label?: (id: string) => HTMLElement | null,
+ *   onSelect?: (id: string) => void
+ * }} options
  */
-export const createGlobeView = (pane, { texture, reducedMotion }) => {
+export const createGlobeView = (
+  pane,
+  { texture, reducedMotion, label = () => null, onSelect = () => {} }
+) => {
+  const byId = (/** @type {any} */ d) => label(d.id) ?? '';
+  const select = (/** @type {any} */ d) => onSelect(d.id);
   const mount = document.createElement('div');
   mount.className = 'jet__canvas';
   pane.append(mount);
@@ -152,6 +190,11 @@ export const createGlobeView = (pane, { texture, reducedMotion }) => {
       reducedMotion ? 0 : (/** @type {any} */ d) => (d.latest ? 2200 : 5200)
     )
     .arcsTransitionDuration(reducedMotion ? 0 : 500)
+    // Tooltips are elements built with textContent, never HTML strings.
+    .arcLabel(byId)
+    .onArcClick(select)
+    .pointLabel(byId)
+    .onPointClick(select)
     .pointLat('lat')
     .pointLng('lng')
     .pointColor('color')
@@ -228,32 +271,167 @@ const showFallback = (/** @type {HTMLElement} */ pane) => {
   pane.append(note);
 };
 
+/**
+ * Takes over the server-rendered panel: reveals the tail chips and, when
+ * there is a globe to show things on, turns each route into a button.
+ * Post-derived text is only ever copied with textContent.
+ * @param {HTMLElement} panel
+ * @param {{
+ *   canShow: boolean,
+ *   reducedMotion: boolean,
+ *   onFilter: (tail: string) => void,
+ *   onShow: (id: string) => void
+ * }} options
+ */
+const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
+  const rows = /** @type {HTMLElement[]} */ ([
+    ...panel.querySelectorAll('.flight')
+  ]);
+  const status = panel.querySelector('.jet__status');
+
+  /** @param {string | null} id */
+  const select = (id, { scroll = false } = {}) => {
+    let row = null;
+    for (const r of rows) {
+      const on = r.dataset.flight === id;
+      r.classList.toggle('is-selected', on);
+      if (on) row = r;
+    }
+    if (row && scroll && !row.hidden) {
+      row.scrollIntoView({
+        block: 'nearest',
+        behavior: reducedMotion ? 'auto' : 'smooth'
+      });
+    }
+  };
+
+  const chips = /** @type {HTMLElement | null} */ (
+    panel.querySelector('.chips')
+  );
+  if (chips) {
+    chips.hidden = false;
+    chips.addEventListener('click', (event) => {
+      const chip = /** @type {HTMLElement} */ (event.target).closest('.chip');
+      if (!(chip instanceof HTMLElement)) return;
+      for (const c of chips.querySelectorAll('.chip')) {
+        c.setAttribute('aria-pressed', String(c === chip));
+      }
+      const tail = chip.dataset.tail ?? '';
+      let shown = 0;
+      for (const row of rows) {
+        row.hidden = Boolean(tail) && row.dataset.tail !== tail;
+        if (!row.hidden) shown++;
+      }
+      select(null);
+      if (status) {
+        status.textContent = `Showing ${shown} flight${shown === 1 ? '' : 's'}${tail ? ` by ${tail}` : ''}.`;
+      }
+      onFilter(tail);
+    });
+  }
+
+  if (canShow) {
+    for (const row of rows) {
+      const route = row.querySelector('.flight__route');
+      const id = row.dataset.flight;
+      if (!route || !id) continue;
+      const text = route.textContent?.trim() ?? '';
+      const date = row.querySelector('time')?.textContent?.trim() ?? '';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'flight__show';
+      button.textContent = text;
+      button.setAttribute('aria-label', `Show ${text}, ${date}, on the globe`);
+      route.replaceChildren(button);
+      // The whole row is a target for pointers; the button for keyboards.
+      row.addEventListener('click', (event) => {
+        if (/** @type {HTMLElement} */ (event.target).closest('a')) return;
+        select(id);
+        onShow(id);
+      });
+    }
+  }
+
+  return { select };
+};
+
+// A tooltip for a flight, copied from its row in the list.
+const tooltipFor = (
+  /** @type {HTMLElement} */ panel,
+  /** @type {string} */ id
+) => {
+  const row = panel.querySelector(`.flight[data-flight="${CSS.escape(id)}"]`);
+  if (!row) return null;
+  const tip = document.createElement('div');
+  tip.className = 'jet-tip';
+  for (const part of ['.flight__route', '.flight__meta', '.flight__detail']) {
+    const el = row.querySelector(part);
+    // The meta line is a date and a tail in separate elements: "Oct 22 · N8628".
+    const pieces = part === '.flight__meta' && el ? [...el.children] : [el];
+    const text = pieces
+      .map((p) => p?.textContent?.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join(' · ');
+    if (!text) continue;
+    const line = document.createElement('p');
+    line.textContent = text;
+    tip.append(line);
+  }
+  return tip;
+};
+
 const start = async () => {
+  const panel = /** @type {HTMLElement | null} */ (
+    document.querySelector('.jet__panel')
+  );
   const pane = /** @type {HTMLElement | null} */ (
     document.querySelector('.jet__globe')
   );
-  if (!pane?.dataset.texture) return;
-  if (
-    !hasWebGL() ||
-    typeof (/** @type {any} */ (window).Globe) !== 'function'
-  ) {
-    showFallback(pane);
-    return;
-  }
-  let snapshot;
-  try {
-    const res = await fetch('/api/jet/flights');
-    snapshot = parseSnapshot(await res.json());
-  } catch {
-    // No data: the server-rendered note and the still Earth already say so.
-    return;
-  }
+  if (!panel) return;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const view = createGlobeView(pane, {
-    texture: pane.dataset.texture,
-    reducedMotion
+  const texture = pane?.dataset.texture;
+  const canGlobe =
+    Boolean(texture) &&
+    hasWebGL() &&
+    typeof (/** @type {any} */ (window).Globe) === 'function';
+  if (pane && !canGlobe) showFallback(pane);
+
+  /** @type {Snapshot | null} */
+  let snapshot = null;
+  if (canGlobe) {
+    try {
+      const res = await fetch('/api/jet/flights');
+      snapshot = parseSnapshot(await res.json());
+    } catch {
+      // No data: the server-rendered note and the still Earth already say so.
+    }
+  }
+
+  /** @type {ReturnType<typeof enhancePanel> | null} */
+  let panelControls = null;
+  const view =
+    snapshot && pane && texture
+      ? createGlobeView(pane, {
+          texture,
+          reducedMotion,
+          label: (id) => tooltipFor(panel, id),
+          onSelect: (id) => panelControls?.select(id, { scroll: true })
+        })
+      : null;
+  view?.render(toScene(/** @type {Snapshot} */ (snapshot), ''));
+
+  panelControls = enhancePanel(panel, {
+    canShow: Boolean(view),
+    reducedMotion,
+    onFilter: (tail) => {
+      if (view && snapshot) view.render(toScene(snapshot, tail));
+    },
+    onShow: (id) => {
+      const flight = snapshot?.flights.find((f) => f.id === id);
+      const at = flight ? focusPoint(flight) : null;
+      if (view && at) view.focus(at);
+    }
   });
-  view.render(toScene(snapshot, ''));
 };
 
 if (typeof document !== 'undefined') start();

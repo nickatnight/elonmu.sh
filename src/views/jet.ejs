@@ -64,6 +64,8 @@
               <% } %>
             </div>
 
+            <p class="sr-only jet__status" aria-live="polite"></p>
+
             <ol class="flights" aria-label="Flights in <%= page.year %>, newest first">
               <% for (const f of page.flights) { %>
                 <li class="flight<%= f.latest ? ' is-latest' : '' %>" data-flight="<%= f.id %>" data-tail="<%= f.tail %>">

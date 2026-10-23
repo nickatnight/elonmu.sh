@@ -3,6 +3,7 @@ import type { Flight, JetSnapshot } from '../../src/jet/domain';
 import {
   ARC_LATEST,
   ARC_OLDER,
+  focusPoint,
   parseSnapshot,
   toScene
 } from '../../src/public/static/js/jet.js';
@@ -96,6 +97,46 @@ describe('toScene', () => {
 
   it('is empty for an empty year', () => {
     expect(toScene(snap([]), '')).toEqual({ arcs: [], points: [], rings: [] });
+  });
+});
+
+describe('focusPoint', () => {
+  it('aims at the great-circle midpoint of an arc', () => {
+    const at = focusPoint(
+      flight({
+        from: { name: 'A', lat: 0, lon: 0 },
+        to: { name: 'B', lat: 0, lon: 90 }
+      })
+    );
+    expect(at?.lat).toBeCloseTo(0, 6);
+    expect(at?.lng).toBeCloseTo(45, 6);
+  });
+
+  it('bends poleward like the drawn arc, not along a straight line', () => {
+    const at = focusPoint(
+      flight({
+        from: { name: 'NY', lat: 40.7, lon: -74 },
+        to: { name: 'Madrid', lat: 40.4, lon: -3.7 }
+      })
+    );
+    expect(at?.lat).toBeGreaterThan(45);
+  });
+
+  it('aims at the known end of a one-ended flight or local hop', () => {
+    expect(focusPoint(flight({ from: null }))).toEqual({
+      lat: places.sanJose.lat,
+      lng: places.sanJose.lon
+    });
+    expect(
+      focusPoint(flight({ status: 'airborne', to: null, landedAt: null }))
+    ).toEqual({ lat: places.austin.lat, lng: places.austin.lon });
+    expect(
+      focusPoint(flight({ from: places.austin, to: places.austin }))
+    ).toEqual({ lat: places.austin.lat, lng: places.austin.lon });
+  });
+
+  it('is null when neither end is known', () => {
+    expect(focusPoint(flight({ from: null, to: null }))).toBeNull();
   });
 });
 
