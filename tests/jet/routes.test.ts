@@ -25,9 +25,17 @@ afterAll(async () => {
   await down.close();
 });
 
-// The raw response, still compressed, as the wire carries it.
-const fetchGzip = (url: string): Promise<Response> =>
-  fetch(url, { headers: { 'Accept-Encoding': 'gzip' }, decompress: false });
+// The raw response headers, as the wire carries them. The body is cancelled:
+// left unread (a whole video, say) it holds the connection open and can stall
+// server.close() in afterAll past the hook timeout.
+const fetchGzip = async (url: string): Promise<Headers> => {
+  const res = await fetch(url, {
+    headers: { 'Accept-Encoding': 'gzip' },
+    decompress: false
+  });
+  await res.body?.cancel();
+  return res.headers;
+};
 
 describe('GET /api/jet/flights', () => {
   it('returns the JetQuery snapshot as JSON', async () => {
@@ -63,25 +71,25 @@ describe('a failing jet module', () => {
 
 describe('compression', () => {
   it('gzips the jet JSON', async () => {
-    const res = await fetchGzip(`${ok.url}/api/jet/flights`);
-    expect(res.headers.get('content-encoding')).toBe('gzip');
+    const headers = await fetchGzip(`${ok.url}/api/jet/flights`);
+    expect(headers.get('content-encoding')).toBe('gzip');
   });
 
   it('gzips the home page HTML', async () => {
-    const res = await fetchGzip(`${ok.url}/`);
-    expect(res.headers.get('content-encoding')).toBe('gzip');
+    const headers = await fetchGzip(`${ok.url}/`);
+    expect(headers.get('content-encoding')).toBe('gzip');
   });
 
   it('gzips static CSS and JS', async () => {
     for (const file of ['/static/css/main.css', '/static/js/main.js']) {
-      const res = await fetchGzip(`${ok.url}${file}`);
-      expect(res.headers.get('content-encoding')).toBe('gzip');
+      const headers = await fetchGzip(`${ok.url}${file}`);
+      expect(headers.get('content-encoding')).toBe('gzip');
     }
   });
 
   it('leaves video files uncompressed so range requests still work', async () => {
-    const res = await fetchGzip(`${ok.url}/static/video/clown-cruise.mp4`);
-    expect(res.headers.get('content-encoding')).toBeNull();
-    expect(res.headers.get('accept-ranges')).toBe('bytes');
+    const headers = await fetchGzip(`${ok.url}/static/video/clown-cruise.mp4`);
+    expect(headers.get('content-encoding')).toBeNull();
+    expect(headers.get('accept-ranges')).toBe('bytes');
   });
 });
