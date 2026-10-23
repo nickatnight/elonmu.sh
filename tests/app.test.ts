@@ -41,7 +41,7 @@ describe('GET /', () => {
     }
   });
 
-  it('links the local favicons and the web manifest', () => {
+  it('links the local favicons and the web manifest with content hashes', () => {
     for (const href of [
       '/favicon.ico',
       '/favicon-32x32.png',
@@ -49,8 +49,23 @@ describe('GET /', () => {
       '/apple-touch-icon.png',
       '/site.webmanifest'
     ]) {
-      expect(html).toContain(`href="${href}"`);
+      expect(html).toContain(`href="${href}?v=`);
     }
+  });
+
+  it('shares a 1200x630 card that the server serves', async () => {
+    const match = html.match(
+      /<meta property="og:image" content="https:\/\/elonmu\.sh(\/og\.png\?v=[0-9a-f]+)"/
+    );
+    expect(match).not.toBeNull();
+    expect(html).toContain(
+      `name="twitter:image" content="https://elonmu.sh${match?.[1]}"`
+    );
+    expect(html).toContain('property="og:image:width" content="1200"');
+    expect(html).toContain('property="og:image:height" content="630"');
+    const res = await fetch(`${server.url}${match?.[1]}`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toBe('image/png');
   });
 
   it('has no Unicorn Platform leftovers', () => {

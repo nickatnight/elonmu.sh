@@ -7,11 +7,11 @@
     <meta name="description" content="A free JSON API that returns a random news article about Elon Musk." />
     <link rel="canonical" href="https://elonmu.sh/" />
 
-    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="<%= asset('favicon.ico') %>" sizes="16x16 32x32" />
+    <link rel="icon" type="image/png" href="<%= asset('favicon-32x32.png') %>" sizes="32x32" />
+    <link rel="icon" type="image/png" href="<%= asset('favicon-16x16.png') %>" sizes="16x16" />
+    <link rel="apple-touch-icon" href="<%= asset('apple-touch-icon.png') %>" />
+    <link rel="manifest" href="<%= asset('site.webmanifest') %>" />
     <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 
@@ -26,9 +26,10 @@
       property="og:description"
       content="Access Random News Articles with Our Free Public API - Stay Informed and Ahead of Trends!"
     />
-    <meta property="og:image" content="https://elonmu.sh/android-chrome-512x512.png" />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
+    <meta property="og:image" content="https://elonmu.sh<%= asset('og.png') %>" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Musk as a Service: one endpoint, one random Elon Musk article, as JSON." />
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -39,7 +40,7 @@
       name="twitter:description"
       content="Access Random News Articles with Our Free Public API - Stay Informed and Ahead of Trends!"
     />
-    <meta name="twitter:image" content="https://elonmu.sh/android-chrome-512x512.png" />
+    <meta name="twitter:image" content="https://elonmu.sh<%= asset('og.png') %>" />
   </head>
 
   <body>
@@ -47,7 +48,7 @@
 
     <header class="topbar">
       <a class="brand" href="/" translate="no">
-        <img src="/favicon-32x32.png" width="20" height="20" alt="" />
+        <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
         elonmu.sh
       </a>
       <nav class="topbar__actions" aria-label="Primary">
@@ -265,11 +266,6 @@
         <h2>Credits</h2>
         <ul>
           <li>News via <a href="https://newsapi.org/">NewsAPI.org</a></li>
-          <li>
-            Robot icon:
-            <a href="https://github.com/twitter/twemoji">Twemoji</a>,
-            <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
-          </li>
           <li>Portraits and illustration: AI-generated. The people are fictional.</li>
         </ul>
       </div>
