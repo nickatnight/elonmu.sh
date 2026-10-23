@@ -219,6 +219,8 @@ describe('GET /', () => {
     expect(new Set(urls.map(([url]) => url)).size).toBe(6);
     for (const [url, , ext] of urls) {
       const res = await fetch(`${server.url}${url}`);
+      // Read the body so the socket closes and server.close() can finish.
+      await res.arrayBuffer();
       expect(res.status).toBe(200);
       expect(res.headers.get('content-type')).toContain(
         types[ext as keyof typeof types]
@@ -240,6 +242,7 @@ describe('GET /', () => {
     expect(urls.length).toBeGreaterThan(0);
     for (const url of new Set(urls)) {
       const res = await fetch(`${server.url}${url}`);
+      await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
   });
