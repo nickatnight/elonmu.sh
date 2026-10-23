@@ -145,6 +145,12 @@ export const focusPoint = (flight) => {
   return end ? { lat: end.lat, lng: end.lon } : null;
 };
 
+// The travelling pulse: a short dash (8% of the arc) in a lighter orange,
+// full strength on the latest flight and softer on earlier ones.
+const PULSE_LENGTH = 0.08;
+const pulseColor = (/** @type {{ latest: boolean }} */ d) =>
+  d.latest ? '#ffe2bd' : 'rgba(255, 210, 160, 0.75)';
+
 // Centred over the continental US, where most flights are.
 const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
 
@@ -178,16 +184,20 @@ export const createGlobeView = (
     .showAtmosphere(true)
     .atmosphereColor('#5b74d6')
     .atmosphereAltitude(0.16)
-    // Arcs: older ones thin and dim, the latest thicker and brighter. The
-    // dash animation moves along the arc (shader-side, off the main thread).
-    .arcColor('color')
-    .arcStroke((/** @type {any} */ d) => (d.latest ? 0.8 : 0.35))
+    // Each flight is a solid arc (older ones thin and dim, the latest
+    // thicker and brighter) plus, when motion is welcome, a second arc on
+    // the same path carrying one short bright pulse from departure to
+    // arrival. The pulse moves shader-side, off the main thread.
+    .arcColor((/** @type {any} */ d) => (d.pulse ? pulseColor(d) : d.color))
+    .arcStroke((/** @type {any} */ d) =>
+      d.latest ? (d.pulse ? 1.1 : 0.8) : d.pulse ? 0.55 : 0.35
+    )
     .arcAltitudeAutoScale(0.35)
-    .arcDashLength(reducedMotion ? 1 : 0.45)
-    .arcDashGap(reducedMotion ? 0 : 0.2)
-    .arcDashInitialGap(() => Math.random())
-    .arcDashAnimateTime(
-      reducedMotion ? 0 : (/** @type {any} */ d) => (d.latest ? 2200 : 5200)
+    .arcDashLength((/** @type {any} */ d) => (d.pulse ? PULSE_LENGTH : 1))
+    .arcDashGap((/** @type {any} */ d) => (d.pulse ? 1 : 0))
+    .arcDashInitialGap((/** @type {any} */ d) => (d.pulse ? d.phase : 0))
+    .arcDashAnimateTime((/** @type {any} */ d) =>
+      d.pulse ? (d.latest ? 2200 : 5200) : 0
     )
     .arcsTransitionDuration(reducedMotion ? 0 : 500)
     // Tooltips are elements built with textContent, never HTML strings.
@@ -234,8 +244,13 @@ export const createGlobeView = (
         latest: true,
         color: ARC_LATEST
       }));
+      // One pulse per arc, started at a random point so they don't fire in
+      // unison. Under reduced motion only the solid arcs are drawn.
+      const pulses = reducedMotion
+        ? []
+        : scene.arcs.map((a) => ({ ...a, pulse: true, phase: Math.random() }));
       globe
-        .arcsData(scene.arcs)
+        .arcsData([...scene.arcs, ...pulses])
         .pointsData([...scene.points, ...origins])
         .ringsData(reducedMotion ? [] : scene.rings);
     },
