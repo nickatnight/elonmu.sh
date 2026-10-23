@@ -1,6 +1,7 @@
 import type { Attribution, Flight, JetSnapshot, Place } from './domain';
 
-// Any provider of flights: Bluesky, OpenSky, a fixture, a cache around another.
+// Any provider of flights: a social feed, an ADS-B API, a fixture, a cache
+// around another source.
 export interface FlightSource {
   readonly attribution: Attribution;
   /**

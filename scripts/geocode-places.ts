@@ -10,13 +10,12 @@
 
 import path from 'node:path';
 import type { Gazetteer } from '../src/jet/places/gazetteer-place-resolver';
+import { BlueskyFeedClient } from '../src/jet/sources/bluesky/feed-client';
 import { parseElonJetPost } from '../src/jet/sources/bluesky/parse';
 
 type Coords = [number, number];
 
 const PLACES_FILE = path.join(import.meta.dir, '../src/jet/places/places.json');
-const FEED_URL =
-  'https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=elonjet.net&limit=100';
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 const USER_AGENT = 'elonmu.sh-geocode-places/1.0 (+https://elonmu.sh)';
 
@@ -49,39 +48,20 @@ export const serializePlaces = (places: Gazetteer): string => {
   return `{\n${lines.join(',\n')}\n}\n`;
 };
 
-type FeedPage = {
-  cursor?: string;
-  feed: {
-    post: { uri: string; record: { text: string; createdAt: string } };
-    reason?: unknown;
-  }[];
+const httpGet = async <T>(url: string): Promise<T> => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return (await res.json()) as T;
 };
 
-// Every place named in bot posts since `since`, paging the public feed.
+// Every place named in bot posts since `since`, via the adapter's own client.
 const postedPlaces = async (since: Date): Promise<string[]> => {
-  const names: string[] = [];
-  let cursor: string | undefined;
-  do {
-    const url = cursor
-      ? `${FEED_URL}&cursor=${encodeURIComponent(cursor)}`
-      : FEED_URL;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`feed: HTTP ${res.status}`);
-    const page = (await res.json()) as FeedPage;
-    let older = false;
-    for (const { post, reason } of page.feed) {
-      if (reason) continue;
-      const { text, createdAt } = post.record;
-      if (Date.parse(createdAt) < since.getTime()) {
-        older = true;
-        continue;
-      }
-      const event = parseElonJetPost(text, createdAt, post.uri);
-      if (event) names.push(event.place);
-    }
-    cursor = older ? undefined : page.cursor;
-  } while (cursor);
-  return names;
+  const posts = await new BlueskyFeedClient(httpGet).postsSince(since);
+  return posts.flatMap(({ post }) => {
+    const { text, createdAt } = post.record;
+    const event = parseElonJetPost(text, createdAt, post.uri);
+    return event ? [event.place] : [];
+  });
 };
 
 const geocode = async (name: string): Promise<Coords | null> => {
