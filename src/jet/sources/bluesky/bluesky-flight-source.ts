@@ -1,9 +1,4 @@
-import {
-  type Attribution,
-  type Flight,
-  type Fuel,
-  flightTime
-} from '../../domain';
+import type { Attribution, Flight, Fuel } from '../../domain';
 import type {
   Clock,
   FlightSource,
@@ -59,6 +54,8 @@ export class BlueskyFlightSource implements FlightSource {
   }
 
   async fetchFlights(since: Date): Promise<Flight[]> {
+    // The feed client returns only posts from `since` on, so every flight
+    // built from them is in range (contract rule 1) without a filter here.
     const items = await this.feed.postsSince(since);
 
     const events: JetEvent[] = [];
@@ -82,9 +79,6 @@ export class BlueskyFlightSource implements FlightSource {
           ? `https://bsky.app/profile/${ACTOR}/post/${rkey}`
           : null;
       }
-    }).filter((f) => {
-      const at = flightTime(f);
-      return at !== null && Date.parse(at) >= since.getTime();
     });
   }
 }
