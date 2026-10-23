@@ -249,6 +249,50 @@ describe('GET /', () => {
   });
 });
 
+// The text of each link in the topbar nav, in order.
+const navLinks = (page: string): string[] => {
+  const nav =
+    page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
+  return [...nav.matchAll(/<a\b[^>]*>([^<]*)<\/a>/g)].map(([, text]) => text);
+};
+
+describe('topbar', () => {
+  it('reads News API · Jet · GitHub', () => {
+    expect(navLinks(html)).toEqual(['News API', 'Jet', 'GitHub']);
+  });
+
+  it('has no GET /api button', () => {
+    const topbar = html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0];
+    expect(topbar).toBeDefined();
+    expect(topbar).not.toContain('class="button"');
+  });
+
+  it('points News API at the docs section', () => {
+    expect(html).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
+  });
+
+  it('renders one link per catalog entry, with no template change', async () => {
+    const entry = (n: number) => ({
+      id: `service-${n}`,
+      name: `Service ${n}`,
+      nav: `S${n}`,
+      summary: `Does thing ${n}.`,
+      href: `/s${n}`,
+      cta: `Open ${n}`
+    });
+    const three = await startTestServer(
+      createApp({ jet: sampleJet(), services: [1, 2, 3].map(entry) })
+    );
+    try {
+      const page = await (await fetch(`${three.url}/`)).text();
+      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'GitHub']);
+      expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
+    } finally {
+      await three.close();
+    }
+  });
+});
+
 describe('unknown routes', () => {
   it('returns the 404 message', async () => {
     const res = await fetch(`${server.url}/does-not-exist`);

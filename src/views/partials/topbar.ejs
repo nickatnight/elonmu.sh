@@ -1,13 +1,14 @@
-<%# Shared top bar. `current` is 'home' or 'jet'. %>
+<%# Shared top bar: one link per catalog entry, then GitHub. `current` is the
+    id of the service whose page this is (omitted on home). %>
     <header class="topbar">
       <a class="brand" href="/" translate="no">
         <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
         elonmu.sh
       </a>
       <nav class="topbar__actions" aria-label="Primary">
-        <a href="/jet"<%- current === 'jet' ? ' aria-current="page"' : '' %>>Jet</a>
-        <a href="<%= current === 'home' ? '#get-api' : '/#get-api' %>">Docs</a>
+<% for (const service of services) { -%>
+        <a href="<%= service.href %>"<%- service.id === locals.current ? ' aria-current="page"' : '' %>><%= service.nav %></a>
+<% } -%>
         <a class="topbar__extra" href="https://github.com/nickatnight/elonmu.sh">GitHub</a>
-        <a class="button" href="/api">GET /api</a>
       </nav>
     </header>

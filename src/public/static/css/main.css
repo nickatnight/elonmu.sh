@@ -1314,7 +1314,7 @@ a.card__link[href] {
   }
 }
 
-/* Phones: four nav items don't fit beside the brand. GitHub goes first;
+/* Phones: three nav items don't fit beside the brand. GitHub goes first;
    the home footer still links to the source. */
 @media (max-width: 30rem) {
   .topbar__actions {
