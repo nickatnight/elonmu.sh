@@ -1,0 +1,7 @@
+# Crawlers only: API consumers can still call /api. Each crawler hit on /api
+# spends NewsAPI quota, so it stays disallowed.
+User-agent: *
+Disallow: /api
+Disallow: /healthz
+
+Sitemap: https://elonmu.sh/sitemap.xml
