@@ -92,3 +92,18 @@ export const extractSubject = (command: string): string | null => {
   if (bare) return bare[1];
   return null;
 };
+
+// One string field of the hook's `tool_input`, from the JSON Claude Code pipes
+// to stdin. Null when stdin isn't JSON or the field is missing: hooks fail open.
+export const readToolInput = async (field: string): Promise<string | null> => {
+  try {
+    const input: unknown = JSON.parse(await Bun.stdin.text());
+    if (typeof input !== 'object' || input === null) return null;
+    const toolInput: unknown = Reflect.get(input, 'tool_input');
+    if (typeof toolInput !== 'object' || toolInput === null) return null;
+    const value: unknown = Reflect.get(toolInput, field);
+    return typeof value === 'string' ? value : null;
+  } catch {
+    return null;
+  }
+};
