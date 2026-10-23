@@ -33,6 +33,17 @@
           alt=""
           decoding="async"
         />
+        <%# Key to the globe's marks; shown once the live globe is up. %>
+        <% if (page && page.flights.length) { %>
+          <ul class="legend">
+            <li class="legend__item"><span class="legend__mark legend__mark--latest"></span>Latest flight</li>
+            <li class="legend__item"><span class="legend__mark legend__mark--earlier"></span>Earlier flights</li>
+            <li class="legend__item"><span class="legend__mark legend__mark--point"></span>Local hop or one end known</li>
+            <% if (page.flights.some((f) => f.status === 'airborne')) { %>
+              <li class="legend__item"><span class="legend__mark legend__mark--airborne"></span>In the air now</li>
+            <% } %>
+          </ul>
+        <% } %>
       </div>
 
       <section class="jet__panel" id="jet-panel" aria-labelledby="jet-title">

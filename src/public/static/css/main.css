@@ -32,8 +32,9 @@
   --topbar: 3.75rem;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
-  /* Flight arcs on the globe; jet.js uses the same value. */
+  /* Flight arcs on the globe; jet.js uses the same values. */
   --arc: #ffa94d;
+  --arc-dim: rgb(255 169 77 / 0.32);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -843,6 +844,75 @@ a.card__link[href] {
   visibility: hidden;
 }
 
+/* Key to the globe's marks, bottom-left of the pane. It explains the live
+   globe, so it stays hidden over the still image. */
+.legend {
+  position: absolute;
+  /* Above the globe's canvas, which jet.js appends after it. */
+  z-index: 1;
+  bottom: 1rem;
+  left: var(--margin);
+  display: none;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.5rem;
+  background: rgb(5 7 10 / 0.72);
+  color: var(--hero-ink);
+  font-size: 0.8125rem;
+  list-style: none;
+  pointer-events: none;
+}
+
+.jet__globe.has-globe .legend {
+  display: grid;
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.legend__mark {
+  flex: none;
+  width: 1.25rem;
+  display: grid;
+  place-items: center;
+}
+
+.legend__mark::before {
+  content: "";
+  display: block;
+}
+
+.legend__mark--latest::before {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--arc);
+}
+
+.legend__mark--earlier::before {
+  width: 100%;
+  height: 1.5px;
+  background: var(--arc-dim);
+}
+
+.legend__mark--point::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--arc-dim);
+}
+
+.legend__mark--airborne::before {
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 2px solid var(--arc);
+  border-radius: 50%;
+}
+
 .jet__fallback {
   position: absolute;
   inset: auto var(--margin) 1rem;
@@ -1062,6 +1132,21 @@ a.card__link[href] {
     overflow: visible;
     border-left: 0;
   }
+
+  /* Phones: one compact wrapping row, so the key covers less of the globe. */
+  .jet__globe.has-globe .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.9rem;
+    right: var(--margin);
+    bottom: 0.6rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .legend__mark {
+    width: 0.9rem;
+  }
 }
 
 /* Phones: four nav items don't fit beside the brand. GitHub goes first;
@@ -1079,5 +1164,13 @@ a.card__link[href] {
 @media (prefers-reduced-motion: reduce) {
   .chip {
     transition: none;
+  }
+
+  /* No pulsing ring then: the globe marks the origin with a bright dot. */
+  .legend__mark--airborne::before {
+    width: 0.55rem;
+    height: 0.55rem;
+    border: 0;
+    background: var(--arc);
   }
 }

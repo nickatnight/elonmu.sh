@@ -153,6 +153,26 @@ describe('the live globe', () => {
     );
   });
 
+  it('keys the globe’s marks inside the (aria-hidden) globe pane', () => {
+    const globe =
+      html.full.match(/<div class="jet__globe"[\s\S]*?<\/ul>/)?.[0] ?? '';
+    const legend = globe.match(/<ul class="legend"[\s\S]*<\/ul>/)?.[0] ?? '';
+    const items = [...legend.matchAll(/<li[^>]*>[\s\S]*?<\/li>/g)].map((m) =>
+      m[0].replace(/<[^>]+>/g, '').trim()
+    );
+    expect(items).toEqual([
+      'Latest flight',
+      'Earlier flights',
+      'Local hop or one end known',
+      'In the air now'
+    ]);
+  });
+
+  it('leaves "In the air now" out of the key when nothing is airborne', () => {
+    expect(html.nasty).toContain('class="legend"');
+    expect(html.nasty).not.toContain('In the air now');
+  });
+
   it('never loads globe.gl or jet.js on the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
     expect(home).not.toContain('globe.gl');
