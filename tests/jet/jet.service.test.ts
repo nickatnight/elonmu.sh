@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import { JetService } from '../../src/jet/jet.service';
+import type { FlightSource } from '../../src/jet/ports';
 import {
   FakeClock,
   flight,
@@ -17,6 +18,24 @@ describe('JetService.snapshot', () => {
       flight({ id: 'jan1', departedAt: '2026-01-01T00:00:00.000Z' })
     ]).snapshot();
     expect(snap.flights.map((f) => f.id)).toEqual(['jan1']);
+  });
+
+  it('drops other years’ flights even when the source returns them', async () => {
+    // A source that ignores `since`: the core must not trust it.
+    const sloppy: FlightSource = {
+      attribution: { label: 'Sloppy', url: 'https://example.com' },
+      fetchFlights: async () => [
+        flight({ id: 'last-year', departedAt: '2025-12-31T23:59:59.999Z' }),
+        flight({ id: 'this-year', departedAt: '2026-02-01T10:00:00.000Z' }),
+        flight({ id: 'no-time', departedAt: null, landedAt: null })
+      ]
+    };
+    const snap = await new JetService(
+      sloppy,
+      new FakeClock('2026-03-01T00:00:00.000Z')
+    ).snapshot();
+    expect(snap.flights.map((f) => f.id)).toEqual(['this-year']);
+    expect(snap.totals.flights).toBe(1);
   });
 
   it('computes the year in UTC, not local time', async () => {
