@@ -10,6 +10,9 @@
     />
     <link rel="canonical" href="https://elonmu.sh/jet" />
 <%- include('partials/head-assets') %>
+    <%# The live globe: /jet only, never home. Both run after parsing. %>
+    <script src="<%= asset('static/vendor/globe.gl.min.js') %>" defer></script>
+    <script type="module" src="<%= asset('static/js/jet.js') %>"></script>
   </head>
 
   <body class="jet-page">
@@ -18,10 +21,10 @@
 <%- include('partials/topbar', { current: 'jet' }) %>
 
     <main id="main" class="jet">
-      <%# The live globe mounts here (Task 10). Without JS or WebGL, a still
+      <%# jet.js mounts the live globe here. Without JS or WebGL, a still
           render of the same night Earth stands in. The list is the accessible
           equivalent, so this whole area is hidden from assistive tech. %>
-      <div class="jet__globe" aria-hidden="true">
+      <div class="jet__globe" aria-hidden="true" data-texture="<%= asset('static/img/globe/earth-night.jpg') %>">
         <img
           class="jet__still"
           src="<%= asset('static/img/globe/teaser-earth.webp') %>"

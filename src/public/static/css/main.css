@@ -32,6 +32,8 @@
   --topbar: 3.75rem;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
+  /* Flight arcs on the globe; jet.js uses the same value. */
+  --arc: #ffa94d;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -825,6 +827,31 @@ a.card__link[href] {
   height: auto;
 }
 
+/* The live globe sits over the still image and replaces it once its
+   texture has loaded, so there's never a blank pane. */
+.jet__canvas {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+
+.jet__canvas:active {
+  cursor: grabbing;
+}
+
+.jet__globe.has-globe .jet__still {
+  visibility: hidden;
+}
+
+.jet__fallback {
+  position: absolute;
+  inset: auto var(--margin) 1rem;
+  color: var(--hero-ink);
+  font-size: var(--step-small);
+  text-align: center;
+  opacity: 0.8;
+}
+
 .jet__panel {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -932,14 +959,14 @@ a.card__link[href] {
   border-bottom: 1px solid var(--raised);
 }
 
-/* The newest flight carries a red rule, matching its arc on the globe. */
+/* The newest flight carries an orange rule, matching its arc on the globe. */
 .flight.is-latest::before {
   content: "";
   position: absolute;
   inset: 0.85rem auto 0.85rem 0;
   width: 3px;
   border-radius: 2px;
-  background: var(--accent);
+  background: var(--arc);
 }
 
 .flight__meta {

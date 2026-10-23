@@ -131,6 +131,45 @@ describe('GET /jet', () => {
   });
 });
 
+describe('the live globe', () => {
+  it('loads the vendored globe.gl and jet.js, deferred, from hashed URLs', () => {
+    expect(html.full).toMatch(
+      /<script src="\/static\/vendor\/globe\.gl\.min\.js\?v=\w+" defer><\/script>/
+    );
+    expect(html.full).toMatch(
+      /<script type="module" src="\/static\/js\/jet\.js\?v=\w+"><\/script>/
+    );
+  });
+
+  it('hands jet.js the hashed night texture', () => {
+    expect(html.full).toMatch(
+      /class="jet__globe"[^>]*data-texture="\/static\/img\/globe\/earth-night\.jpg\?v=\w+"/
+    );
+  });
+
+  it('never loads globe.gl or jet.js on the home page', async () => {
+    const home = await (await fetch(`${servers.full.url}/`)).text();
+    expect(home).not.toContain('globe.gl');
+    expect(home).not.toContain('jet.js');
+    expect(home).not.toContain('three');
+  });
+
+  it('serves the vendored globe.gl gzipped', async () => {
+    const page = html.full.match(
+      /src="(\/static\/vendor\/globe\.gl\.min\.js\?v=\w+)"/
+    )?.[1];
+    const res = await fetch(`${servers.full.url}${page}`, {
+      headers: { 'Accept-Encoding': 'gzip' },
+      decompress: false
+    });
+    const body = await res.arrayBuffer();
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-encoding')).toBe('gzip');
+    // Budget: ≤ 530 KB on the wire (spec, raised 2026-10-23).
+    expect(body.byteLength).toBeLessThanOrEqual(530 * 1024);
+  });
+});
+
 describe('topbar', () => {
   it('links to /jet from the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
