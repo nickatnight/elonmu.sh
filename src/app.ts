@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import express from 'express';
+import { securityHeaders } from './middleware/security-headers';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
@@ -23,6 +24,10 @@ const assetUrl = (file: string): string => {
 
 export const createApp = (): express.Express => {
   const app = express();
+  app.disable('x-powered-by');
+
+  // First, so every response gets them: pages, JSON, static files and 404s
+  app.use(securityHeaders);
 
   // Configure Express to use EJS
   app.set('views', path.join(__dirname, 'views'));
