@@ -139,6 +139,19 @@ describe('BlueskyFlightSource', () => {
     });
   });
 
+  it('pages past known posts when asked to reach further back than before', async () => {
+    const { get, calls } = fixtureHttp();
+    const source = makeSource(get);
+    // October only: page 1 already reaches July, so the crawl stops there.
+    await source.fetchFlights(new Date('2026-10-01T00:00:00.000Z'));
+    expect(calls).toEqual([FEED]);
+    // From January, page 1's posts are known but don't cover January, so
+    // the client must not stop at them.
+    const flights = await source.fetchFlights(YEAR);
+    expect(calls).toEqual([FEED, FEED, page2Url]);
+    expect(flights.some((f) => f.to?.name.startsWith('Zurich'))).toBe(true);
+  });
+
   it('throws on a failed page and does not remember a partial crawl', async () => {
     let failPage2 = true;
     const calls: string[] = [];
