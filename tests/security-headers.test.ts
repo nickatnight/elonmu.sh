@@ -71,6 +71,17 @@ describe('security headers', () => {
     expect(res.headers.get('x-powered-by')).toBeNull();
   });
 
+  // The CSP blocks inline code, which browsers would drop silently. Catch it
+  // in CI instead: everything must load from files under /static.
+  it.each([
+    ['inline <script> elements', /<script(?![^>]*\ssrc=)[^>]*>/i],
+    ['<style> blocks', /<style[\s>]/i],
+    ['on* event handler attributes', /<[a-z][^>]*\son[a-z]+\s*=/i],
+    ['javascript: URLs', /\b(?:href|src|action)\s*=\s*["']?\s*javascript:/i]
+  ])('the page has no %s, which the CSP would block', (_label, pattern) => {
+    expect(html).not.toMatch(pattern);
+  });
+
   it('are set on the JSON API', async () => {
     spyOn(axios, 'get').mockResolvedValue({
       data: { articles: [newsApiArticle] }
