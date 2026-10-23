@@ -53,6 +53,13 @@ $ bun test
 $ bun run check           # format check, lint, typecheck, tests (what CI runs)
 ```
 
+The landing page at `/` is plain server-rendered HTML with no build step:
+`src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and one
+small vanilla script (`src/public/static/js/main.js`) that powers the live
+console and copy buttons. Static files are cached for a year, so templates
+reference them through `asset('static/...')`, which appends a hash of the file's
+contents to the URL.
+
 ## Why?
 
 For fun 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is basically a thin wrapper around [NewsAPI](https://newsapi.org/), and deployed using DigitalOceans App Platform.
