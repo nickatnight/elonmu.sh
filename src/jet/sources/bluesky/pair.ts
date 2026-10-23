@@ -1,11 +1,7 @@
-import type { Flight, Fuel, Place } from '../../domain';
+import { type Flight, type Fuel, type Place, UNKNOWN_TAIL } from '../../domain';
 import type { Logger, PlaceResolver } from '../../ports';
 import { recordKey } from './feed-client';
 import type { JetEvent } from './parse';
-
-// The tail for the bot's older posts that name no aircraft. They are paired
-// with each other, as if from one aircraft.
-export const UNKNOWN_TAIL = 'Unknown';
 
 export type PairOptions = {
   // Fuel estimates keyed by the URI of the landing post they reply to.

@@ -43,6 +43,10 @@ export type JetSnapshot = {
   totals: Totals;
 };
 
+// The tail for flights whose source names no aircraft (e.g. @elonjet.net's
+// posts before 2026-03-13). Sources use it; the surfaces list it last.
+export const UNKNOWN_TAIL = 'Unknown';
+
 // The moment a flight is filed under: departure, or arrival when the
 // departure wasn't seen. null when neither end has a time.
 export const flightTime = (flight: Flight): string | null =>

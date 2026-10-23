@@ -1,5 +1,5 @@
 import type { Attribution, Flight, JetSnapshot, Place, Totals } from './domain';
-import { flightTime } from './domain';
+import { flightTime, UNKNOWN_TAIL } from './domain';
 
 // Plain-number formatting for the jet surfaces. Pure, so the views only
 // print strings and every wording is unit-tested.
@@ -140,8 +140,8 @@ const row = (f: Flight, i: number): FlightRow => {
 
 // Tail chips in alphabetical order, with the catch-all "Unknown" last.
 const byTailUnknownLast = (a: { tail: string }, b: { tail: string }) => {
-  if (a.tail === 'Unknown') return 1;
-  if (b.tail === 'Unknown') return -1;
+  if (a.tail === UNKNOWN_TAIL) return 1;
+  if (b.tail === UNKNOWN_TAIL) return -1;
   return a.tail.localeCompare(b.tail);
 };
 

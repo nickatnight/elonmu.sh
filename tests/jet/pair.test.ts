@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'bun:test';
-import type { Fuel, Place } from '../../src/jet/domain';
+import { type Fuel, type Place, UNKNOWN_TAIL } from '../../src/jet/domain';
 import type { PlaceResolver } from '../../src/jet/ports';
 import {
   type PairOptions,
-  pairFlights,
-  UNKNOWN_TAIL
+  pairFlights
 } from '../../src/jet/sources/bluesky/pair';
 import type { JetEvent } from '../../src/jet/sources/bluesky/parse';
 import { FakeLogger, places } from './fakes';
