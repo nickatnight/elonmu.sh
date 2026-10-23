@@ -58,20 +58,29 @@ describe('format-on-edit hook', () => {
     );
   });
 
-  it('leaves import order alone, matching what CI checks', async () => {
-    // CI runs `biome format` and `biome lint`, not the organize-imports assist,
-    // so reordering imports would add unrelated churn to every edited file.
-    const source = [
-      "import express from 'express';",
-      "import path from 'node:path';",
+  it('sorts imports, as format:check requires', async () => {
+    const body = [
       '',
       'export const app = express();',
       "export const dir = path.join('a', 'b');",
       ''
-    ].join('\n');
-    await Bun.write(fixture, source);
+    ];
+    await Bun.write(
+      fixture,
+      [
+        "import express from 'express';",
+        "import path from 'node:path';",
+        ...body
+      ].join('\n')
+    );
     expect(await formatOnEdit(fixture)).toEqual({ exitCode: 0, stderr: '' });
-    expect(await Bun.file(fixture).text()).toBe(source);
+    expect(await Bun.file(fixture).text()).toBe(
+      [
+        "import path from 'node:path';",
+        "import express from 'express';",
+        ...body
+      ].join('\n')
+    );
   });
 
   it('reports lint errors that --write cannot fix with exit 2', async () => {
