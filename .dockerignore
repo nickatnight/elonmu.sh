@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+.env
+tests
+docs
+.taste-skill
+README.md
+Dockerfile
+.dockerignore
