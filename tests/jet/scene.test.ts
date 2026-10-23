@@ -4,6 +4,9 @@ import {
   ARC_LATEST,
   ARC_OLDER,
   focusPoint,
+  limitToReveal,
+  PAGE_SIZE,
+  pageOf,
   parseSnapshot,
   toScene
 } from '../../src/public/static/js/jet.js';
@@ -137,6 +140,48 @@ describe('focusPoint', () => {
 
   it('is null when neither end is known', () => {
     expect(focusPoint(flight({ from: null, to: null }))).toBeNull();
+  });
+});
+
+describe('list paging', () => {
+  // 60 rows, newest first: every third one is N7628.
+  const rows = Array.from({ length: 60 }, (_, i) => ({
+    id: `r${i}`,
+    tail: i % 3 === 0 ? 'N7628' : 'N8628'
+  }));
+
+  it('shows the first page of every flight', () => {
+    const page = pageOf(rows, '', PAGE_SIZE);
+    expect(PAGE_SIZE).toBe(25);
+    expect(page.total).toBe(60);
+    expect(page.shown).toEqual(rows.slice(0, 25).map((r) => r.id));
+  });
+
+  it('pages within the chosen tail', () => {
+    const page = pageOf(rows, 'N7628', PAGE_SIZE);
+    expect(page.total).toBe(20);
+    expect(page.shown).toHaveLength(20);
+    expect(page.shown.every((id) => Number(id.slice(1)) % 3 === 0)).toBe(true);
+  });
+
+  it('shows everything once the limit passes the total', () => {
+    expect(pageOf(rows, '', 75).shown).toHaveLength(60);
+  });
+
+  it('grows the limit by whole pages to reach a row further down', () => {
+    expect(limitToReveal(rows, '', 'r10', 25)).toBe(25);
+    expect(limitToReveal(rows, '', 'r25', 25)).toBe(50);
+    expect(limitToReveal(rows, '', 'r59', 25)).toBe(75);
+  });
+
+  it('counts position within the tail filter when revealing', () => {
+    // r57 is the 20th N7628 row.
+    expect(limitToReveal(rows, 'N7628', 'r57', 25)).toBe(25);
+  });
+
+  it('leaves the limit alone for an unknown or filtered-out row', () => {
+    expect(limitToReveal(rows, '', 'nope', 25)).toBe(25);
+    expect(limitToReveal(rows, 'N7628', 'r1', 25)).toBe(25);
   });
 });
 

@@ -1108,6 +1108,21 @@ a.card__link[href] {
   font-size: var(--step-small);
 }
 
+/* "Show 25 more · 25 of 313" under the list (added by jet.js). */
+.flights__more {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  color: var(--muted);
+  font-size: var(--step-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.flights__more[hidden] {
+  display: none;
+}
+
 .jet__credit {
   margin-top: 1.5rem;
   color: var(--muted);

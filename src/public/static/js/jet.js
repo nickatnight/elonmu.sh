@@ -145,6 +145,40 @@ export const focusPoint = (flight) => {
   return end ? { lat: end.lat, lng: end.lon } : null;
 };
 
+// The flight list shows this many rows at a time, per tail filter.
+export const PAGE_SIZE = 25;
+
+/**
+ * The ids on screen for `tail` ('' for all) with `limit` rows allowed,
+ * and how many rows match in total. Rows are newest first.
+ * @param {{ id: string, tail: string }[]} rows
+ * @param {string} tail
+ * @param {number} limit
+ */
+export const pageOf = (rows, tail, limit) => {
+  const matching = rows.filter((r) => !tail || r.tail === tail);
+  return {
+    shown: matching.slice(0, limit).map((r) => r.id),
+    total: matching.length
+  };
+};
+
+/**
+ * The limit, grown by whole pages if needed, that puts row `id` on
+ * screen. Unchanged when the row is already shown, unknown, or filtered out.
+ * @param {{ id: string, tail: string }[]} rows
+ * @param {string} tail
+ * @param {string} id
+ * @param {number} limit
+ */
+export const limitToReveal = (rows, tail, id, limit) => {
+  const index = rows
+    .filter((r) => !tail || r.tail === tail)
+    .findIndex((r) => r.id === id);
+  if (index < limit) return limit;
+  return Math.ceil((index + 1) / PAGE_SIZE) * PAGE_SIZE;
+};
+
 // The travelling pulse: a short dash (8% of the arc) in a lighter orange,
 // full strength on the latest flight and softer on earlier ones.
 const PULSE_LENGTH = 0.08;
@@ -302,10 +336,56 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
   const rows = /** @type {HTMLElement[]} */ ([
     ...panel.querySelectorAll('.flight')
   ]);
+  const meta = rows.map((r) => ({
+    id: r.dataset.flight ?? '',
+    tail: r.dataset.tail ?? ''
+  }));
   const status = panel.querySelector('.jet__status');
+  const list = panel.querySelector('.flights');
+  let tail = '';
+  let limit = PAGE_SIZE;
+
+  // "Show 25 more · 25 of 313", built here: without JS every row shows.
+  const more = document.createElement('div');
+  more.className = 'flights__more';
+  const moreButton = document.createElement('button');
+  moreButton.type = 'button';
+  moreButton.className = 'button';
+  const moreCount = document.createElement('span');
+  more.append(moreButton, moreCount);
+  list?.after(more);
+
+  // Shows the first `limit` rows matching `tail`; returns what's on screen.
+  const apply = () => {
+    const page = pageOf(meta, tail, limit);
+    const shown = new Set(page.shown);
+    rows.forEach((row, i) => {
+      row.hidden = !shown.has(meta[i].id);
+    });
+    const left = page.total - page.shown.length;
+    more.hidden = left <= 0;
+    moreButton.textContent = `Show ${Math.min(left, PAGE_SIZE)} more`;
+    moreCount.textContent = `${page.shown.length} of ${page.total}`;
+    return page;
+  };
+
+  const announce = (/** @type {{ shown: string[], total: number }} */ page) => {
+    if (!status) return;
+    const n = page.shown.length;
+    const of = n < page.total ? ` of ${page.total}` : '';
+    status.textContent = `Showing ${n}${of} flight${page.total === 1 ? '' : 's'}${tail ? ` by ${tail}` : ''}.`;
+  };
 
   /** @param {string | null} id */
   const select = (id, { scroll = false } = {}) => {
+    if (id) {
+      // A row further down (say, tapped on the globe) gets revealed first.
+      const needed = limitToReveal(meta, tail, id, limit);
+      if (needed !== limit) {
+        limit = needed;
+        announce(apply());
+      }
+    }
     let row = null;
     for (const r of rows) {
       const on = r.dataset.flight === id;
@@ -320,6 +400,20 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
     }
   };
 
+  moreButton.addEventListener('click', () => {
+    const before = pageOf(meta, tail, limit).shown.length;
+    limit += PAGE_SIZE;
+    const page = apply();
+    announce(page);
+    // Keyboard users land on the first new row rather than the button.
+    const first = rows.find((r) => r.dataset.flight === page.shown[before]);
+    const target = first?.querySelector('.flight__show') ?? first;
+    if (target instanceof HTMLElement) {
+      if (target === first) target.tabIndex = -1;
+      target.focus();
+    }
+  });
+
   const chips = /** @type {HTMLElement | null} */ (
     panel.querySelector('.chips')
   );
@@ -331,19 +425,15 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
       for (const c of chips.querySelectorAll('.chip')) {
         c.setAttribute('aria-pressed', String(c === chip));
       }
-      const tail = chip.dataset.tail ?? '';
-      let shown = 0;
-      for (const row of rows) {
-        row.hidden = Boolean(tail) && row.dataset.tail !== tail;
-        if (!row.hidden) shown++;
-      }
+      tail = chip.dataset.tail ?? '';
+      limit = PAGE_SIZE;
       select(null);
-      if (status) {
-        status.textContent = `Showing ${shown} flight${shown === 1 ? '' : 's'}${tail ? ` by ${tail}` : ''}.`;
-      }
+      announce(apply());
       onFilter(tail);
     });
   }
+
+  apply();
 
   if (canShow) {
     for (const row of rows) {
