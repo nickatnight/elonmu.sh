@@ -16,6 +16,7 @@
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
 
     <link rel="stylesheet" href="<%= assets.css %>" />
+    <script src="<%= assets.js %>" defer></script>
 
     <!-- Facebook Meta Tags -->
     <meta property="og:url" content="https://elonmu.sh/" />
@@ -66,14 +67,18 @@
           Musk, as JSON. Free, no key, no signup. /s
         </p>
 
-        <figure class="console" data-ui aria-label="Example request and response">
+        <figure class="console" data-ui aria-label="Request and response">
           <div class="console__bar">
             <code class="console__method">GET</code>
             <code class="console__url">https://elonmu.sh/api</code>
             <span class="console__status">200 OK · example</span>
+            <button class="console__send button" type="button" hidden>
+              Send
+            </button>
           </div>
           <div class="console__body">
             <article class="card">
+              <div class="card__media" hidden></div>
               <p class="card__meta">Example Daily · Oct 22, 2026</p>
               <h2 class="card__title">
                 Musk announces plan to announce a plan
@@ -82,7 +87,7 @@
                 Sources close to the announcement say the announcement will be
                 announced shortly.
               </p>
-              <span class="card__link">Read article →</span>
+              <a class="card__link">Read article →</a>
             </article>
             <pre class="json"><code>{
   <span class="tok-key">"source"</span>: <span class="tok-str">"Example Daily"</span>,
@@ -93,6 +98,7 @@
   <span class="tok-key">"publishDate"</span>: <span class="tok-str">"2026-10-22T09:00:00Z"</span>
 }</code></pre>
           </div>
+          <p class="sr-only console__announce" aria-live="polite"></p>
         </figure>
       </section>
     </main>

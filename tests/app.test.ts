@@ -70,6 +70,20 @@ describe('GET /', () => {
     expect(html).toMatch(/href="\/static\/css\/main\.css\?v=[0-9a-f]+"/);
   });
 
+  it('loads the script deferred, with a content hash', () => {
+    expect(html).toMatch(
+      /<script src="\/static\/js\/main\.js\?v=[0-9a-f]+" defer><\/script>/
+    );
+  });
+
+  it('renders the console send button hidden until the script runs', () => {
+    expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
+  });
+
+  it('announces console results politely', () => {
+    expect(html).toContain('aria-live="polite"');
+  });
+
   it('serves every local asset the page references', async () => {
     const urls = [...html.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)

@@ -21,7 +21,8 @@ export const createApp = (): express.Express => {
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
   app.locals.assets = {
-    css: assetUrl('static/css/main.css')
+    css: assetUrl('static/css/main.css'),
+    js: assetUrl('static/js/main.js')
   };
 
   // Configure Express to parse incoming JSON data
