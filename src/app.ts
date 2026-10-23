@@ -5,6 +5,7 @@ import { securityHeaders } from './middleware/security-headers';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
+const CRAWLER_FILES = new Set(['robots.txt', 'sitemap.xml']);
 
 // Static files are cached for a year, so each URL carries a hash of the file's
 // contents: a changed file gets a new URL on the next deploy. Hashed once per
@@ -37,8 +38,18 @@ export const createApp = (): express.Express => {
   // Configure Express to parse incoming JSON data
   app.use(express.json());
 
-  // Configure static serving
-  app.use(express.static(publicDir, { maxAge: 31557600000 }));
+  // Configure static serving. Crawlers fetch robots.txt and sitemap.xml by
+  // bare URL (no ?v= hash), so those two get a one-day cache instead.
+  app.use(
+    express.static(publicDir, {
+      maxAge: 31557600000,
+      setHeaders: (res, filePath) => {
+        if (CRAWLER_FILES.has(path.basename(filePath))) {
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+      }
+    })
+  );
 
   // Configure routes
   routes.register(app);
