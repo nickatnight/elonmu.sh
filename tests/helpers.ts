@@ -1,5 +1,5 @@
-import type { Express } from 'express';
 import type { AddressInfo } from 'node:net';
+import type { Express } from 'express';
 
 export interface TestServer {
   url: string;
