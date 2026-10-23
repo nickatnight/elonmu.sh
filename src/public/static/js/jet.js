@@ -350,18 +350,18 @@ const showFallback = (/** @type {HTMLElement} */ pane) => {
 };
 
 /**
- * Takes over the server-rendered panel: reveals the tail chips and, when
- * there is a globe to show things on, turns each route into a button.
- * Post-derived text is only ever copied with textContent.
+ * Takes over the server-rendered panel straight away: reveals the tail
+ * chips and pages the list. `enableShow()` later turns each route into a
+ * "show on globe" button, once there is a globe. Post-derived text is
+ * only ever copied with textContent.
  * @param {HTMLElement} panel
  * @param {{
- *   canShow: boolean,
  *   reducedMotion: boolean,
  *   onFilter: (tail: string) => void,
  *   onShow: (id: string) => void
  * }} options
  */
-const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
+const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
   const rows = /** @type {HTMLElement[]} */ ([
     ...panel.querySelectorAll('.flight')
   ]);
@@ -464,7 +464,8 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
 
   apply();
 
-  if (canShow) {
+  // Once a globe exists, each route becomes a "show on globe" button.
+  const enableShow = () => {
     for (const row of rows) {
       const route = row.querySelector('.flight__route');
       const id = row.dataset.flight;
@@ -484,9 +485,9 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
         onShow(id);
       });
     }
-  }
+  };
 
-  return { select };
+  return { select, enableShow, currentTail: () => tail };
 };
 
 // A tooltip for a flight, copied from its row in the list. For a route
@@ -530,42 +531,14 @@ const start = async () => {
   );
   if (!panel) return;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Phones get the 2048 px texture: a quarter of the pixels to decode.
-  const small = matchMedia('(max-width: 56rem)').matches;
-  const texture =
-    (small && pane?.dataset.textureSmall) || pane?.dataset.texture;
-  const canGlobe =
-    Boolean(texture) &&
-    hasWebGL() &&
-    typeof (/** @type {any} */ (window).Globe) === 'function';
-  if (pane && !canGlobe) showFallback(pane);
 
   /** @type {Snapshot | null} */
   let snapshot = null;
-  if (canGlobe) {
-    try {
-      const res = await fetch('/api/jet/flights');
-      snapshot = parseSnapshot(await res.json());
-    } catch {
-      // No data: the server-rendered note and the still Earth already say so.
-    }
-  }
+  /** @type {ReturnType<typeof createGlobeView> | null} */
+  let view = null;
 
-  /** @type {ReturnType<typeof enhancePanel> | null} */
-  let panelControls = null;
-  const view =
-    snapshot && pane && texture
-      ? createGlobeView(pane, {
-          texture,
-          reducedMotion,
-          label: (id, count) => tooltipFor(panel, id, count),
-          onSelect: (id) => panelControls?.select(id, { scroll: true })
-        })
-      : null;
-  view?.render(toScene(/** @type {Snapshot} */ (snapshot), ''));
-
-  panelControls = enhancePanel(panel, {
-    canShow: Boolean(view),
+  // The panel works at once; the globe joins it when (and if) it's ready.
+  const panelControls = enhancePanel(panel, {
     reducedMotion,
     onFilter: (tail) => {
       if (view && snapshot) view.render(toScene(snapshot, tail));
@@ -576,6 +549,63 @@ const start = async () => {
       if (view && at) view.focus(at);
     }
   });
+
+  const globeSrc = pane?.dataset.globeSrc;
+  // Phones get the 2048 px texture: a quarter of the pixels to decode.
+  const small = matchMedia('(max-width: 56rem)').matches;
+  const texture =
+    (small && pane?.dataset.textureSmall) || pane?.dataset.texture;
+  if (!pane || !globeSrc || !texture) return;
+  if (!hasWebGL()) {
+    showFallback(pane);
+    return;
+  }
+
+  // globe.gl is 523 KB gzipped: fetch it only after the page has loaded,
+  // so it never competes with the still Earth, list and totals.
+  await afterLoad();
+  try {
+    const [, res] = await Promise.all([
+      loadScript(globeSrc),
+      fetch('/api/jet/flights')
+    ]);
+    snapshot = parseSnapshot(await res.json());
+  } catch {
+    // No library or no data: the still Earth and the list already serve.
+    return;
+  }
+  if (typeof (/** @type {any} */ (window).Globe) !== 'function') {
+    showFallback(pane);
+    return;
+  }
+
+  view = createGlobeView(pane, {
+    texture,
+    reducedMotion,
+    label: (id, count) => tooltipFor(panel, id, count),
+    onSelect: (id) => panelControls.select(id, { scroll: true })
+  });
+  view.render(toScene(snapshot, panelControls.currentTail()));
+  panelControls.enableShow();
 };
+
+// Resolves once the window's load event has fired.
+const afterLoad = () =>
+  document.readyState === 'complete'
+    ? Promise.resolve()
+    : new Promise((resolve) =>
+        window.addEventListener('load', resolve, { once: true })
+      );
+
+// Adds a classic script and resolves when it has run.
+const loadScript = (/** @type {string} */ src) =>
+  new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`jet: could not load ${src}`));
+    document.head.append(script);
+  });
 
 if (typeof document !== 'undefined') start();

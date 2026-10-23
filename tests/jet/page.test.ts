@@ -105,7 +105,7 @@ describe('GET /jet', () => {
 
   it('hides the globe area from assistive tech and shows a still Earth without JS', () => {
     const globe =
-      html.full.match(/<div class="jet__globe"[^>]*>[\s\S]*?<\/div>/)?.[0] ??
+      html.full.match(/<div\s+class="jet__globe"[^>]*>[\s\S]*?<\/div>/)?.[0] ??
       '';
     expect(globe).toContain('aria-hidden="true"');
     expect(globe).toMatch(
@@ -138,12 +138,15 @@ describe('GET /jet', () => {
 });
 
 describe('the live globe', () => {
-  it('loads the vendored globe.gl and jet.js, deferred, from hashed URLs', () => {
-    expect(html.full).toMatch(
-      /<script src="\/static\/vendor\/globe\.gl\.min\.js\?v=\w+" defer><\/script>/
-    );
+  it('loads jet.js, and leaves globe.gl for jet.js to fetch after page load', () => {
     expect(html.full).toMatch(
       /<script type="module" src="\/static\/js\/jet\.js\?v=\w+"><\/script>/
+    );
+    // No script tag: the 523 KB library must not compete with the page's
+    // own content for bandwidth. jet.js reads its hashed URL from here.
+    expect(html.full).not.toMatch(/<script[^>]+globe\.gl/);
+    expect(html.full).toMatch(
+      /class="jet__globe"[^>]*data-globe-src="\/static\/vendor\/globe\.gl\.min\.js\?v=\w+"/
     );
   });
 
@@ -158,7 +161,7 @@ describe('the live globe', () => {
 
   it('keys the globe’s marks inside the (aria-hidden) globe pane', () => {
     const globe =
-      html.full.match(/<div class="jet__globe"[\s\S]*?<\/ul>/)?.[0] ?? '';
+      html.full.match(/<div\s+class="jet__globe"[\s\S]*?<\/ul>/)?.[0] ?? '';
     const legend = globe.match(/<ul class="legend"[\s\S]*<\/ul>/)?.[0] ?? '';
     const items = [...legend.matchAll(/<li[^>]*>[\s\S]*?<\/li>/g)].map((m) =>
       m[0].replace(/<[^>]+>/g, '').trim()
@@ -183,10 +186,16 @@ describe('the live globe', () => {
     expect(home).not.toContain('three');
   });
 
+  it('fetches the still Earth (the page’s LCP) ahead of the globe library', () => {
+    const still = html.full.match(/<img\s+class="jet__still"[^>]*>/)?.[0] ?? '';
+    expect(still).toContain('fetchpriority="high"');
+    expect(still).not.toContain('loading="lazy"');
+  });
+
   it('serves every local asset the page references', async () => {
     const urls = [
       ...html.full.matchAll(
-        /(?:href|src|data-texture(?:-small)?)="(\/[^/"][^"]*)"/g
+        /(?:href|src|data-texture(?:-small)?|data-globe-src)="(\/[^/"][^"]*)"/g
       )
     ]
       .map(([, url]) => url)
@@ -212,7 +221,7 @@ describe('the live globe', () => {
 
   it('serves the vendored globe.gl gzipped', async () => {
     const page = html.full.match(
-      /src="(\/static\/vendor\/globe\.gl\.min\.js\?v=\w+)"/
+      /data-globe-src="(\/static\/vendor\/globe\.gl\.min\.js\?v=\w+)"/
     )?.[1];
     const res = await fetch(`${servers.full.url}${page}`, {
       headers: { 'Accept-Encoding': 'gzip' },

@@ -10,8 +10,9 @@
     />
     <link rel="canonical" href="https://elonmu.sh/jet" />
 <%- include('partials/head-assets') %>
-    <%# The live globe: /jet only, never home. Both run after parsing. %>
-    <script src="<%= asset('static/vendor/globe.gl.min.js') %>" defer></script>
+    <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
+        after the page has loaded, so the 523 KB library never competes
+        with the page's own content. %>
     <script type="module" src="<%= asset('static/js/jet.js') %>"></script>
   </head>
 
@@ -24,7 +25,13 @@
       <%# jet.js mounts the live globe here. Without JS or WebGL, a still
           render of the same night Earth stands in. The list is the accessible
           equivalent, so this whole area is hidden from assistive tech. %>
-      <div class="jet__globe" aria-hidden="true" data-texture="<%= asset('static/img/globe/earth-night.jpg') %>" data-texture-small="<%= asset('static/img/globe/earth-night-2048.jpg') %>">
+      <div
+        class="jet__globe"
+        aria-hidden="true"
+        data-globe-src="<%= asset('static/vendor/globe.gl.min.js') %>"
+        data-texture="<%= asset('static/img/globe/earth-night.jpg') %>"
+        data-texture-small="<%= asset('static/img/globe/earth-night-2048.jpg') %>"
+      >
         <img
           class="jet__still"
           src="<%= asset('static/img/globe/teaser-earth.webp') %>"
@@ -32,6 +39,7 @@
           height="960"
           alt=""
           decoding="async"
+          fetchpriority="high"
         />
         <%# Key to the globe's marks; shown once the live globe is up. %>
         <% if (page && page.flights.length) { %>
