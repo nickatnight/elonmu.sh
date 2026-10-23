@@ -1,4 +1,4 @@
-// elonmu.sh: the live console, copy buttons, and section entrances.
+// elonmu.sh: the live console, copy buttons, hero clips, and section entrances.
 const announce = (text) => {
   document.querySelector('.announce').textContent = text;
 };
@@ -144,6 +144,78 @@ if (navigator.clipboard) {
     });
   }
 }
+
+// The hero clips: the launch plays once, then the cruise loop fades in over
+// its last frame. The toggle pauses whichever is playing, and both pause
+// while the hero is off-screen.
+(() => {
+  const hero = document.querySelector('.hero');
+  const launch = hero.querySelector('.hero__video--launch');
+  const cruise = hero.querySelector('.hero__video--cruise');
+  const toggle = hero.querySelector('.hero__toggle');
+
+  // Reduced motion: the CSS shows a still, so stop the hidden launch and
+  // drop its sources to end the download.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    launch.pause();
+    launch.replaceChildren();
+    launch.load();
+    return;
+  }
+
+  let current = launch;
+  let userPaused = false;
+  let onScreen = true;
+
+  const sync = () => {
+    toggle.setAttribute('aria-pressed', String(userPaused));
+  };
+
+  const apply = () => {
+    if (userPaused || !onScreen) {
+      current.pause();
+      return;
+    }
+    // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
+    current.play().catch(() => {
+      userPaused = true;
+      sync();
+    });
+  };
+
+  const loadCruise = () => {
+    cruise.preload = 'auto';
+    cruise.load();
+  };
+  if (launch.paused) {
+    launch.addEventListener('playing', loadCruise, { once: true });
+  } else {
+    loadCruise();
+  }
+
+  launch.addEventListener('ended', () => {
+    current = cruise;
+    cruise.addEventListener(
+      'playing',
+      () => hero.classList.add('is-cruising'),
+      { once: true }
+    );
+    apply();
+  });
+
+  toggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    sync();
+    apply();
+  });
+
+  new IntersectionObserver(([entry]) => {
+    onScreen = entry.isIntersecting;
+    apply();
+  }).observe(hero);
+
+  toggle.hidden = false;
+})();
 
 // Sections rise in once as they enter. Without this script, or with reduced
 // motion, they are simply visible.

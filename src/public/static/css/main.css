@@ -272,6 +272,45 @@ pre {
   animation: fade 700ms ease-out 900ms both;
 }
 
+/* Pause toggle: a small round button in the hero's bottom-right corner. */
+.hero__toggle {
+  position: absolute;
+  right: var(--margin);
+  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  border-radius: 999px;
+  background: rgb(5 7 10 / 0.45);
+  color: var(--hero-ink);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.hero__toggle:hover {
+  background: rgb(5 7 10 / 0.75);
+}
+
+.hero__toggle[hidden] {
+  display: none;
+}
+
+/* Two bars while playing, a triangle while paused. */
+.hero__toggle-icon {
+  width: 0.7rem;
+  height: 0.8rem;
+  border-inline: 0.22rem solid currentColor;
+}
+
+.hero__toggle[aria-pressed="true"] .hero__toggle-icon {
+  border: 0;
+  background: currentColor;
+  clip-path: polygon(15% 0, 100% 50%, 15% 100%);
+}
+
 /* The console: a real-size fragment of the API's request and response. */
 .try {
   margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);

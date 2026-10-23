@@ -191,6 +191,16 @@ describe('GET /', () => {
     }
   });
 
+  it('renders the background pause toggle hidden until the script runs', () => {
+    const hero =
+      html.match(/<section\s+class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+    const toggle = hero.match(/<button class="hero__toggle"[^>]*>/)?.[0] ?? '';
+    expect(toggle).toContain('type="button"');
+    expect(toggle).toContain('aria-pressed="false"');
+    expect(toggle).toContain('aria-label="Pause background"');
+    expect(toggle).toMatch(/\shidden[\s>]/);
+  });
+
   it('gives the hero the cruise poster as its reduced-motion still', () => {
     expect(html).toMatch(
       /<section\s+class="hero"[^>]*style="--still: url\(\/static\/video\/clown-cruise-poster\.jpg\?v=\w+\)"/
