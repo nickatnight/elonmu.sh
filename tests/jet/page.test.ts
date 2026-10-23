@@ -180,6 +180,30 @@ describe('the live globe', () => {
     expect(home).not.toContain('three');
   });
 
+  it('serves every local asset the page references', async () => {
+    const urls = [
+      ...html.full.matchAll(/(?:href|src|data-texture)="(\/[^/"][^"]*)"/g)
+    ]
+      .map(([, url]) => url)
+      .filter(
+        (url) => !['/', '/jet', '/api'].includes(url) && !url.startsWith('/#')
+      );
+    // Vendor script, jet.js, both globe images, stylesheet, icons.
+    for (const want of [
+      'globe.gl.min.js',
+      'jet.js',
+      'earth-night.jpg',
+      'teaser-earth.webp'
+    ]) {
+      expect(urls.some((u) => u.includes(want))).toBe(true);
+    }
+    for (const url of new Set(urls)) {
+      const res = await fetch(`${servers.full.url}${url}`);
+      await res.arrayBuffer();
+      expect({ url, status: res.status }).toEqual({ url, status: 200 });
+    }
+  });
+
   it('serves the vendored globe.gl gzipped', async () => {
     const page = html.full.match(
       /src="(\/static\/vendor\/globe\.gl\.min\.js\?v=\w+)"/
