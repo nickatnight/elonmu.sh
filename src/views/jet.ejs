@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jet tracker | elonmu.sh</title>
+    <meta
+      name="description"
+      content="This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."
+    />
+    <link rel="canonical" href="https://elonmu.sh/jet" />
+<%- include('partials/head-assets') %>
+    <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
+        after the page has loaded, so the 523 KB library never competes
+        with the page's own content. %>
+    <script type="module" src="<%= asset('static/js/jet.js') %>"></script>
+  </head>
+
+  <body class="jet-page">
+    <a class="skip" href="#jet-panel">Skip to the flight list</a>
+
+<%- include('partials/topbar', { current: 'jet' }) %>
+
+    <main id="main" class="jet">
+      <%# jet.js mounts the live globe here. Without JS or WebGL, a still
+          render of the same night Earth stands in. The list is the accessible
+          equivalent, so this whole area is hidden from assistive tech. %>
+      <div
+        class="jet__globe"
+        aria-hidden="true"
+        data-globe-src="<%= asset('static/vendor/globe.gl.min.js') %>"
+        data-texture="<%= asset('static/img/globe/earth-night.jpg') %>"
+        data-texture-small="<%= asset('static/img/globe/earth-night-2048.jpg') %>"
+      >
+        <img
+          class="jet__still"
+          src="<%= asset('static/img/globe/teaser-earth.webp') %>"
+          width="960"
+          height="960"
+          alt=""
+          decoding="async"
+          fetchpriority="high"
+        />
+        <%# Key to the globe's marks; shown once the live globe is up. %>
+        <% if (page && page.flights.length) { %>
+          <ul class="legend">
+            <li class="legend__item"><span class="legend__mark legend__mark--latest"></span>Latest flight</li>
+            <li class="legend__item"><span class="legend__mark legend__mark--earlier"></span>Earlier flights</li>
+            <li class="legend__item"><span class="legend__mark legend__mark--point"></span>Local hop or one end known</li>
+            <% if (page.flights.some((f) => f.status === 'airborne')) { %>
+              <li class="legend__item"><span class="legend__mark legend__mark--airborne"></span>In the air now</li>
+            <% } %>
+          </ul>
+        <% } %>
+      </div>
+
+      <section class="jet__panel" id="jet-panel" aria-labelledby="jet-title">
+        <header class="jet__head">
+          <p class="jet__eyebrow"><%= page ? `${page.year} so far` : 'This year so far' %></p>
+          <h1 id="jet-title">Jet tracker</h1>
+          <% if (page && page.latest) { %>
+            <p class="jet__latest"><%= page.latest %></p>
+          <% } %>
+        </header>
+
+        <% if (!page) { %>
+          <p class="jet__note">Flight data is unavailable right now. Please try again in a few minutes.</p>
+        <% } else { %>
+          <ul class="totals" aria-label="Totals: <%= page.totalsLine %>">
+            <% for (const part of page.totals) { %>
+              <li><span class="totals__value"><%= part.value %></span> <span class="totals__unit"><%= part.unit %></span></li>
+            <% } %>
+          </ul>
+
+          <% if (page.flights.length === 0) { %>
+            <p class="jet__note">No flights yet this year.</p>
+          <% } else { %>
+            <%# Revealed and wired by jet.js; without JS they'd do nothing. %>
+            <div class="chips" role="group" aria-label="Filter by aircraft" data-ui hidden>
+              <button class="chip" type="button" data-tail="" aria-pressed="true">All</button>
+              <% for (const { tail, count } of page.tails) { %>
+                <button class="chip" type="button" data-tail="<%= tail %>" aria-pressed="false"><%= tail %> <span class="chip__count"><%= count %></span></button>
+              <% } %>
+            </div>
+
+            <p class="sr-only jet__status" aria-live="polite"></p>
+
+            <ol class="flights" aria-label="Flights in <%= page.year %>, newest first">
+              <% for (const f of page.flights) { %>
+                <li class="flight<%= f.latest ? ' is-latest' : '' %>" data-flight="<%= f.id %>" data-tail="<%= f.tail %>">
+                  <p class="flight__meta">
+                    <time datetime="<%= f.datetime %>"><%= f.date %></time>
+                    <span class="flight__tail"><%= f.tail %></span>
+                  </p>
+                  <p class="flight__route" title="<%= f.places %>"><%= f.route %></p>
+                  <% if (f.note) { %>
+                    <p class="flight__note"><%= f.note %></p>
+                  <% } %>
+                  <% if (f.duration || f.fuel) { %>
+                    <p class="flight__detail"><%= [f.duration, f.fuel].filter(Boolean).join(' · ') %></p>
+                  <% } %>
+                  <% if (f.sourceUrl) { %>
+                    <a class="flight__source" href="<%= f.sourceUrl %>" rel="noopener noreferrer">Source<span class="sr-only"> post for the <%= f.date %> flight</span></a>
+                  <% } %>
+                </li>
+              <% } %>
+            </ol>
+          <% } %>
+
+          <p class="jet__credit">
+            Flight data: <a href="<%= page.attribution.url %>" rel="noopener noreferrer"><%= page.attribution.label %></a>
+          </p>
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>

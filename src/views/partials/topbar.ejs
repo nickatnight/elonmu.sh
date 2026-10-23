@@ -1,0 +1,13 @@
+<%# Shared top bar. `current` is 'home' or 'jet'. %>
+    <header class="topbar">
+      <a class="brand" href="/" translate="no">
+        <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
+        elonmu.sh
+      </a>
+      <nav class="topbar__actions" aria-label="Primary">
+        <a href="/jet"<%- current === 'jet' ? ' aria-current="page"' : '' %>>Jet</a>
+        <a href="<%= current === 'home' ? '#get-api' : '/#get-api' %>">Docs</a>
+        <a class="topbar__extra" href="https://github.com/nickatnight/elonmu.sh">GitHub</a>
+        <a class="button" href="/api">GET /api</a>
+      </nav>
+    </header>

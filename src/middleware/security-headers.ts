@@ -4,10 +4,25 @@ import type { RequestHandler } from 'express';
 // Everything is self-hosted except article images from /api, which come from
 // any news site over HTTPS. The hero's `style="--still: url(…)"` keeps its
 // content-hashed poster URL, hence the inline style attribute allowance.
+//
+// /jet's vendored globe.gl 2.46.2 injects three small <style> elements at
+// runtime (scene cursor, tooltip, nav hint). They are allowed by exact
+// sha256 hash, not 'unsafe-inline': nothing else inline can run. It inserts
+// each element empty and fills it after, so the empty string's hash is
+// allowed too (an empty sheet styles nothing). Bumping globe.gl means
+// recomputing these, or its tooltips lose their styling.
+const GLOBE_GL_STYLES = [
+  "'sha256-GRFgt45UbKYCV14/Fqy6H9EB3zlAwSnH4xbsYt03Q6M='",
+  "'sha256-9xjtvxMT1ApHlgn9ohbh2FNfvK5Tqtzy94BjfXBeMSY='",
+  "'sha256-yfc2FhpkFR0EAy3T+zDsaAFGXSP9B3ELNvaJKDzNhkk='",
+  // sha256 of "" (the empty string)
+  "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='"
+];
+
 const csp = [
   "default-src 'self'",
   "script-src 'self'",
-  "style-src 'self'",
+  `style-src 'self' ${GLOBE_GL_STYLES.join(' ')}`,
   "style-src-attr 'unsafe-inline'",
   "img-src 'self' https:",
   "media-src 'self'",

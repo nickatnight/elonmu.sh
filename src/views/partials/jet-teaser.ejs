@@ -1,0 +1,54 @@
+<%#
+  Home teaser for /jet. Static: the pre-rendered night Earth plus this
+  year's arcs as inline SVG, drawn on the server from the same projection
+  the image was rendered with. No script. `teaser` is null when the flight
+  data failed or wasn't ready in time: then the bare Earth, a note and the link.
+%>
+      <section class="teaser" aria-labelledby="teaser-title">
+        <div class="teaser__map">
+          <img
+            class="teaser__earth"
+            src="<%= asset('static/img/globe/teaser-earth.webp') %>"
+            width="960"
+            height="960"
+            loading="lazy"
+            decoding="async"
+            alt=""
+          />
+          <% if (teaser && !teaser.empty) { %>
+            <svg class="teaser__arcs" viewBox="0 0 <%= teaser.size %> <%= teaser.size %>" role="img" aria-label="<%= teaser.summary %>">
+              <% for (const arc of teaser.arcs) { %>
+                <path class="teaser__arc<%= arc.latest ? ' is-latest' : '' %>" d="<%= arc.d %>" />
+              <% } %>
+              <% const newest = teaser.arcs.find((a) => a.latest); %>
+              <% if (newest) { %>
+                <path class="teaser__pulse" d="<%= newest.d %>" pathLength="1" />
+              <% } %>
+              <% if (teaser.origin) { %>
+                <circle class="teaser__origin-ring" cx="<%= teaser.origin.x %>" cy="<%= teaser.origin.y %>" r="7" />
+                <circle class="teaser__origin" cx="<%= teaser.origin.x %>" cy="<%= teaser.origin.y %>" r="7" />
+              <% } %>
+            </svg>
+          <% } %>
+        </div>
+
+        <div class="teaser__text">
+          <p class="teaser__eyebrow">Jet tracker</p>
+          <h2 id="teaser-title">Meanwhile, the jet</h2>
+          <% if (!teaser) { %>
+            <p class="teaser__latest">Flight data isn’t available right now.</p>
+          <% } else if (teaser.empty) { %>
+            <p class="teaser__latest">No flights yet this year.</p>
+          <% } else { %>
+            <% if (teaser.latest) { %>
+              <p class="teaser__latest"><%= teaser.latest %></p>
+            <% } %>
+            <p class="teaser__totals"><%= teaser.totalsLine %></p>
+          <% } %>
+          <%# One link; its ::after stretches over the whole section. %>
+          <a class="button teaser__link" href="/jet">Explore the globe <span aria-hidden="true">→</span></a>
+          <% if (teaser) { %>
+            <p class="teaser__credit">Flight data: <%= teaser.attribution.label %></p>
+          <% } %>
+        </div>
+      </section>

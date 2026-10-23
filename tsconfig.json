@@ -13,7 +13,9 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "allowJs": true
   },
-  "include": ["src/**/*", "tests/**/*", ".claude/hooks/**/*"]
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*", ".claude/hooks/**/*"],
+  "exclude": ["src/public/static/vendor"]
 }
