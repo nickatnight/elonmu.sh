@@ -1,5 +1,30 @@
 // Pure helpers shared by the Claude Code hooks in this folder. The hook
 // scripts do the I/O; everything here is testable without spawning anything.
+import path from 'node:path';
+
+const BIOME_EXTENSIONS = new Set([
+  '.ts',
+  '.js',
+  '.json',
+  '.jsonc',
+  '.css',
+  '.yml',
+  '.yaml'
+]);
+
+// Whether the format-on-edit hook should run Biome on this file: a type Biome
+// handles, inside the project.
+export const isBiomeTarget = (
+  filePath: string,
+  projectDir: string
+): boolean => {
+  const relative = path.relative(
+    projectDir,
+    path.resolve(projectDir, filePath)
+  );
+  if (relative.startsWith('..') || path.isAbsolute(relative)) return false;
+  return BIOME_EXTENSIONS.has(path.extname(filePath));
+};
 
 export const COMMIT_TYPES = [
   'feat',

@@ -11,9 +11,11 @@ export interface HookResult {
 // the exit code and stderr.
 export const runHook = async (
   script: string,
-  stdin: string
+  stdin: string,
+  env: Record<string, string> = {}
 ): Promise<HookResult> => {
   const proc = Bun.spawn(['bun', path.join(hooksDir, script)], {
+    env: { ...process.env, ...env },
     stdin: Buffer.from(stdin),
     stdout: 'ignore',
     stderr: 'pipe'
