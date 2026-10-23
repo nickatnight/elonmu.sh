@@ -32,7 +32,10 @@ const expected: Record<string, string> = {
   'content-security-policy': [
     "default-src 'self'",
     "script-src 'self'",
-    "style-src 'self'",
+    // The three exact <style> blocks the vendored globe.gl 2.46.2 injects on
+    // /jet (scene cursor, tooltip, nav hint), plus the empty string: it
+    // inserts each element empty before filling it. Recompute when bumping.
+    "style-src 'self' 'sha256-GRFgt45UbKYCV14/Fqy6H9EB3zlAwSnH4xbsYt03Q6M=' 'sha256-9xjtvxMT1ApHlgn9ohbh2FNfvK5Tqtzy94BjfXBeMSY=' 'sha256-yfc2FhpkFR0EAy3T+zDsaAFGXSP9B3ELNvaJKDzNhkk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
     "style-src-attr 'unsafe-inline'",
     "img-src 'self' https:",
     "media-src 'self'",
@@ -68,6 +71,7 @@ const expectSecurityHeaders = (res: Response): void => {
 describe('security headers', () => {
   it.each([
     ['the landing page', () => '/'],
+    ['the jet tracker', () => '/jet'],
     ['the health check', () => '/healthz'],
     ['a hashed static asset', stylesheet],
     ['a 404', () => '/does-not-exist']
@@ -93,7 +97,12 @@ describe('page markup vs the CSP', () => {
     ['<style> blocks', /<style[\s>]/i],
     ['on* event handler attributes', /<[a-z][^>]*\son[a-z]+\s*=/i],
     ['javascript: URLs', /\b(?:href|src|action)\s*=\s*["']?\s*javascript:/i]
-  ])('the page has no %s, which the CSP would block', (_label, pattern) => {
-    expect(html).not.toMatch(pattern);
-  });
+  ])(
+    'the pages have no %s, which the CSP would block',
+    async (_label, pattern) => {
+      const jet = await (await fetch(`${server.url}/jet`)).text();
+      expect(html).not.toMatch(pattern);
+      expect(jet).not.toMatch(pattern);
+    }
+  );
 });
