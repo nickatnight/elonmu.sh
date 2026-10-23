@@ -349,6 +349,107 @@ pre {
 }
 
 /* The console: a real-size fragment of the API's request and response. */
+/* Services: one flat tile per catalog entry, below the hero. Tiles lift to
+   the raised grey on hover or focus; "More soon" is an outline, not a link. */
+.services {
+  margin: 0 var(--margin);
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(4rem, 8vw, 6rem);
+}
+
+.services h2 {
+  font-size: var(--step-head);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.services__sub {
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.services__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.services__grid > li {
+  display: flex;
+}
+
+.service {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  background: var(--surface);
+  text-decoration: none;
+  transition: background-color 150ms var(--ease-out);
+}
+
+.service__name {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.service__summary {
+  color: var(--muted);
+}
+
+.service__cta {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: var(--step-small);
+  font-weight: 600;
+}
+
+.service__arrow {
+  display: inline-block;
+  transition: transform 150ms var(--ease-out);
+}
+
+a.service:hover,
+a.service:focus-visible {
+  background: var(--raised);
+}
+
+a.service:hover .service__arrow,
+a.service:focus-visible .service__arrow {
+  transform: translateX(3px);
+}
+
+.service--soon {
+  background: none;
+  outline: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.service--soon .service__name {
+  color: var(--muted);
+}
+
+@media (min-width: 56.25rem) {
+  .services__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service__arrow {
+    transition: none;
+  }
+
+  a.service:hover .service__arrow,
+  a.service:focus-visible .service__arrow {
+    transform: none;
+  }
+}
+
 .try {
   margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);
 }

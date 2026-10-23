@@ -141,9 +141,9 @@ describe('GET /', () => {
     );
   });
 
-  it('points the hero scroll cue at the console', () => {
+  it('points the hero scroll cue at the services', () => {
     expect(html).toMatch(
-      /<a class="hero__cue" href="#try"[^>]*aria-hidden="true"/
+      /<a class="hero__cue" href="#services"[^>]*aria-hidden="true"/
     );
   });
 
@@ -299,6 +299,89 @@ describe('topbar', () => {
       const page = await (await fetch(`${three.url}/`)).text();
       expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'GitHub']);
       expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
+    } finally {
+      await three.close();
+    }
+  });
+});
+
+const servicesSection = (page: string): string =>
+  page.match(
+    /<section class="services" id="services"[\s\S]*?<\/section>/
+  )?.[0] ?? '';
+
+// Every card in the Services section: its tag, class and href (if a link).
+const serviceCards = (page: string) =>
+  [
+    ...servicesSection(page).matchAll(
+      /<(a|div) class="(service(?: [^"]*)?)"(?: href="([^"]*)")?/g
+    )
+  ].map(([, tag, cls, href]) => ({
+    tag,
+    cls,
+    // An unmatched optional group is undefined at runtime
+    href: href as string | undefined
+  }));
+
+describe('services section', () => {
+  it('sits between the hero and the console', () => {
+    const hero = html.search(/<section\s+class="hero"/);
+    const services = html.indexOf('<section class="services" id="services"');
+    const tryIt = html.indexOf('<section class="try" id="try"');
+    expect(hero).toBeGreaterThan(-1);
+    expect(services).toBeGreaterThan(hero);
+    expect(tryIt).toBeGreaterThan(services);
+  });
+
+  it('has the Services heading and its subline', () => {
+    const section = servicesSection(html);
+    expect(section).toContain('aria-labelledby="services-title"');
+    expect(section).toMatch(/<h2 id="services-title">Services<\/h2>/);
+    expect(section).toContain('Our product suite. All free, all unsolicited.');
+  });
+
+  it('links one card per catalog entry, in order, then More soon', () => {
+    expect(serviceCards(html)).toEqual([
+      { tag: 'a', cls: 'service', href: '/#get-api' },
+      { tag: 'a', cls: 'service', href: '/jet' },
+      { tag: 'div', cls: 'service service--soon', href: undefined }
+    ]);
+    const section = servicesSection(html);
+    for (const text of [
+      'News API',
+      'One random news article about Elon Musk, as JSON.',
+      'Jet tracker',
+      'Open the globe',
+      'More soon',
+      'Shipping next quarter. Which quarter is unspecified.'
+    ]) {
+      expect(section).toContain(text);
+    }
+  });
+
+  it('renders one card per entry for any catalog, escaping its text', async () => {
+    const entry = (n: number) => ({
+      id: `service-${n}`,
+      name: `Service ${n}`,
+      nav: `S${n}`,
+      summary: n === 3 ? 'Uses <b>bold</b> & more.' : `Does thing ${n}.`,
+      href: `/s${n}`,
+      cta: `Open ${n}`
+    });
+    const three = await startTestServer(
+      createApp({ jet: sampleJet(), services: [1, 2, 3].map(entry) })
+    );
+    try {
+      const page = await (await fetch(`${three.url}/`)).text();
+      expect(serviceCards(page).map(({ href }) => href)).toEqual([
+        '/s1',
+        '/s2',
+        '/s3',
+        undefined
+      ]);
+      expect(servicesSection(page)).toContain(
+        'Uses &lt;b&gt;bold&lt;/b&gt; &amp; more.'
+      );
     } finally {
       await three.close();
     }
