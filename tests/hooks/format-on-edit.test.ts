@@ -83,6 +83,14 @@ describe('format-on-edit hook', () => {
     );
   });
 
+  it('reports warnings too, since CI lints with --error-on-warnings', async () => {
+    // noUnusedVariables is a warning whose fix is unsafe, so --write leaves it.
+    await Bun.write(fixture, 'const unused = 1;\nexport const x = 2;\n');
+    const { exitCode, stderr } = await formatOnEdit(fixture);
+    expect(exitCode).toBe(2);
+    expect(stderr).toContain('noUnusedVariables');
+  });
+
   it('reports lint errors that --write cannot fix with exit 2', async () => {
     await Bun.write(
       fixture,
