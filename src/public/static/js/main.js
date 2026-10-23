@@ -167,19 +167,22 @@ if (navigator.clipboard) {
   let userPaused = false;
   let onScreen = true;
 
-  const sync = () => {
+  const syncToggle = () => {
     toggle.setAttribute('aria-pressed', String(userPaused));
   };
 
-  const apply = () => {
+  const updatePlayback = () => {
     if (userPaused || !onScreen) {
       current.pause();
       return;
     }
     // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
-    current.play().catch(() => {
+    // Other rejections, like a pending play() cut short by pause() when the
+    // hero scrolls away, are not the viewer's choice and change nothing.
+    current.play().catch((error) => {
+      if (error.name !== 'NotAllowedError') return;
       userPaused = true;
-      sync();
+      syncToggle();
     });
   };
 
@@ -200,18 +203,19 @@ if (navigator.clipboard) {
       () => hero.classList.add('is-cruising'),
       { once: true }
     );
-    apply();
+    updatePlayback();
   });
 
   toggle.addEventListener('click', () => {
     userPaused = !userPaused;
-    sync();
-    apply();
+    syncToggle();
+    updatePlayback();
   });
 
-  new IntersectionObserver(([entry]) => {
-    onScreen = entry.isIntersecting;
-    apply();
+  // Records can arrive batched (a fast scroll in and out): the last is current.
+  new IntersectionObserver((entries) => {
+    onScreen = entries.at(-1).isIntersecting;
+    updatePlayback();
   }).observe(hero);
 
   toggle.hidden = false;
