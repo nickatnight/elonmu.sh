@@ -1,5 +1,5 @@
-import type * as express from 'express';
 import { AxiosError } from 'axios';
+import type * as express from 'express';
 import { fetchNewsArticle } from '../services/news.service';
 
 export const register = (app: express.Application) => {

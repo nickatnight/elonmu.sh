@@ -4,11 +4,11 @@ import {
   ARC_LATEST,
   ARC_OLDER,
   focusPoint,
-  routeColor,
   limitToReveal,
   PAGE_SIZE,
   pageOf,
   parseSnapshot,
+  routeColor,
   toScene
 } from '../../src/public/static/js/jet.js';
 import { flight, places } from './fakes';

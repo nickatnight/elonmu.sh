@@ -16,6 +16,6 @@
     "noFallthroughCasesInSwitch": true,
     "allowJs": true
   },
-  "include": ["src/**/*", "tests/**/*", "scripts/**/*"],
+  "include": ["src/**/*", "tests/**/*", "scripts/**/*", ".claude/hooks/**/*"],
   "exclude": ["src/public/static/vendor"]
 }

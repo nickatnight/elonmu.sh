@@ -3,9 +3,9 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
 import type { Flight, Place } from '../../src/jet/domain';
+import { JetService } from '../../src/jet/jet.service';
 import placesJson from '../../src/jet/places/places.json';
 import { startTestServer, type TestServer } from '../helpers';
-import { JetService } from '../../src/jet/jet.service';
 import { FakeClock, flight, InMemoryFlightSource } from './fakes';
 
 // Spec success criterion 11 (budgets) and 2 (swappability), as guards.

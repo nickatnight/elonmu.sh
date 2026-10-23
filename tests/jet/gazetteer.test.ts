@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'bun:test';
-import { GazetteerPlaceResolver } from '../../src/jet/places/gazetteer-place-resolver';
-import places from '../../src/jet/places/places.json';
-import { parseElonJetPost } from '../../src/jet/sources/bluesky/parse';
 import {
   mergePlaces,
   missingPlaces,
   serializePlaces
 } from '../../scripts/geocode-places';
+import { GazetteerPlaceResolver } from '../../src/jet/places/gazetteer-place-resolver';
+import places from '../../src/jet/places/places.json';
+import { parseElonJetPost } from '../../src/jet/sources/bluesky/parse';
 import feedPages from '../fixtures/elonjet-feed.json';
 
 const resolver = new GazetteerPlaceResolver(places);
