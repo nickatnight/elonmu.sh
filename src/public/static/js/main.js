@@ -63,6 +63,8 @@ const announce = (text) => {
       img.src = image;
       img.alt = '';
       img.loading = 'lazy';
+      img.width = 640;
+      img.height = 360;
       img.referrerPolicy = 'no-referrer';
       img.onerror = () => {
         media.hidden = true;
@@ -102,7 +104,7 @@ const announce = (text) => {
       });
       const ms = Math.round(performance.now() - started);
       const body = await res.json().catch(() => ({
-        error: 'The response was not JSON.'
+        error: 'The response was not JSON. Please try again.'
       }));
       status.textContent = `${res.status} ${res.ok ? 'OK' : 'Error'} · ${ms} ms`;
       renderJson(body);
