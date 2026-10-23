@@ -17,6 +17,14 @@ describe('commit-msg-guard hook', () => {
     expect(stderr).toContain('feat(hero): fill the first screen');
   });
 
+  it('blocks a bad subject piped in with -F - and a heredoc', async () => {
+    const { exitCode, stderr } = await guard(
+      "git commit -q -F - <<'EOF'\nBad subject\n\nBody.\nEOF"
+    );
+    expect(exitCode).toBe(2);
+    expect(stderr).toContain('Subject: Bad subject');
+  });
+
   it('allows a valid subject', async () => {
     const result = await guard('git commit -m "feat(api): add x"');
     expect(result).toEqual({ exitCode: 0, stderr: '' });

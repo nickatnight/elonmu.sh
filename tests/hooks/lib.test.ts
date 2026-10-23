@@ -14,7 +14,23 @@ describe('extractSubject', () => {
     ['bun run check; git commit -m "chore: z"', 'chore: z'],
     ['git commit -m "feat: a" -m "Body text."', 'feat: a'],
     ['git commit -m "feat: say \\"hi\\""', 'feat: say "hi"'],
-    ['git commit -m "first line\nsecond line"', 'first line']
+    ['git commit -m "first line\nsecond line"', 'first line'],
+    // Flags named in the message or in a later command are not commit flags.
+    [
+      'git commit -m "Bad: handle --file uploads"',
+      'Bad: handle --file uploads'
+    ],
+    [
+      'git commit -m "Bad: explain -F and --fixup"',
+      'Bad: explain -F and --fixup'
+    ],
+    ['git commit -m "Bad" && grep -F x y', 'Bad'],
+    ['git commit -m "Bad"; git log --fixup', 'Bad'],
+    // Options before `commit` and env-var prefixes.
+    ['git -C /repo commit -m "Bad"', 'Bad'],
+    ['git -c user.name=x commit -m "Bad"', 'Bad'],
+    ['GIT_AUTHOR_NAME=x git commit -m "Bad"', 'Bad'],
+    ['cd /repo && GIT_EDITOR=true git -C . commit -m "Bad"', 'Bad']
   ])('reads the subject from %p', (command, subject) => {
     expect(extractSubject(command)).toBe(subject);
   });
@@ -37,14 +53,30 @@ describe('extractSubject', () => {
   });
 
   it.each([
+    "git commit -q -F - <<'EOF'\nBad subject\n\nbody\nEOF",
+    'git commit -F- <<EOF\nBad subject\nEOF',
+    'git commit --file=- <<"EOF"\nBad subject\nEOF',
+    'git commit --file - <<-EOF\n\tBad subject\n\tEOF'
+  ])('reads a message piped from a heredoc on stdin: %p', (command) => {
+    expect(extractSubject(command)).toBe('Bad subject');
+  });
+
+  it.each([
     'git status',
     'git log --oneline -5',
     'git commit',
-    'git commit -F msg.txt',
-    'git commit --file=msg.txt',
+    // Each has an -m that would otherwise be read, so these prove the flag
+    // check rather than passing for lack of a message.
+    'git commit -F msg.txt -m "Bad"',
+    'git commit --file=msg.txt -m "Bad"',
+    'git commit --fixup HEAD~1 -m "Bad"',
+    'git commit --fixup=amend:HEAD -m "Bad"',
+    'git commit --squash=HEAD~1 -m "Bad"',
+    // stdin with no heredoc to read (e.g. piped from printf).
+    'printf "Bad" | git commit -F -',
     'git commit --amend --no-edit',
-    'git commit --fixup HEAD~1',
-    'git commit --squash=HEAD~1 -m "extra"',
+    // A later command's -m is not the commit's message.
+    'git commit --amend --no-edit && git tag -a v1 -m "Bad"',
     'echo "git commit -m \'Bad\'"',
     'git merge main -m "Merge branch main"'
   ])('returns null for %p', (command) => {
