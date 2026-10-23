@@ -27,13 +27,19 @@ describe('commit-msg-guard hook', () => {
     expect(result).toEqual({ exitCode: 0, stderr: '' });
   });
 
-  it.each(['not json', '{}', '{"tool_input":{"command":42}}'])(
-    'fails open on unusable input %p',
-    async (stdin) => {
-      const { exitCode } = await runHook('commit-msg-guard.ts', stdin);
-      expect(exitCode).toBe(0);
-    }
-  );
+  it.each([
+    'not json',
+    '',
+    'null',
+    '"git commit -m Bad"',
+    '{}',
+    '{"tool_input":null}',
+    '{"tool_input":"git commit -m Bad"}',
+    '{"tool_input":{"command":42}}'
+  ])('fails open on unusable input %p', async (stdin) => {
+    const { exitCode } = await runHook('commit-msg-guard.ts', stdin);
+    expect(exitCode).toBe(0);
+  });
 });
 
 describe('.claude/settings.json', () => {

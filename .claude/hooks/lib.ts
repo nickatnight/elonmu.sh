@@ -26,7 +26,7 @@ export const isBiomeTarget = (
   return BIOME_EXTENSIONS.has(path.extname(filePath));
 };
 
-export const COMMIT_TYPES = [
+const COMMIT_TYPES = [
   'feat',
   'fix',
   'docs',
@@ -37,40 +37,36 @@ export const COMMIT_TYPES = [
   'build',
   'ci',
   'chore'
-] as const;
+];
 
-export const MAX_SUBJECT_LENGTH = 72;
-
-export type Verdict = { ok: true } | { ok: false; reason: string };
+const MAX_SUBJECT_LENGTH = 72;
 
 const SUBJECT = new RegExp(
   `^(?:${COMMIT_TYPES.join('|')})(?:\\([a-z0-9-]+\\))?!?: (\\S.*)$`
 );
 
+export type Verdict = { ok: true } | { ok: false; reason: string };
+
+const fail = (reason: string): Verdict => ({ ok: false, reason });
+
 // Checks a commit subject against the Conventional Commits rules in CLAUDE.md.
 export const checkSubject = (subject: string): Verdict => {
-  const match = SUBJECT.exec(subject);
-  if (!match) {
-    return {
-      ok: false,
-      reason: `expected \`<type>(<scope>): <summary>\` with a type from ${COMMIT_TYPES.join(', ')} and a lowercase scope`
-    };
+  const summary = SUBJECT.exec(subject)?.[1];
+  if (summary === undefined) {
+    return fail(
+      `expected \`<type>(<scope>): <summary>\` with a type from ${COMMIT_TYPES.join(', ')} and a lowercase scope`
+    );
   }
-  const summary = match[1];
   if (!/^[a-z]/.test(summary)) {
-    return {
-      ok: false,
-      reason: 'the summary must start with a lowercase letter'
-    };
+    return fail('the summary must start with a lowercase letter');
   }
   if (summary.endsWith('.')) {
-    return { ok: false, reason: 'the summary must not end with a period' };
+    return fail('the summary must not end with a period');
   }
   if (subject.length > MAX_SUBJECT_LENGTH) {
-    return {
-      ok: false,
-      reason: `the subject is ${subject.length} characters; keep it to ${MAX_SUBJECT_LENGTH}`
-    };
+    return fail(
+      `the subject is ${subject.length} characters; keep it to ${MAX_SUBJECT_LENGTH}`
+    );
   }
   return { ok: true };
 };
@@ -122,11 +118,10 @@ export const extractSubject = (command: string): string | null => {
 // to stdin. Null when stdin isn't JSON or the field is missing: hooks fail open.
 export const readToolInput = async (field: string): Promise<string | null> => {
   try {
-    const input: unknown = JSON.parse(await Bun.stdin.text());
-    if (typeof input !== 'object' || input === null) return null;
-    const toolInput: unknown = Reflect.get(input, 'tool_input');
-    if (typeof toolInput !== 'object' || toolInput === null) return null;
-    const value: unknown = Reflect.get(toolInput, field);
+    // Safe on any JSON value: `?.` stops at null, and primitives yield undefined.
+    const value: unknown = JSON.parse(await Bun.stdin.text())?.tool_input?.[
+      field
+    ];
     return typeof value === 'string' ? value : null;
   } catch {
     return null;
