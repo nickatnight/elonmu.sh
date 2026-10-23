@@ -57,6 +57,13 @@ const stylesheet = (): string => {
   return href;
 };
 
+const expectSecurityHeaders = (res: Response): void => {
+  for (const [name, value] of Object.entries(expected)) {
+    expect(res.headers.get(name)).toBe(value);
+  }
+  expect(res.headers.get('x-powered-by')).toBeNull();
+};
+
 describe('security headers', () => {
   it.each([
     ['the landing page', () => '/'],
@@ -64,22 +71,7 @@ describe('security headers', () => {
     ['a hashed static asset', stylesheet],
     ['a 404', () => '/does-not-exist']
   ])('are set on %s', async (_label, path) => {
-    const res = await fetch(`${server.url}${path()}`);
-    for (const [name, value] of Object.entries(expected)) {
-      expect(res.headers.get(name)).toBe(value);
-    }
-    expect(res.headers.get('x-powered-by')).toBeNull();
-  });
-
-  // The CSP blocks inline code, which browsers would drop silently. Catch it
-  // in CI instead: everything must load from files under /static.
-  it.each([
-    ['inline <script> elements', /<script(?![^>]*\ssrc=)[^>]*>/i],
-    ['<style> blocks', /<style[\s>]/i],
-    ['on* event handler attributes', /<[a-z][^>]*\son[a-z]+\s*=/i],
-    ['javascript: URLs', /\b(?:href|src|action)\s*=\s*["']?\s*javascript:/i]
-  ])('the page has no %s, which the CSP would block', (_label, pattern) => {
-    expect(html).not.toMatch(pattern);
+    expectSecurityHeaders(await fetch(`${server.url}${path()}`));
   });
 
   it('are set on the JSON API', async () => {
@@ -88,9 +80,19 @@ describe('security headers', () => {
     });
     const res = await fetch(`${server.url}/api`);
     expect(res.status).toBe(200);
-    for (const [name, value] of Object.entries(expected)) {
-      expect(res.headers.get(name)).toBe(value);
-    }
-    expect(res.headers.get('x-powered-by')).toBeNull();
+    expectSecurityHeaders(res);
+  });
+});
+
+// The CSP blocks inline code, which browsers would drop silently. Catch it in
+// CI instead: everything must load from files under /static.
+describe('page markup vs the CSP', () => {
+  it.each([
+    ['inline <script> elements', /<script(?![^>]*\ssrc=)[^>]*>/i],
+    ['<style> blocks', /<style[\s>]/i],
+    ['on* event handler attributes', /<[a-z][^>]*\son[a-z]+\s*=/i],
+    ['javascript: URLs', /\b(?:href|src|action)\s*=\s*["']?\s*javascript:/i]
+  ])('the page has no %s, which the CSP would block', (_label, pattern) => {
+    expect(html).not.toMatch(pattern);
   });
 });
