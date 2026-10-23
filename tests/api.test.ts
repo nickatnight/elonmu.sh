@@ -12,13 +12,14 @@ import axios, { AxiosError, type AxiosResponse } from 'axios';
 import { createApp } from '../src/app';
 import { newsApiArticle } from './fixtures';
 import { startTestServer, type TestServer } from './helpers';
+import { sampleJet } from './jet/fakes';
 
 // NewsAPI is stubbed at axios.get rather than with mock.module: module mocks
 // persist across bun test files and would leak into the service tests.
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startTestServer(createApp());
+  server = await startTestServer(createApp({ jet: sampleJet() }));
 });
 
 afterEach(() => mock.restore());

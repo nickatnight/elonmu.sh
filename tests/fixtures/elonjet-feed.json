@@ -1,0 +1,1682 @@
+[
+  {
+    "cursor": "fixture-page-2",
+    "feed": [
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myilrfav6o2p",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 782 gallons (2,960 liters). \n~ 5,240 lbs (2,377 kg) of jet fuel used. \n~ $6,083 cost of fuel. \n~ 8 tons of CO2 emissions.",
+            "createdAt": "2026-10-22T21:20:26.710022+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myilrekjcq26"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myilrekjcq26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Austin, Texas, United States. Apx. flt. time 2 h 5 min. ",
+            "createdAt": "2026-10-22T21:20:25.977424+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myiero5zx52w",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off near Savannah, Georgia, United States.",
+            "createdAt": "2026-10-22T19:15:19.860865+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myibpqavtt25",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 299 gallons (1,131 liters). \n~ 2,002 lbs (908 kg) of jet fuel used. \n~ $2,324 cost of fuel. \n~ 3 tons of CO2 emissions.",
+            "createdAt": "2026-10-22T18:20:33.719218+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myibppmcmf2x"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myibppmcmf2x",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed near Savannah, Georgia, United States. Apx. flt. time 47 min.",
+            "createdAt": "2026-10-22T18:20:33.044406+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myi6rb3xpa2t",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off near Savannah, Georgia, United States.",
+            "createdAt": "2026-10-22T17:27:43.711226+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mye2y6ih6k22",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 641 gallons (2,425 liters). \n~ 4,294 lbs (1,948 kg) of jet fuel used. \n~ $4,972 cost of fuel. \n~ 7 tons of CO2 emissions.",
+            "createdAt": "2026-10-21T02:09:21.931677+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mye2y5qgms22"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mye2y5qgms22",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed near Savannah, Georgia, United States. Apx. flt. time 1 h 42 min. ",
+            "createdAt": "2026-10-21T02:09:21.145064+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3myduxrdflr26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-21T00:21:45.686051+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4t7projn2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 696 gallons (2,636 liters). \n~ 4,666 lbs (2,117 kg) of jet fuel used. \n~ $5,438 cost of fuel. \n~ 7 tons of CO2 emissions.",
+            "createdAt": "2026-10-18T05:01:46.827732+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4t7p2voq2d"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4t7p2voq2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed near Savannah, Georgia, United States. Apx. flt. time 1 h 49 min. ",
+            "createdAt": "2026-10-18T05:01:46.080669+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4mt5wgqf2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-18T03:07:23.005000+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4jid3khd23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 504 gallons (1,910 liters). \n~ 3,381 lbs (1,534 kg) of jet fuel used. \n~ $3,940 cost of fuel. \n~ 5 tons of CO2 emissions.",
+            "createdAt": "2026-10-18T02:07:38.092369+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4jicgkiz2h"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4jicgkiz2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 1 h 19 min. ",
+            "createdAt": "2026-10-18T02:07:37.403258+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3my4f2orgkf2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Memphis, Tennessee, United States.",
+            "createdAt": "2026-10-18T00:48:25.612639+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzpkgwwmy2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 902 gallons (3,414 liters). \n~ 6,045 lbs (2,742 kg) of jet fuel used. \n~ $7,035 cost of fuel. \n~ 10 tons of CO2 emissions.",
+            "createdAt": "2026-10-16T23:18:12.480712+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzpkgezns23"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzpkgezns23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Austin, Texas, United States. Apx. flt. time 2 h 24 min. ",
+            "createdAt": "2026-10-16T23:18:11.894307+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzhik53jw27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Burbank, California, United States.",
+            "createdAt": "2026-10-16T20:53:58.782352+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzfdwqm3423",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,021 gallons (3,863 liters). \n~ 6,840 lbs (3,103 kg) of jet fuel used. \n~ $7,961 cost of fuel. \n~ 11 tons of CO2 emissions.",
+            "createdAt": "2026-10-16T20:15:36.750219+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzfdw4gjn2n"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzfdw4gjn2n",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Burbank, California, United States. Apx. flt. time 2 h 43 min. ",
+            "createdAt": "2026-10-16T20:15:36.088746+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzb2euumf27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 448 gallons (1,698 liters). \n~ 3,006 lbs (1,363 kg) of jet fuel used. \n~ $3,498 cost of fuel. \n~ 5 tons of CO2 emissions.",
+            "createdAt": "2026-10-16T18:58:41.053871+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzb2eeazo2n"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxzb2eeazo2n",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Memphis, Tennessee, United States. Apx. flt. time 1 h 10 min. ",
+            "createdAt": "2026-10-16T18:58:40.514798+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxz54fx7op2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-16T17:48:14.325369+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxz47wfhoo2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-16T17:32:18.491102+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxs2rhylt2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 108 gallons (409 liters). \n~ 724 lbs (329 kg) of jet fuel used. \n~ $844 cost of fuel. \n~ 1 tons of CO2 emissions.",
+            "createdAt": "2026-10-16T04:57:48.404189+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxs2qykcr2y"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxs2qykcr2y",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Austin, Texas, United States. Apx. flt. time 17 min.",
+            "createdAt": "2026-10-16T04:57:47.895786+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxry7xz562d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 123 gallons (466 liters). \n~ 824 lbs (374 kg) of jet fuel used. \n~ $961 cost of fuel. \n~ 1 tons of CO2 emissions.",
+            "createdAt": "2026-10-16T04:56:22.945323+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxry7jx2f2m"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxry7jx2f2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 19 min.",
+            "createdAt": "2026-10-16T04:56:22.483905+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxr3tkokt2p",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Temple, Texas, United States.",
+            "createdAt": "2026-10-16T04:40:30.400141+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxxqvoatni2y",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Temple, Texas, United States.",
+            "createdAt": "2026-10-16T04:37:03.509077+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxx7wtegiv23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 881 gallons (3,336 liters). \n~ 5,906 lbs (2,679 kg) of jet fuel used. \n~ $6,883 cost of fuel. \n~ 9 tons of CO2 emissions.",
+            "createdAt": "2026-10-15T23:33:28.813208+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxx7wstsxf27"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxx7wstsxf27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Temple, Texas, United States. Apx. flt. time 2 h 18 min. ",
+            "createdAt": "2026-10-15T23:33:28.269139+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxx3hr5m352j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Temple, Texas, United States. Apx. flt. time 20 min.",
+            "createdAt": "2026-10-15T22:13:28.208249+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxx2ckuvqz2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-15T21:52:40.117191+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxwy7cbzo52y",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Burbank, California, United States.",
+            "createdAt": "2026-10-15T21:15:02.963824+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxvjjbyqwl2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 975 gallons (3,690 liters). \n~ 6,532 lbs (2,963 kg) of jet fuel used. \n~ $7,612 cost of fuel. \n~ 10 tons of CO2 emissions.",
+            "createdAt": "2026-10-15T07:19:32.339796+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxvjjbkeum2i"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxvjjbkeum2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Burbank, California, United States. Apx. flt. time 2 h 33 min. ",
+            "createdAt": "2026-10-15T07:19:31.868562+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxvaxk5r3r2n",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Temple, Texas, United States.",
+            "createdAt": "2026-10-15T04:46:26.975982+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxv3ptnorj23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,058 gallons (4,005 liters). \n~ 7,091 lbs (3,217 kg) of jet fuel used. \n~ $8,253 cost of fuel. \n~ 11 tons of CO2 emissions.",
+            "createdAt": "2026-10-15T03:12:39.784660+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxv3pt4bmw2f"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxv3pt4bmw2f",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Temple, Texas, United States. Apx. flt. time 2 h 46 min. ",
+            "createdAt": "2026-10-15T03:12:39.124230+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxusgnkdos2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from San Jose, California, United States.",
+            "createdAt": "2026-10-15T00:26:27.721828+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxsdgyllhs23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 316 gallons (1,198 liters). \n~ 2,121 lbs (962 kg) of jet fuel used. \n~ $2,475 cost of fuel. \n~ 3 tons of CO2 emissions.",
+            "createdAt": "2026-10-14T00:52:53.697339+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxsdgy3zfs2j"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxsdgy3zfs2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in San Jose, California, United States. Apx. flt. time 49 min.",
+            "createdAt": "2026-10-14T00:52:53.184831+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxsao43epa2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Burbank, California, United States.",
+            "createdAt": "2026-10-14T00:03:11.015693+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxs6hluljs24",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 287 gallons (1,086 liters). \n~ 1,922 lbs (872 kg) of jet fuel used. \n~ $2,243 cost of fuel. \n~ 3 tons of CO2 emissions.",
+            "createdAt": "2026-10-13T23:23:45.207059+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxs6hlebuf2h"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxs6hlebuf2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Burbank, California, United States. Apx. flt. time 45 min.",
+            "createdAt": "2026-10-13T23:23:44.671887+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxs3wxwe7n2f",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from San Jose, California, United States.",
+            "createdAt": "2026-10-13T22:38:39.938475+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxrzuizb4r24",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,144 gallons (4,331 liters). \n~ 7,667 lbs (3,478 kg) of jet fuel used. \n~ $8,946 cost of fuel. \n~ 12 tons of CO2 emissions.",
+            "createdAt": "2026-10-13T22:01:29.712018+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxrzuii7u323"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxrzuii7u323",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in San Jose, California, United States. Apx. flt. time 2 h 59 min. ",
+            "createdAt": "2026-10-13T22:01:29.154555+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxrpt4q3jd24",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-13T19:01:45.855339+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxpi3ada5i2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 468 gallons (1,773 liters). \n~ 3,139 lbs (1,424 kg) of jet fuel used. \n~ $3,663 cost of fuel. \n~ 5 tons of CO2 emissions.",
+            "createdAt": "2026-10-12T21:37:48.653257+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxpi37imzv23"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxpi37imzv23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 1 h 13 min. ",
+            "createdAt": "2026-10-12T21:37:47.780104+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxpdxmyyel23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Memphis, Tennessee, United States.",
+            "createdAt": "2026-10-12T20:24:12.765069+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxnjhj5yrv2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 462 gallons (1,750 liters). \n~ 3,099 lbs (1,406 kg) of jet fuel used. \n~ $3,616 cost of fuel. \n~ 5 tons of CO2 emissions.",
+            "createdAt": "2026-10-12T02:57:14.836571+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxnjhikxjl2h"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxnjhikxjl2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Memphis, Tennessee, United States. Apx. flt. time 1 h 12 min. ",
+            "createdAt": "2026-10-12T02:57:14.213534+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxnfg5tdve2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-12T01:44:54.434244+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxini5vo3g2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 858 gallons (3,248 liters). \n~ 5,751 lbs (2,609 kg) of jet fuel used. \n~ $6,642 cost of fuel. \n~ 9 tons of CO2 emissions.",
+            "createdAt": "2026-10-10T04:25:52.862445+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxini5bhmh23"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxini5bhmh23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Austin, Texas, United States. Apx. flt. time 2 h 17 min. ",
+            "createdAt": "2026-10-10T04:25:52.195333+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxifsnfht72f",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Burbank, California, United States.",
+            "createdAt": "2026-10-10T02:08:34.718532+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxi4lsqnhu2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 952 gallons (3,605 liters). \n~ 6,383 lbs (2,895 kg) of jet fuel used. \n~ $7,371 cost of fuel. \n~ 10 tons of CO2 emissions.",
+            "createdAt": "2026-10-09T23:23:41.769400+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxi4ls7jkc2m"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxi4ls7jkc2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Burbank, California, United States. Apx. flt. time 2 h 32 min. ",
+            "createdAt": "2026-10-09T23:23:41.208334+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxfos3ysqm2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,065 gallons (4,031 liters). \n~ 7,137 lbs (3,237 kg) of jet fuel used. \n~ $8,210 cost of fuel. \n~ 11 tons of CO2 emissions.",
+            "createdAt": "2026-10-09T00:11:20.939122+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxfos3i4ih27"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxfos3i4ih27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 2 h 47 min. ",
+            "createdAt": "2026-10-09T00:11:20.390599+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxffgj4kuo2f",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Dulles, Virginia, United States.",
+            "createdAt": "2026-10-08T21:23:48.366057+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxetfqxdev2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 869 gallons (3,289 liters). \n~ 5,824 lbs (2,642 kg) of jet fuel used. \n~ $6,700 cost of fuel. \n~ 9 tons of CO2 emissions.",
+            "createdAt": "2026-10-08T16:01:15.674214+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxetfqiteb2i"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxetfqiteb2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Dulles, Virginia, United States. Apx. flt. time 2 h 16 min. ",
+            "createdAt": "2026-10-08T16:01:15.201785+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxelrbigo62n",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-08T13:44:32.177349+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxdn2wzf4o2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,008 gallons (3,816 liters). \n~ 6,757 lbs (3,065 kg) of jet fuel used. \n~ $7,743 cost of fuel. \n~ 11 tons of CO2 emissions.",
+            "createdAt": "2026-10-08T04:35:10.745947+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxdn2wmem223"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxdn2wmem223",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 2 h 38 min. ",
+            "createdAt": "2026-10-08T04:35:10.319124+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxde7sgb2s2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from San Jose, California, United States.",
+            "createdAt": "2026-10-08T01:56:50.021032+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxawtp6o3w2d",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 590 gallons (2,232 liters). \n~ 3,952 lbs (1,792 kg) of jet fuel used. \n~ $4,517 cost of fuel. \n~ 6 tons of CO2 emissions.",
+            "createdAt": "2026-10-07T02:52:05.852019+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxawtos6wz27"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxawtos6wz27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Austin, Texas, United States. Apx. flt. time 1 h 34 min. ",
+            "createdAt": "2026-10-07T02:52:05.444007+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxarlfiuui2f",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-07T01:17:58.558216+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mxa7akzy562y",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in San Jose, California, United States.",
+            "createdAt": "2026-10-06T19:49:47.907394+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mx7v2twn4g2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-10-06T16:47:38.491645+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mx33jv64km27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 647 gallons (2,451 liters). \n~ 4,339 lbs (1,968 kg) of jet fuel used. \n~ $4,959 cost of fuel. \n~ 7 tons of CO2 emissions.",
+            "createdAt": "2026-10-04T19:00:06.846730+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mx33jumxmz2j"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mx33jumxmz2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 1 h 41 min. ",
+            "createdAt": "2026-10-04T19:00:06.302229+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mx2vu2kfrb2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Denver, Colorado, United States.",
+            "createdAt": "2026-10-04T17:18:25.603279+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:at2e7q6kwfhdwv7267mjsflz/app.bsky.feed.post/3mwz7qvbobc2h",
+          "author": {
+            "handle": "jacks.grndcntrl.net"
+          },
+          "record": {
+            "text": "Spotted Kimbal Musk’s jet in Dallas this evening.",
+            "createdAt": "2026-10-04T01:10:17.369Z"
+          }
+        },
+        "reason": {
+          "$type": "app.bsky.feed.defs#reasonRepost"
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwz6jvnizc24",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Denver, Colorado, United States.",
+            "createdAt": "2026-10-04T00:48:29.116965+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwyyqtkyzc2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 took off a bit ago from Austin",
+            "createdAt": "2026-10-03T23:04:59.393Z"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwypoittua2m",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 520 gallons (1,968 liters). \n~ 3,484 lbs (1,580 kg) of jet fuel used. \n~ $3,966 cost of fuel. \n~ 5 tons of CO2 emissions.",
+            "createdAt": "2026-10-03T20:22:37.338426+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwypoifc7327"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwypoifc7327",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Austin, Texas, United States. Apx. flt. time 1 h 21 min. ",
+            "createdAt": "2026-10-03T20:22:36.859800+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwyl4k5kp624",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Memphis, Tennessee, United States.",
+            "createdAt": "2026-10-03T19:00:59.757725+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwwxowzj5s2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,243 gallons (4,705 liters). \n~ 8,330 lbs (3,778 kg) of jet fuel used. \n~ $9,408 cost of fuel. \n~ 13 tons of CO2 emissions.",
+            "createdAt": "2026-10-03T03:40:42.662443+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwwxowik6s2l"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwwxowik6s2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Memphis, Tennessee, United States. Apx. flt. time 3 h 15 min. ",
+            "createdAt": "2026-10-03T03:40:42.106417+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mwwms36imo2y",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from San Jose, California, United States.",
+            "createdAt": "2026-10-03T00:25:36.523131+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs7rxtmbw2a",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ -6 gallons (-22 liters). \n~ -40 lbs (-18 kg) of jet fuel used. \n~ $-40 cost of fuel. \n~ -0.0625 tons of CO2 emissions.",
+            "createdAt": "2026-07-16T21:51:05.653907+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs7rwxzgc23"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs7rwxzgc23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed near Brownsville, Texas, United States. Apx. flt. time 59 min.",
+            "createdAt": "2026-07-16T21:51:04.752018+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs7kmeo3y26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Brownsville, Texas, United States.",
+            "createdAt": "2026-07-16T21:46:58.750620+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs6p72rsp2k",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,125 gallons (4,260 liters). \n~ 7,542 lbs (3,421 kg) of jet fuel used. \n~ $7,663 cost of fuel. \n~ 12 tons of CO2 emissions.",
+            "createdAt": "2026-07-16T21:31:38.824180+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs6p6pfmh2i"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqs6p6pfmh2i",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Brownsville, Texas, United States. Apx. flt. time 3 h.",
+            "createdAt": "2026-07-16T21:31:38.453036+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqrunbolbe2g",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from San Jose, California, United States.",
+            "createdAt": "2026-07-16T18:31:37.041750+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqn4zxbog2r",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,145 gallons (4,334 liters). \n~ 7,673 lbs (3,480 kg) of jet fuel used. \n~ $7,796 cost of fuel. \n~ 12 tons of CO2 emissions.",
+            "createdAt": "2026-07-16T06:44:36.137686+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqn4zdqm624"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqn4zdqm624",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in San Jose, California, United States. Apx. flt. time 3 h 3 min. ",
+            "createdAt": "2026-07-16T06:44:34.681399+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqcvhfdv22e",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Brownsville, Texas, United States.",
+            "createdAt": "2026-07-16T03:41:24.376435+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqb23jnqs2t",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 314 gallons (1,190 liters). \n~ 2,107 lbs (956 kg) of jet fuel used. \n~ $2,131 cost of fuel. \n~ 3 tons of CO2 emissions.",
+            "createdAt": "2026-07-16T03:08:12.222645+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqb2336xl24"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqb2336xl24",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Landed in Brownsville, Texas, United States. Apx. flt. time 50 min.",
+            "createdAt": "2026-07-16T03:08:11.749672+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqqab5omrd2g",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Landed in Brownsville, Texas, United States.",
+            "createdAt": "2026-07-16T02:54:15.621814+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqq6a3jbx62g",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N8628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-07-16T02:17:52.312606+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mqq5lv3gor2x",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N7628 Took off from Austin, Texas, United States.",
+            "createdAt": "2026-07-16T02:06:34.475589+00:00"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "feed": [
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mijnfjqfpl2x",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Took off from Tokyo, Tōkyō Prefecture, Japan.",
+            "createdAt": "2026-04-02T16:39:09.928333+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mijj3aftz52n",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 3,320 gallons (12,569 liters). \n~ 22,254 lbs (10,094 kg) of jet fuel used. \n~ $22,811 cost of fuel. \n~ 35 tons of CO2 emissions.",
+            "createdAt": "2026-04-02T15:21:49.598156+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mijj37r7cb2x"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mijj37r7cb2x",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Landed in Tokyo, Tōkyō Prefecture, Japan. Apx. flt. time 6 h 36 min. ",
+            "createdAt": "2026-04-02T15:21:48.953497+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3miiswz6bsq2r",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Took off near New Delhi, Delhi (National Capital Territory), India.",
+            "createdAt": "2026-04-02T08:45:44.514948+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mie6p23w422z",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Landed near New Delhi, Delhi (National Capital Territory), India.",
+            "createdAt": "2026-03-31T12:32:44.256360+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mid6cedp6c2o",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Took off from Chitose, Hokkaidō Prefecture, Japan.",
+            "createdAt": "2026-03-31T02:52:59.051162+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mid4nkq76c26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Possibly related",
+            "createdAt": "2026-03-31T02:23:27.395Z"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mid2kg7ivc2x",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Landed in Sapporo, Hokkaidō Prefecture, Japan.",
+            "createdAt": "2026-03-31T01:45:54.479463+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mibtq5a7522r",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "N628TS Took off from Temple, Texas, United States.",
+            "createdAt": "2026-03-30T14:11:10.461763+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mczzkll45r26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Took off from Zurich, Zürich, Switzerland.",
+            "createdAt": "2026-01-22T20:28:10.587606+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mczehxpgtc2s",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Elon’s plane captured in Zurich. Elon will be attending the World Economic Forum, in Davos.",
+            "createdAt": "2026-01-22T14:10:54.072Z"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mczbs6udnd2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 5,121 gallons (19,386 liters). \n~ 34,323 lbs (15,569 kg) of jet fuel used. \n~ $28,782 cost of fuel. \n~ 54 tons of CO2 emissions.",
+            "createdAt": "2026-01-22T13:22:55.886865+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mczbs6f4dl2h"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mczbs6f4dl2h",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Landed in Zurich, Zürich, Switzerland. Apx. flt. time 10 h 10 min. ",
+            "createdAt": "2026-01-22T13:22:55.386655+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3mcy7nqrcho27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Took off from San Jose, California, United States.",
+            "createdAt": "2026-01-22T03:11:59.669414+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6zw4dz3wb25",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,605 gallons (6,075 liters). \n~ 10,755 lbs (4,879 kg) of jet fuel used. \n~ $9,179 cost of fuel. \n~ 17 tons of CO2 emissions.",
+            "createdAt": "2025-12-02T21:45:45.131730+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6zw4djyjp27"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6zw4djyjp27",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Landed in San Jose, California, United States. Apx. flt. time 3 h 11 min. ",
+            "createdAt": "2025-12-02T21:45:44.635536+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6zlg2zpcd2j",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Took off from Austin, Texas, United States.",
+            "createdAt": "2025-12-02T18:34:20.099770+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6vpixguaf23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,393 gallons (5,273 liters). \n~ 9,335 lbs (4,234 kg) of jet fuel used. \n~ $7,967 cost of fuel. \n~ 15 tons of CO2 emissions.",
+            "createdAt": "2025-12-01T05:36:53.012843+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6vpix4m4f23"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6vpix4m4f23",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Landed in Austin, Texas, United States. Apx. flt. time 2 h 46 min. ",
+            "createdAt": "2025-12-01T05:36:52.673316+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6vg7reclx2l",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Took off from Pittsburgh, Pennsylvania, United States.",
+            "createdAt": "2025-12-01T02:50:40.974017+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6ve5gjqv326",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "\n~ 1,031 gallons (3,902 liters). \n~ 6,909 lbs (3,134 kg) of jet fuel used. \n~ $5,897 cost of fuel. \n~ 11 tons of CO2 emissions.",
+            "createdAt": "2025-12-01T02:13:35.025244+00:00",
+            "reply": {
+              "parent": {
+                "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6ve5g6ahh2c"
+              }
+            }
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6ve5g6ahh2c",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Landed in Pittsburgh, Pennsylvania, United States. Apx. flt. time 2 h 2 min. ",
+            "createdAt": "2025-12-01T02:13:34.650027+00:00"
+          }
+        }
+      },
+      {
+        "post": {
+          "uri": "at://did:plc:62cuohm6c6nefpnw4uujepty/app.bsky.feed.post/3m6v5biwdzn26",
+          "author": {
+            "handle": "elonjet.net"
+          },
+          "record": {
+            "text": "Took off from Austin, Texas, United States.",
+            "createdAt": "2025-12-01T00:10:35.556930+00:00"
+          }
+        }
+      }
+    ]
+  }
+]

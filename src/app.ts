@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import compression from 'compression';
 import express from 'express';
+import { createJetModule } from './jet';
+import type { JetQuery } from './jet/ports';
 import { securityHeaders } from './middleware/security-headers';
 import * as routes from './routes';
 
@@ -26,7 +29,13 @@ const assetUrl = (file: string): string => {
   return url;
 };
 
-export const createApp = (): express.Express => {
+export type AppDeps = { jet?: JetQuery };
+
+// Dependencies are injectable so tests never touch a live flight source; the
+// default wiring lives in the jet composition root.
+export const createApp = ({
+  jet = createJetModule()
+}: AppDeps = {}): express.Express => {
   const app = express();
   app.disable('x-powered-by');
 
@@ -40,6 +49,10 @@ export const createApp = (): express.Express => {
 
   // Configure Express to parse incoming JSON data
   app.use(express.json());
+
+  // Gzip compressible responses (HTML, JSON, CSS, JS). Mounted before static
+  // so assets are compressed too; video and images are skipped by type.
+  app.use(compression());
 
   // Configure static serving. Crawlers fetch robots.txt and sitemap.xml by
   // bare URL (no ?v= hash), so those two get a one-day cache instead.
@@ -55,7 +68,7 @@ export const createApp = (): express.Express => {
   );
 
   // Configure routes
-  routes.register(app);
+  routes.register(app, jet);
 
   // Configure Errors
   app.use((_req, res) => {

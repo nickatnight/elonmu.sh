@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!bun.lock"]
+    "includes": ["**", "!bun.lock", "!src/public/static/vendor"]
   },
   "formatter": {
     "enabled": true,

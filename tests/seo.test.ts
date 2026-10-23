@@ -1,12 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
 import { startTestServer, type TestServer } from './helpers';
+import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
 let html: string;
 
 beforeAll(async () => {
-  server = await startTestServer(createApp());
+  server = await startTestServer(createApp({ jet: sampleJet() }));
   html = await (await fetch(`${server.url}/`)).text();
 });
 
