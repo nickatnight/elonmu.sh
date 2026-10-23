@@ -66,11 +66,6 @@ Production runs on [Render](https://render.com) as a Docker web service, built
 from the `Dockerfile` in this repo. Merging to `main` deploys automatically once
 CI passes, and Render health-checks `/healthz` (which never calls NewsAPI).
 
-The Render service, its custom domain and its `NEWS_API_KEY` (read from AWS
-Secrets Manager) are managed as Terraform in
-[`nickatnight/emgee-labs-infra`](https://github.com/nickatnight/emgee-labs-infra)
-under `projects/elonmush/production`. Change them there, not in the Render dashboard.
-
 To run the production image locally:
 
 ```shell
