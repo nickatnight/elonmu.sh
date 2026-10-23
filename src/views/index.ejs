@@ -59,7 +59,37 @@
     </header>
 
     <main id="main">
-      <section class="hero" aria-labelledby="hero-title">
+      <section
+        class="hero"
+        aria-labelledby="hero-title"
+        style="--still: url(<%= asset('static/video/clown-cruise-poster.jpg') %>)"
+      >
+        <%# Plays once; without JS it ends and holds on the space frame. %>
+        <video
+          class="hero__video hero__video--launch"
+          autoplay
+          muted
+          playsinline
+          preload="auto"
+          poster="<%= asset('static/video/clown-launch-poster.jpg') %>"
+          aria-hidden="true"
+        >
+          <source src="<%= asset('static/video/clown-launch.webm') %>" type="video/webm" />
+          <source src="<%= asset('static/video/clown-launch.mp4') %>" type="video/mp4" />
+        </video>
+        <%# JS-only: loaded once the launch starts, faded in when it ends. %>
+        <video
+          class="hero__video hero__video--cruise"
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster="<%= asset('static/video/clown-cruise-poster.jpg') %>"
+          aria-hidden="true"
+        >
+          <source src="<%= asset('static/video/clown-cruise.webm') %>" type="video/webm" />
+          <source src="<%= asset('static/video/clown-cruise.mp4') %>" type="video/mp4" />
+        </video>
         <h1 class="hero__title" id="hero-title">
           <span class="line"><span>Musk as</span></span>
           <span class="line"><span>a Service</span></span>
@@ -68,7 +98,13 @@
           One endpoint. One random news article about our Lord and Savior, Elon
           Musk, as JSON. Free, no key, no signup. /s
         </p>
+        <a class="hero__cue" href="#try" tabindex="-1" aria-hidden="true">↓</a>
+        <button class="hero__toggle" type="button" aria-pressed="false" aria-label="Pause background" hidden>
+          <span class="hero__toggle-icon" aria-hidden="true"></span>
+        </button>
+      </section>
 
+      <section class="try" id="try" aria-label="Try the API">
         <figure class="console" data-ui aria-label="Request and response">
           <div class="console__bar">
             <code class="console__method">GET</code>

@@ -1,4 +1,4 @@
-// elonmu.sh: the live console, copy buttons, and section entrances.
+// elonmu.sh: the live console, copy buttons, hero clips, and section entrances.
 const announce = (text) => {
   document.querySelector('.announce').textContent = text;
 };
@@ -144,6 +144,82 @@ if (navigator.clipboard) {
     });
   }
 }
+
+// The hero clips: the launch plays once, then the cruise loop fades in over
+// its last frame. The toggle pauses whichever is playing, and both pause
+// while the hero is off-screen.
+(() => {
+  const hero = document.querySelector('.hero');
+  const launch = hero.querySelector('.hero__video--launch');
+  const cruise = hero.querySelector('.hero__video--cruise');
+  const toggle = hero.querySelector('.hero__toggle');
+
+  // Reduced motion: the CSS shows a still, so stop the hidden launch and
+  // drop its sources to end the download.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    launch.pause();
+    launch.replaceChildren();
+    launch.load();
+    return;
+  }
+
+  let current = launch;
+  let userPaused = false;
+  let onScreen = true;
+
+  const syncToggle = () => {
+    toggle.setAttribute('aria-pressed', String(userPaused));
+  };
+
+  const updatePlayback = () => {
+    if (userPaused || !onScreen) {
+      current.pause();
+      return;
+    }
+    // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
+    // Other rejections, like a pending play() cut short by pause() when the
+    // hero scrolls away, are not the viewer's choice and change nothing.
+    current.play().catch((error) => {
+      if (error.name !== 'NotAllowedError') return;
+      userPaused = true;
+      syncToggle();
+    });
+  };
+
+  const loadCruise = () => {
+    cruise.preload = 'auto';
+    cruise.load();
+  };
+  if (launch.paused) {
+    launch.addEventListener('playing', loadCruise, { once: true });
+  } else {
+    loadCruise();
+  }
+
+  launch.addEventListener('ended', () => {
+    current = cruise;
+    cruise.addEventListener(
+      'playing',
+      () => hero.classList.add('is-cruising'),
+      { once: true }
+    );
+    updatePlayback();
+  });
+
+  toggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    syncToggle();
+    updatePlayback();
+  });
+
+  // Records can arrive batched (a fast scroll in and out): the last is current.
+  new IntersectionObserver((entries) => {
+    onScreen = entries.at(-1).isIntersecting;
+    updatePlayback();
+  }).observe(hero);
+
+  toggle.hidden = false;
+})();
 
 // Sections rise in once as they enter. Without this script, or with reduced
 // motion, they are simply visible.

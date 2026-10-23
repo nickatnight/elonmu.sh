@@ -30,6 +30,8 @@
 
   --margin: clamp(1rem, 0.5rem + 2vw, 2rem);
   --topbar: 3.75rem;
+  --hero-bg: #05070a;
+  --hero-ink: #f4f5f7;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -173,12 +175,57 @@ pre {
   font-size: var(--step-small);
 }
 
-/* Hero: the name, one sentence, and the API answering. */
+/* Hero: the name and one sentence, filling the first screen, over the
+   launch clip. It stays dark in both colour schemes. */
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  align-content: end;
   column-gap: 3rem;
-  padding: clamp(2.5rem, 8vh, 6rem) var(--margin) clamp(5rem, 10vw, 9rem);
+  min-height: calc(100svh - var(--topbar));
+  padding: clamp(2.5rem, 8vh, 6rem) var(--margin) clamp(4rem, 9vh, 6.5rem);
+  background: var(--hero-bg);
+  color: var(--hero-ink);
+}
+
+/* The clips cover the hero, with the clown kept in view right of centre. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 50%;
+}
+
+/* The cruise loop fades in over the launch's last frame. */
+.hero__video--cruise {
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+
+.hero.is-cruising .hero__video--cruise {
+  opacity: 1;
+}
+
+/* Scrim: darkens the left and the bottom, where the text sits. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to right,
+      rgb(5 7 10 / 0.85),
+      rgb(5 7 10 / 0.4) 55%,
+      rgb(5 7 10 / 0) 80%
+    ),
+    linear-gradient(to top, rgb(5 7 10 / 0.85), rgb(5 7 10 / 0) 55%);
 }
 
 .hero__title {
@@ -212,10 +259,64 @@ pre {
   animation: fade 700ms ease-out 450ms both;
 }
 
+/* Scroll cue: points down at the console below the fold. */
+.hero__cue {
+  position: absolute;
+  bottom: clamp(1rem, 3vh, 1.75rem);
+  left: 50%;
+  translate: -50% 0;
+  font-size: var(--step-lead);
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.7;
+  animation: fade 700ms ease-out 900ms both;
+}
+
+/* Pause toggle: a small round button in the hero's bottom-right corner. */
+.hero__toggle {
+  position: absolute;
+  right: var(--margin);
+  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  border-radius: 999px;
+  background: rgb(5 7 10 / 0.45);
+  color: var(--hero-ink);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.hero__toggle:hover {
+  background: rgb(5 7 10 / 0.75);
+}
+
+.hero__toggle[hidden] {
+  display: none;
+}
+
+/* Two bars while playing, a triangle while paused. */
+.hero__toggle-icon {
+  width: 0.7rem;
+  height: 0.8rem;
+  border-inline: 0.22rem solid currentColor;
+}
+
+.hero__toggle[aria-pressed="true"] .hero__toggle-icon {
+  border: 0;
+  background: currentColor;
+  clip-path: polygon(15% 0, 100% 50%, 15% 100%);
+}
+
 /* The console: a real-size fragment of the API's request and response. */
+.try {
+  margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);
+}
+
 .console {
-  grid-column: 1 / -1;
-  margin-top: clamp(2.5rem, 6vh, 4rem);
   background: var(--code-bg);
   color: var(--code-ink);
   animation: fade 900ms var(--ease-out) 650ms both;
@@ -408,7 +509,9 @@ pre {
 
 @media (max-width: 56rem) {
   .hero {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
   }
 
   .praise {
@@ -426,7 +529,18 @@ pre {
   }
 
   .hero__lead {
+    align-self: start;
     margin-top: 2rem;
+  }
+
+  /* Portrait crops put the rocket behind the text: darken the lower half. */
+  .hero::before {
+    background: linear-gradient(
+      to top,
+      rgb(5 7 10 / 0.92),
+      rgb(5 7 10 / 0.82) 40%,
+      rgb(5 7 10 / 0) 72%
+    );
   }
 
   .console__body {
@@ -458,12 +572,22 @@ pre {
 @media (prefers-reduced-motion: reduce) {
   .line > span,
   .hero__lead,
+  .hero__cue,
   .console {
     animation: none;
   }
 
   .button {
     transition: none;
+  }
+
+  /* No clips: the cruise poster stands in as a still. */
+  .hero {
+    background: var(--hero-bg) var(--still) 72% 50% / cover no-repeat;
+  }
+
+  .hero__video {
+    display: none;
   }
 }
 
