@@ -442,3 +442,128 @@ a.card__link[href] {
   opacity: 1;
   transform: none;
 }
+
+/* Reference rows: prose on the left, its code on a dark column. */
+.doc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 0 var(--margin);
+}
+
+.doc__prose {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: clamp(3rem, 6vw, 5.5rem) clamp(0rem, 4vw, 4rem)
+    clamp(3rem, 6vw, 5.5rem) 0;
+}
+
+.doc__prose p {
+  max-width: 60ch;
+}
+
+.doc h2 {
+  font-size: var(--step-head);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.doc__prose code {
+  padding: 0.1em 0.35em;
+  background: var(--surface);
+}
+
+.doc h2 code {
+  padding: 0;
+  background: none;
+  font-size: 0.85em;
+}
+
+.doc h3 {
+  margin-top: 1.25rem;
+  font-size: var(--step-body);
+}
+
+.doc__code {
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  background: var(--code-bg);
+}
+
+.code {
+  background: var(--code-bar);
+  color: var(--code-ink);
+}
+
+.code figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  background: var(--raised-code, #1a1d23);
+  color: var(--code-muted);
+  font-size: var(--step-small);
+}
+
+.code pre {
+  padding: 1.25rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.copy {
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 150ms var(--ease-out);
+}
+
+.copy:hover {
+  transform: translateY(-1px);
+}
+
+.copy[hidden] {
+  display: none;
+}
+
+/* Real tables keep their lines. */
+.fields {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step-small);
+}
+
+.fields th,
+.fields td {
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--raised);
+  text-align: left;
+  vertical-align: top;
+}
+
+.fields th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+@media (max-width: 56rem) {
+  .doc {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .doc__prose {
+    padding-right: 0;
+    padding-bottom: 2rem;
+  }
+
+  .doc__code {
+    margin: 0 calc(var(--margin) * -1);
+    padding: var(--margin);
+  }
+}

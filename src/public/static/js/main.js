@@ -1,12 +1,12 @@
-// elonmu.sh: the hero console's live request, and section entrances.
-(() => {
-  const consoleEl = document.querySelector('.console');
-  if (!consoleEl) return;
+// elonmu.sh: the live console, copy buttons, and section entrances.
+const announce = (text) => {
+  document.querySelector('.announce').textContent = text;
+};
 
-  const $ = (selector) => consoleEl.querySelector(selector);
+(() => {
+  const $ = (selector) => document.querySelector(selector);
   const send = $('.console__send');
   const status = $('.console__status');
-  const announce = $('.console__announce');
   const media = $('.card__media');
   const meta = $('.card__meta');
   const title = $('.card__title');
@@ -19,9 +19,7 @@
   const safeUrl = (value) => {
     try {
       const url = new URL(value);
-      return url.protocol === 'https:' || url.protocol === 'http:'
-        ? url.href
-        : null;
+      return /^https?:$/.test(url.protocol) ? url.href : null;
     } catch {
       return null;
     }
@@ -64,10 +62,7 @@
       const img = document.createElement('img');
       img.src = image;
       img.alt = '';
-      img.width = 640;
-      img.height = 360;
       img.loading = 'lazy';
-      img.decoding = 'async';
       img.referrerPolicy = 'no-referrer';
       img.onerror = () => {
         media.hidden = true;
@@ -86,16 +81,14 @@
       link.href = href;
       link.rel = 'noopener noreferrer';
     }
-    announce.textContent = `Loaded: ${title.textContent}`;
+    announce(`Loaded: ${title.textContent}`);
   };
 
   const renderError = (message) => {
-    media.hidden = true;
+    media.hidden = desc.hidden = link.hidden = true;
     meta.textContent = 'Error';
     title.textContent = message;
-    desc.hidden = true;
-    link.hidden = true;
-    announce.textContent = `Error: ${message}`;
+    announce(`Error: ${message}`);
   };
 
   const fetchArticle = async () => {
@@ -116,9 +109,10 @@
       if (body.error) renderError(body.error);
       else renderArticle(body);
     } catch {
+      const error = 'Could not reach elonmu.sh. Please try again later.';
       status.textContent = 'No response';
-      renderJson({ error: 'Could not reach elonmu.sh.' });
-      renderError('Could not reach elonmu.sh. Please try again later.');
+      renderJson({ error });
+      renderError(error);
     } finally {
       send.disabled = false;
       send.textContent = 'Send';
@@ -129,29 +123,41 @@
   send.addEventListener('click', fetchArticle);
 })();
 
-// Sections below the fold rise in once as they enter. Without this script
-// (or with reduced motion) they are simply visible.
-(() => {
-  const targets = document.querySelectorAll('[data-reveal]');
-  if (
-    !targets.length ||
-    !('IntersectionObserver' in window) ||
-    matchMedia('(prefers-reduced-motion: reduce)').matches
-  ) {
-    return;
+// Copy buttons stay hidden when the Clipboard API is missing.
+if (navigator.clipboard) {
+  for (const button of document.querySelectorAll('.copy')) {
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      const code = button.closest('figure').querySelector('pre').textContent;
+      try {
+        await navigator.clipboard.writeText(code);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Failed';
+      }
+      announce(button.textContent);
+      setTimeout(() => {
+        button.textContent = 'Copy';
+      }, 1500);
+    });
   }
+}
+
+// Sections rise in once as they enter. Without this script, or with reduced
+// motion, they are simply visible.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        entry.target.classList.add('is-in');
-        observer.unobserve(entry.target);
+      for (const { isIntersecting, target } of entries) {
+        if (!isIntersecting) continue;
+        target.classList.add('is-in');
+        observer.unobserve(target);
       }
     },
     { rootMargin: '0px 0px -10% 0px' }
   );
-  for (const target of targets) {
+  for (const target of document.querySelectorAll('[data-reveal]')) {
     target.classList.add('will-reveal');
     observer.observe(target);
   }
-})();
+}

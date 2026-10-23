@@ -80,6 +80,29 @@ describe('GET /', () => {
     expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
   });
 
+  it('documents a response example with the real /api keys', () => {
+    const block = html.match(/data-example="response"[^>]*>([\s\S]*?)<\/pre>/);
+    expect(block).not.toBeNull();
+    const text = (block?.[1] ?? '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&');
+    expect(Object.keys(JSON.parse(text))).toEqual([
+      'source',
+      'title',
+      'description',
+      'url',
+      'urlImage',
+      'publishDate'
+    ]);
+  });
+
+  it('renders copy buttons hidden until the script runs', () => {
+    const buttons = html.match(/<button[^>]*class="copy"[^>]*>/g) ?? [];
+    expect(buttons.length).toBeGreaterThanOrEqual(2);
+    for (const button of buttons) expect(button).toContain('hidden');
+  });
+
   it('announces console results politely', () => {
     expect(html).toContain('aria-live="polite"');
   });
