@@ -147,9 +147,12 @@ describe('the live globe', () => {
     );
   });
 
-  it('hands jet.js the hashed night texture', () => {
+  it('hands jet.js the hashed night textures, desktop and phone', () => {
     expect(html.full).toMatch(
       /class="jet__globe"[^>]*data-texture="\/static\/img\/globe\/earth-night\.jpg\?v=\w+"/
+    );
+    expect(html.full).toMatch(
+      /data-texture-small="\/static\/img\/globe\/earth-night-2048\.jpg\?v=\w+"/
     );
   });
 
@@ -182,7 +185,9 @@ describe('the live globe', () => {
 
   it('serves every local asset the page references', async () => {
     const urls = [
-      ...html.full.matchAll(/(?:href|src|data-texture)="(\/[^/"][^"]*)"/g)
+      ...html.full.matchAll(
+        /(?:href|src|data-texture(?:-small)?)="(\/[^/"][^"]*)"/g
+      )
     ]
       .map(([, url]) => url)
       .filter(
@@ -193,6 +198,7 @@ describe('the live globe', () => {
       'globe.gl.min.js',
       'jet.js',
       'earth-night.jpg',
+      'earth-night-2048.jpg',
       'teaser-earth.webp'
     ]) {
       expect(urls.some((u) => u.includes(want))).toBe(true);

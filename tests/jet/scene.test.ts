@@ -4,6 +4,7 @@ import {
   ARC_LATEST,
   ARC_OLDER,
   focusPoint,
+  routeColor,
   limitToReveal,
   PAGE_SIZE,
   pageOf,
@@ -83,6 +84,76 @@ describe('toScene', () => {
       ['a-sj', true, ARC_LATEST],
       ['sj-h', false, ARC_OLDER]
     ]);
+  });
+
+  it('draws one arc per route, either direction, keyed by its newest flight', () => {
+    const scene = toScene(
+      snap([
+        flight({ id: 'sj-a-new', from: places.sanJose, to: places.austin }),
+        flight({ id: 'h-a', from: places.hawthorne, to: places.austin }),
+        flight({ id: 'a-sj-mid', from: places.austin, to: places.sanJose }),
+        flight({ id: 'sj-a-old', from: places.sanJose, to: places.austin })
+      ]),
+      ''
+    );
+    expect(scene.arcs.map((a) => [a.id, a.count, a.latest])).toEqual([
+      ['sj-a-new', 3, true],
+      ['h-a', 1, false]
+    ]);
+    // The arc runs the way its newest flight flew (San Jose → Austin).
+    expect(scene.arcs[0]).toMatchObject({
+      startLat: places.sanJose.lat,
+      endLat: places.austin.lat
+    });
+  });
+
+  it('draws busier routes brighter than one-off ones', () => {
+    const scene = toScene(
+      snap([
+        flight({ id: 'new', from: places.tokyo, to: places.austin }),
+        ...Array.from({ length: 8 }, (_, i) =>
+          flight({ id: `busy${i}`, from: places.austin, to: places.sanJose })
+        ),
+        flight({ id: 'once', from: places.hawthorne, to: places.austin })
+      ]),
+      ''
+    );
+    const busy = scene.arcs.find((a) => a.id === 'busy0');
+    const once = scene.arcs.find((a) => a.id === 'once');
+    expect(busy?.count).toBe(8);
+    expect(busy?.color).toBe(routeColor(8));
+    expect(once?.color).toBe(ARC_OLDER);
+    expect(routeColor(1)).toBe(ARC_OLDER);
+    const alpha = (c: string) => Number(c.match(/([\d.]+)\)$/)?.[1]);
+    expect(alpha(routeColor(8))).toBeGreaterThan(alpha(routeColor(1)));
+    expect(alpha(routeColor(1000))).toBeLessThanOrEqual(0.75);
+  });
+
+  it('counts routes within the tail filter', () => {
+    const scene = toScene(
+      snap([
+        flight({
+          id: 'x1',
+          tail: 'N7628',
+          from: places.austin,
+          to: places.sanJose
+        }),
+        flight({
+          id: 'x2',
+          tail: 'N8628',
+          from: places.austin,
+          to: places.sanJose
+        }),
+        flight({
+          id: 'x3',
+          tail: 'N7628',
+          from: places.sanJose,
+          to: places.austin
+        })
+      ]),
+      'N7628'
+    );
+    expect(scene.arcs.map((a) => [a.id, a.count])).toEqual([['x1', 2]]);
   });
 
   it('treats the newest flight as the latest even when it draws as a point', () => {

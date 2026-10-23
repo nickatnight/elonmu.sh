@@ -66,9 +66,21 @@ const samePlace = (/** @type {Place} */ a, /** @type {Place} */ b) =>
   a.name === b.name || (a.lat === b.lat && a.lon === b.lon);
 
 /**
+ * A route's arc colour: one-off routes dim, busier ones brighter, capped
+ * well below the latest flight's full orange.
+ * @param {number} count flights on the route
+ */
+export const routeColor = (count) => {
+  const alpha = Math.min(0.75, 0.32 + 0.11 * Math.log2(Math.max(1, count)));
+  return `rgba(255, 169, 77, ${Math.round(alpha * 100) / 100})`;
+};
+
+/**
  * What to draw for `tail` ('' for every aircraft). The first matching
  * flight is the latest: bright; the rest are dimmed.
- * - two distinct known ends → an arc
+ * - two distinct known ends → an arc, one per route (either direction)
+ *   keyed by and drawn the way of its newest flight, with a flight count;
+ *   identical arcs would only overlap, and each costs the globe per frame
  * - one end, or the same place twice → a point
  * - airborne → a ring at the origin, never a guessed arc
  * @param {Snapshot} snapshot
@@ -76,13 +88,15 @@ const samePlace = (/** @type {Place} */ a, /** @type {Place} */ b) =>
  */
 export const toScene = (snapshot, tail) => {
   const scene = {
-    /** @type {{ id: string, startLat: number, startLng: number, endLat: number, endLng: number, latest: boolean, color: string }[]} */
+    /** @type {{ id: string, startLat: number, startLng: number, endLat: number, endLng: number, latest: boolean, color: string, count: number }[]} */
     arcs: [],
     /** @type {{ id: string, lat: number, lng: number, latest: boolean, color: string }[]} */
     points: [],
     /** @type {{ id: string, lat: number, lng: number }[]} */
     rings: []
   };
+  /** @type {Map<string, (typeof scene.arcs)[number]>} */
+  const routes = new Map();
   const flights = snapshot.flights.filter((f) => !tail || f.tail === tail);
   flights.forEach((f, i) => {
     const latest = i === 0;
@@ -93,15 +107,24 @@ export const toScene = (snapshot, tail) => {
       return;
     }
     if (f.from && f.to && !samePlace(f.from, f.to)) {
-      scene.arcs.push({
+      const key = [f.from.name, f.to.name].sort().join('\n');
+      const seen = routes.get(key);
+      if (seen) {
+        seen.count++;
+        return;
+      }
+      const arc = {
         id: f.id,
         startLat: f.from.lat,
         startLng: f.from.lon,
         endLat: f.to.lat,
         endLng: f.to.lon,
         latest,
-        color
-      });
+        color,
+        count: 1
+      };
+      routes.set(key, arc);
+      scene.arcs.push(arc);
       return;
     }
     const end = f.to ?? f.from;
@@ -114,6 +137,9 @@ export const toScene = (snapshot, tail) => {
         color
       });
   });
+  for (const arc of scene.arcs) {
+    if (!arc.latest) arc.color = routeColor(arc.count);
+  }
   return scene;
 };
 
@@ -195,7 +221,7 @@ const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
  * @param {{
  *   texture: string,
  *   reducedMotion: boolean,
- *   label?: (id: string) => HTMLElement | null,
+ *   label?: (id: string, count?: number) => HTMLElement | null,
  *   onSelect?: (id: string) => void
  * }} options
  */
@@ -203,7 +229,10 @@ export const createGlobeView = (
   pane,
   { texture, reducedMotion, label = () => null, onSelect = () => {} }
 ) => {
-  const byId = (/** @type {any} */ d) => label(d.id) ?? '';
+  const byId = (/** @type {any} */ d) => label(d.id, d.count) ?? '';
+  // Busier routes draw a little thicker, like their colour.
+  const width = (/** @type {number} */ count = 1) =>
+    Math.min(0.7, 0.3 + 0.08 * Math.log2(count));
   const select = (/** @type {any} */ d) => onSelect(d.id);
   const mount = document.createElement('div');
   mount.className = 'jet__canvas';
@@ -224,7 +253,7 @@ export const createGlobeView = (
     // arrival. The pulse moves shader-side, off the main thread.
     .arcColor((/** @type {any} */ d) => (d.pulse ? pulseColor(d) : d.color))
     .arcStroke((/** @type {any} */ d) =>
-      d.latest ? (d.pulse ? 1.1 : 0.8) : d.pulse ? 0.55 : 0.35
+      d.latest ? (d.pulse ? 1.1 : 0.8) : width(d.count) + (d.pulse ? 0.2 : 0)
     )
     .arcAltitudeAutoScale(0.35)
     .arcDashLength((/** @type {any} */ d) => (d.pulse ? PULSE_LENGTH : 1))
@@ -460,10 +489,12 @@ const enhancePanel = (panel, { canShow, reducedMotion, onFilter, onShow }) => {
   return { select };
 };
 
-// A tooltip for a flight, copied from its row in the list.
+// A tooltip for a flight, copied from its row in the list. For a route
+// flown more than once, the newest flight's details plus the route's count.
 const tooltipFor = (
   /** @type {HTMLElement} */ panel,
-  /** @type {string} */ id
+  /** @type {string} */ id,
+  /** @type {number} */ count = 1
 ) => {
   const row = panel.querySelector(`.flight[data-flight="${CSS.escape(id)}"]`);
   if (!row) return null;
@@ -482,6 +513,11 @@ const tooltipFor = (
     line.textContent = text;
     tip.append(line);
   }
+  if (count > 1) {
+    const line = document.createElement('p');
+    line.textContent = `${count} flights on this route`;
+    tip.append(line);
+  }
   return tip;
 };
 
@@ -494,7 +530,10 @@ const start = async () => {
   );
   if (!panel) return;
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const texture = pane?.dataset.texture;
+  // Phones get the 2048 px texture: a quarter of the pixels to decode.
+  const small = matchMedia('(max-width: 56rem)').matches;
+  const texture =
+    (small && pane?.dataset.textureSmall) || pane?.dataset.texture;
   const canGlobe =
     Boolean(texture) &&
     hasWebGL() &&
@@ -519,7 +558,7 @@ const start = async () => {
       ? createGlobeView(pane, {
           texture,
           reducedMotion,
-          label: (id) => tooltipFor(panel, id),
+          label: (id, count) => tooltipFor(panel, id, count),
           onSelect: (id) => panelControls?.select(id, { scroll: true })
         })
       : null;

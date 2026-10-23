@@ -28,6 +28,12 @@ describe('asset budgets', () => {
     );
   });
 
+  it('keeps the phone night texture at or under 120 KB', () => {
+    expect(sizeOf('static/img/globe/earth-night-2048.jpg')).toBeLessThanOrEqual(
+      120 * KB
+    );
+  });
+
   it('keeps the teaser Earth at or under 120 KB', () => {
     expect(sizeOf('static/img/globe/teaser-earth.webp')).toBeLessThanOrEqual(
       120 * KB

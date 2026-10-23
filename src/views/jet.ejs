@@ -24,7 +24,7 @@
       <%# jet.js mounts the live globe here. Without JS or WebGL, a still
           render of the same night Earth stands in. The list is the accessible
           equivalent, so this whole area is hidden from assistive tech. %>
-      <div class="jet__globe" aria-hidden="true" data-texture="<%= asset('static/img/globe/earth-night.jpg') %>">
+      <div class="jet__globe" aria-hidden="true" data-texture="<%= asset('static/img/globe/earth-night.jpg') %>" data-texture-small="<%= asset('static/img/globe/earth-night-2048.jpg') %>">
         <img
           class="jet__still"
           src="<%= asset('static/img/globe/teaser-earth.webp') %>"
