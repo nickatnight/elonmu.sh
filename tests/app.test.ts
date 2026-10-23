@@ -249,12 +249,14 @@ describe('GET /', () => {
   });
 });
 
-// The text of each link in the topbar nav, in order.
-const navLinks = (page: string): string[] => {
-  const nav =
-    page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
-  return [...nav.matchAll(/<a\b[^>]*>([^<]*)<\/a>/g)].map(([, text]) => text);
-};
+const topbarNav = (page: string): string =>
+  page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
+
+// The text of each link in the topbar nav, in order, ignoring inner markup.
+const navLinks = (page: string): string[] =>
+  [...topbarNav(page).matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
+    inner.replace(/<[^>]+>/g, '').trim()
+  );
 
 describe('topbar', () => {
   it('reads News API · Jet · GitHub', () => {
@@ -265,6 +267,16 @@ describe('topbar', () => {
     const topbar = html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0];
     expect(topbar).toBeDefined();
     expect(topbar).not.toContain('class="button"');
+  });
+
+  it('marks GitHub as external with a mark screen readers skip', () => {
+    const github =
+      topbarNav(html).match(
+        /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
+      )?.[0] ?? '';
+    expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    // No <title>: the icon must not add to the link's accessible name.
+    expect(github).not.toContain('<title');
   });
 
   it('points News API at the docs section', () => {

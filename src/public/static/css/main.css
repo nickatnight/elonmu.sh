@@ -178,6 +178,40 @@ pre {
   font-size: var(--step-small);
 }
 
+/* Quiet links: muted until hovered; the current page is ink with an accent
+   bar. Only colour changes, so there is no motion to reduce. */
+.topbar__actions a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding-block: 0.375rem; /* ≥ 24px tap target */
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 150ms var(--ease-out);
+}
+
+.topbar__actions a:hover,
+.topbar__actions a[aria-current="page"] {
+  color: var(--ink);
+}
+
+.topbar__actions a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+.topbar__out {
+  display: inline-block;
+  width: 0.65em;
+  height: 0.65em;
+}
+
 /* Hero: the name and one sentence, filling the first screen, over the
    launch clip. It stays dark in both colour schemes. */
 .hero {
@@ -1321,7 +1355,8 @@ a.card__link[href] {
     gap: 1rem;
   }
 
-  .topbar__extra {
+  /* Matches `.topbar__actions a`'s specificity, which sets display. */
+  .topbar__actions .topbar__extra {
     display: none;
   }
 }
