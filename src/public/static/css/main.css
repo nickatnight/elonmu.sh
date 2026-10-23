@@ -30,6 +30,8 @@
 
   --margin: clamp(1rem, 0.5rem + 2vw, 2rem);
   --topbar: 3.75rem;
+  --hero-bg: #05070a;
+  --hero-ink: #f4f5f7;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -173,15 +175,57 @@ pre {
   font-size: var(--step-small);
 }
 
-/* Hero: the name and one sentence, filling the first screen. */
+/* Hero: the name and one sentence, filling the first screen, over the
+   launch clip. It stays dark in both colour schemes. */
 .hero {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-content: end;
   column-gap: 3rem;
   min-height: calc(100svh - var(--topbar));
   padding: clamp(2.5rem, 8vh, 6rem) var(--margin) clamp(4rem, 9vh, 6.5rem);
+  background: var(--hero-bg);
+  color: var(--hero-ink);
+}
+
+/* The clips cover the hero, with the clown kept in view right of centre. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 50%;
+}
+
+/* The cruise loop fades in over the launch's last frame. */
+.hero__video--cruise {
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+
+.hero.is-cruising .hero__video--cruise {
+  opacity: 1;
+}
+
+/* Scrim: darkens the left and the bottom, where the text sits. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to right,
+      rgb(5 7 10 / 0.85),
+      rgb(5 7 10 / 0.4) 55%,
+      rgb(5 7 10 / 0) 80%
+    ),
+    linear-gradient(to top, rgb(5 7 10 / 0.85), rgb(5 7 10 / 0) 55%);
 }
 
 .hero__title {
@@ -450,6 +494,16 @@ pre {
     margin-top: 2rem;
   }
 
+  /* Portrait crops put the rocket behind the text: darken the lower half. */
+  .hero::before {
+    background: linear-gradient(
+      to top,
+      rgb(5 7 10 / 0.92),
+      rgb(5 7 10 / 0.82) 40%,
+      rgb(5 7 10 / 0) 72%
+    );
+  }
+
   .console__body {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -486,6 +540,15 @@ pre {
 
   .button {
     transition: none;
+  }
+
+  /* No clips: the cruise poster stands in as a still. */
+  .hero {
+    background: var(--hero-bg) var(--still) 72% 50% / cover no-repeat;
+  }
+
+  .hero__video {
+    display: none;
   }
 }
 

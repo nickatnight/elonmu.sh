@@ -12,6 +12,12 @@ beforeAll(async () => {
 
 afterAll(() => server.close());
 
+// The opening <video> tag that carries the given class.
+const videoTag = (cls: string): string => {
+  const tag = new RegExp(`<video\\s+class="hero__video ${cls}"[^>]*>`);
+  return html.match(tag)?.[0] ?? '';
+};
+
 describe('GET /', () => {
   it('renders the landing page', async () => {
     const res = await fetch(`${server.url}/`);
@@ -126,7 +132,7 @@ describe('GET /', () => {
 
   it('keeps the console out of the hero, in its own section below it', () => {
     const hero =
-      html.match(/<section class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+      html.match(/<section\s+class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
     expect(hero).toContain('id="hero-title"');
     expect(hero).not.toContain('class="console"');
     expect(html).toMatch(
@@ -140,12 +146,85 @@ describe('GET /', () => {
     );
   });
 
+  it('plays the launch clip once, behind the hero text', () => {
+    const launch = videoTag('hero__video--launch');
+    for (const attr of ['autoplay', 'muted', 'playsinline']) {
+      expect(launch).toMatch(new RegExp(`\\s${attr}[\\s>]`));
+    }
+    expect(launch).not.toMatch(/\sloop[\s>]/);
+    expect(launch).toContain('aria-hidden="true"');
+    expect(launch).toMatch(
+      /poster="\/static\/video\/clown-launch-poster\.jpg\?v=\w+"/
+    );
+  });
+
+  it('loads the cruise loop only on demand, without autoplay', () => {
+    const cruise = videoTag('hero__video--cruise');
+    for (const attr of ['muted', 'loop', 'playsinline']) {
+      expect(cruise).toMatch(new RegExp(`\\s${attr}[\\s>]`));
+    }
+    expect(cruise).not.toMatch(/\sautoplay[\s>]/);
+    expect(cruise).toContain('preload="none"');
+    expect(cruise).toContain('aria-hidden="true"');
+  });
+
+  it('lists WebM before MP4 for both clips, with content hashes', () => {
+    for (const name of ['launch', 'cruise']) {
+      const video =
+        html.match(
+          new RegExp(
+            `<video\\s+class="hero__video hero__video--${name}"[\\s\\S]*?</video>`
+          )
+        )?.[0] ?? '';
+      const sources = [
+        ...video.matchAll(/<source src="([^"]+)" type="([^"]+)"/g)
+      ];
+      expect(sources.map(([, , type]) => type)).toEqual([
+        'video/webm',
+        'video/mp4'
+      ]);
+      for (const [, src] of sources) {
+        expect(src).toMatch(
+          new RegExp(`^/static/video/clown-${name}\\.(webm|mp4)\\?v=\\w+$`)
+        );
+      }
+    }
+  });
+
+  it('gives the hero the cruise poster as its reduced-motion still', () => {
+    expect(html).toMatch(
+      /<section\s+class="hero"[^>]*style="--still: url\(\/static\/video\/clown-cruise-poster\.jpg\?v=\w+\)"/
+    );
+  });
+
+  it('serves the clips and posters with video and image types', async () => {
+    const types = {
+      webm: 'video/webm',
+      mp4: 'video/mp4',
+      jpg: 'image/jpeg'
+    } as const;
+    const urls = [
+      ...html.matchAll(/(\/static\/video\/[^"?)]+\.(webm|mp4|jpg)\?v=\w+)/g)
+    ];
+    expect(new Set(urls.map(([url]) => url)).size).toBe(6);
+    for (const [url, , ext] of urls) {
+      const res = await fetch(`${server.url}${url}`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toContain(
+        types[ext as keyof typeof types]
+      );
+    }
+  });
+
   it('announces console results politely', () => {
     expect(html).toContain('aria-live="polite"');
   });
 
   it('serves every local asset the page references', async () => {
-    const urls = [...html.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
+    const urls = [
+      ...html.matchAll(/(?:href|src|poster)="(\/[^/"][^"]*)"/g),
+      ...html.matchAll(/url\((\/[^/)][^)]*)\)/g)
+    ]
       .map(([, url]) => url)
       .filter((url) => url !== '/' && url !== '/api');
     expect(urls.length).toBeGreaterThan(0);
