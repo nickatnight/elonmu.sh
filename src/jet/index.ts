@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CachedFlightSource } from './cached-flight-source';
 import { JetService } from './jet.service';
 import { GazetteerPlaceResolver } from './places/gazetteer-place-resolver';
 import places from './places/places.json';
@@ -24,5 +25,24 @@ export const createJetModule = (): JetQuery => {
     logger,
     clock: systemClock
   });
-  return new JetService(source, systemClock);
+  return new JetService(
+    new CachedFlightSource(source, systemClock),
+    systemClock
+  );
+};
+
+// Loads the first snapshot at startup so the first visitor doesn't wait on
+// the upstream crawl. Fire-and-forget: a failure is logged, never thrown,
+// and never holds up the server.
+export const warmUp = async (
+  jet: JetQuery,
+  log: Logger = logger
+): Promise<void> => {
+  try {
+    await jet.snapshot();
+  } catch (err) {
+    log.warn('jet: warm-up failed, will retry on the first request', {
+      error: err instanceof Error ? err.message : String(err)
+    });
+  }
 };
