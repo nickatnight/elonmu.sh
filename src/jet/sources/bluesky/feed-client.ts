@@ -17,6 +17,10 @@ export type FeedItem = {
 
 export type FeedPage = { cursor?: string; feed: FeedItem[] };
 
+// A post's record key, the last segment of its at:// URI: unique per
+// account and stable across refreshes.
+export const recordKey = (uri: string): string => uri.split('/').at(-1) ?? uri;
+
 const API = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed';
 // A runaway-cursor guard: a year of @elonjet.net is about 10 pages.
 const MAX_PAGES = 40;

@@ -11,7 +11,7 @@ import type {
   Logger,
   PlaceResolver
 } from '../../ports';
-import { BlueskyFeedClient } from './feed-client';
+import { BlueskyFeedClient, recordKey } from './feed-client';
 import { pairFlights } from './pair';
 import { type JetEvent, parseElonJetPost, parseFuelReply } from './parse';
 
@@ -24,6 +24,20 @@ export type BlueskyFlightSourceDeps = {
 
 const ACTOR = 'elonjet.net';
 
+// A Logger that passes each distinct warning (message and meta) through
+// once, so a refresh every 5 minutes doesn't repeat the same warnings.
+const warnOnce = (logger: Logger): Logger => {
+  const warned = new Set<string>();
+  return {
+    warn: (msg, meta) => {
+      const key = `${msg} ${JSON.stringify(meta ?? {})}`;
+      if (warned.has(key)) return;
+      warned.add(key);
+      logger.warn(msg, meta);
+    }
+  };
+};
+
 // Flights from @elonjet.net's Bluesky posts: feed → parse → pair → places.
 // The only module that knows the data comes from Bluesky.
 export class BlueskyFlightSource implements FlightSource {
@@ -35,22 +49,13 @@ export class BlueskyFlightSource implements FlightSource {
   private readonly feed: BlueskyFeedClient;
   private readonly resolver: PlaceResolver;
   private readonly clock: Clock;
-  // Warns about each distinct problem once per process, not per refresh.
   private readonly logger: Logger;
 
   constructor({ http, resolver, logger, clock }: BlueskyFlightSourceDeps) {
     this.feed = new BlueskyFeedClient(http, ACTOR);
     this.resolver = resolver;
     this.clock = clock;
-    const warned = new Set<string>();
-    this.logger = {
-      warn: (msg, meta) => {
-        const key = `${msg} ${JSON.stringify(meta ?? {})}`;
-        if (warned.has(key)) return;
-        warned.add(key);
-        logger.warn(msg, meta);
-      }
-    };
+    this.logger = warnOnce(logger);
   }
 
   async fetchFlights(since: Date): Promise<Flight[]> {
@@ -72,8 +77,8 @@ export class BlueskyFlightSource implements FlightSource {
       now: this.clock.now(),
       logger: this.logger,
       postUrl: (uri) => {
-        const rkey = uri.split('/').at(-1);
-        return rkey && /^\w+$/.test(rkey)
+        const rkey = recordKey(uri);
+        return /^\w+$/.test(rkey)
           ? `https://bsky.app/profile/${ACTOR}/post/${rkey}`
           : null;
       }

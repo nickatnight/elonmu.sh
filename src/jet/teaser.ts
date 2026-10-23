@@ -1,6 +1,6 @@
 import type { Attribution, JetSnapshot } from './domain';
 import { latestSentence, totalsLine } from './format';
-import { arcPath, orthographic, TEASER_SIZE } from './projection';
+import { arcPath, orthographic, round1, TEASER_SIZE } from './projection';
 
 export type TeaserArc = { id: string; d: string; latest: boolean };
 
@@ -19,8 +19,6 @@ export type Teaser = {
   attribution: Attribution;
   empty: boolean;
 };
-
-const round1 = (v: number) => Math.round(v * 10) / 10;
 
 export const toTeaser = (snapshot: JetSnapshot): Teaser => {
   const { flights, year } = snapshot;

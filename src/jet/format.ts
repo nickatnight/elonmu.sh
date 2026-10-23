@@ -57,7 +57,7 @@ export const formatDuration = (min: number): string => {
 };
 
 const city = (place: Place | null): string | null =>
-  place ? (place.name.split(',')[0] ?? place.name) : null;
+  place ? place.name.split(',')[0] : null;
 
 // "Austin → San Jose", or words when an end is missing.
 const route = (f: Flight): string => {
@@ -138,6 +138,13 @@ const row = (f: Flight, i: number): FlightRow => {
   };
 };
 
+// Tail chips in alphabetical order, with the catch-all "Unknown" last.
+const byTailUnknownLast = (a: { tail: string }, b: { tail: string }) => {
+  if (a.tail === 'Unknown') return 1;
+  if (b.tail === 'Unknown') return -1;
+  return a.tail.localeCompare(b.tail);
+};
+
 // Everything the /jet page prints, from one snapshot.
 export const jetPage = (snapshot: JetSnapshot): JetPage => {
   const counts = new Map<string, number>();
@@ -145,13 +152,7 @@ export const jetPage = (snapshot: JetSnapshot): JetPage => {
     counts.set(f.tail, (counts.get(f.tail) ?? 0) + 1);
   const tails = [...counts]
     .map(([tail, count]) => ({ tail, count }))
-    .sort((a, b) =>
-      a.tail === 'Unknown'
-        ? 1
-        : b.tail === 'Unknown'
-          ? -1
-          : a.tail.localeCompare(b.tail)
-    );
+    .sort(byTailUnknownLast);
   return {
     year: snapshot.year,
     totals: formatTotals(snapshot.totals),

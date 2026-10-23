@@ -38,6 +38,8 @@ export class CachedFlightSource implements FlightSource {
         }
       );
       this.inFlight = { since: key, promise };
+      // Not .finally(): that returns a second promise which would reject,
+      // unhandled, whenever a cold fetch fails.
       promise.then(
         () => this.clearInFlight(promise),
         () => this.clearInFlight(promise)

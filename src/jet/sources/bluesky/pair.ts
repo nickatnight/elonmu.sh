@@ -1,5 +1,6 @@
 import type { Flight, Fuel, Place } from '../../domain';
 import type { Logger, PlaceResolver } from '../../ports';
+import { recordKey } from './feed-client';
 import type { JetEvent } from './parse';
 
 // The tail for the bot's older posts that name no aircraft. They are paired
@@ -24,9 +25,6 @@ const AIRBORNE_MS = 18 * HOUR_MS;
 // When the landing's posted flight time and the gap between the two posts
 // disagree by more than this, events were missed in between: don't pair.
 const DURATION_TOLERANCE_MIN = 60;
-
-// A post's record key: unique per account, stable across refreshes.
-const postId = (uri: string): string => uri.split('/').at(-1) ?? uri;
 
 // Turns one account's takeoff and landing events into flights, per tail:
 // - a takeoff and the tail's next event, a landing within 24 h whose posted
@@ -71,7 +69,7 @@ export const pairFlights = (
       landing: JetEvent | null,
       durationMin: number | null
     ): Flight => ({
-      id: postId(anchor.uri),
+      id: recordKey(anchor.uri),
       tail,
       from: takeoff ? place(takeoff.place) : null,
       to: landing ? place(landing.place) : null,

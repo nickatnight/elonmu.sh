@@ -78,7 +78,8 @@ export const orthographic = (
   return { x: r + r * x, y: r - r * y, visible: cosC >= -1e-9 };
 };
 
-const round1 = (v: number) => Math.round(v * 10) / 10;
+// Rounds to 0.1 px: plenty for SVG at teaser size, and keeps the HTML small.
+export const round1 = (v: number) => Math.round(v * 10) / 10;
 
 // An SVG path `d` for the great-circle arc a → b as seen in the teaser,
 // clipped at the horizon. '' when the ends are the same place or nothing of
