@@ -7,15 +7,7 @@
     <meta name="description" content="A free JSON API that returns a random news article about Elon Musk." />
     <link rel="canonical" href="https://elonmu.sh/" />
 
-    <link rel="icon" href="<%= asset('favicon.ico') %>" sizes="16x16 32x32" />
-    <link rel="icon" type="image/png" href="<%= asset('favicon-32x32.png') %>" sizes="32x32" />
-    <link rel="icon" type="image/png" href="<%= asset('favicon-16x16.png') %>" sizes="16x16" />
-    <link rel="apple-touch-icon" href="<%= asset('apple-touch-icon.png') %>" />
-    <link rel="manifest" href="<%= asset('site.webmanifest') %>" />
-    <meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-
-    <link rel="stylesheet" href="<%= asset('static/css/main.css') %>" />
+<%- include('partials/head-assets') %>
     <script src="<%= asset('static/js/main.js') %>" defer></script>
 
     <!-- Facebook Meta Tags -->
@@ -46,17 +38,7 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <header class="topbar">
-      <a class="brand" href="/" translate="no">
-        <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
-        elonmu.sh
-      </a>
-      <nav class="topbar__actions" aria-label="Primary">
-        <a href="#get-api">Docs</a>
-        <a href="https://github.com/nickatnight/elonmu.sh">GitHub</a>
-        <a class="button" href="/api">GET /api</a>
-      </nav>
-    </header>
+<%- include('partials/topbar', { current: 'home' }) %>
 
     <main id="main">
       <section

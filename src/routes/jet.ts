@@ -1,4 +1,5 @@
 import type * as express from 'express';
+import { jetPage } from '../jet/format';
 import type { JetQuery } from '../jet/ports';
 
 export const register = (app: express.Application, jet: JetQuery) => {
@@ -13,5 +14,17 @@ export const register = (app: express.Application, jet: JetQuery) => {
         error: 'Flight data is unavailable right now. Please try again later.'
       });
     }
+  });
+
+  // The tracker page: list and totals render on the server, so it works
+  // without JS. With no data at all it still renders, with a short note.
+  app.get('/jet', async (_req, res) => {
+    let page: ReturnType<typeof jetPage> | null = null;
+    try {
+      page = jetPage(await jet.snapshot());
+    } catch {
+      res.set('Cache-Control', 'no-store');
+    }
+    res.render('jet', { page });
   });
 };

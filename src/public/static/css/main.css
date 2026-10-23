@@ -802,3 +802,220 @@ a.card__link[href] {
     transition: none;
   }
 }
+
+/* Jet tracker: a fixed globe beside a scrolling panel of totals, tail
+   chips and the flight list; stacked on narrow screens. The globe pane
+   stays dark in both colour schemes, like the hero. */
+.jet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 27rem);
+  height: calc(100svh - var(--topbar));
+}
+
+.jet__globe {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--hero-bg);
+}
+
+.jet__still {
+  width: min(86%, calc(86svh - var(--topbar)));
+  height: auto;
+}
+
+.jet__panel {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.75rem var(--margin) 2rem;
+  border-left: 1px solid var(--raised);
+}
+
+.jet__eyebrow {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.jet__panel h1 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.jet__latest {
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.jet__note {
+  margin-top: 1.5rem;
+  color: var(--muted);
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 1.5rem 0 0;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--raised);
+  list-style: none;
+}
+
+.totals__value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.totals__unit {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.chips[hidden] {
+  display: none;
+}
+
+.chip {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--raised);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step-small);
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out);
+}
+
+.chip:hover {
+  border-color: var(--muted);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.chip__count {
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Full strength on the red fill: 75% white on red drops below 4.5:1. */
+.chip[aria-pressed="true"] .chip__count {
+  opacity: 1;
+}
+
+.flights {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flight {
+  position: relative;
+  padding: 0.85rem 0 0.85rem 0.9rem;
+  border-bottom: 1px solid var(--raised);
+}
+
+/* The newest flight carries a red rule, matching its arc on the globe. */
+.flight.is-latest::before {
+  content: "";
+  position: absolute;
+  inset: 0.85rem auto 0.85rem 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.flight__meta {
+  display: flex;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.flight__tail {
+  font-family: var(--font-code);
+  font-size: 0.8125rem;
+}
+
+.flight__route {
+  font-weight: 600;
+}
+
+.flight__note {
+  font-size: var(--step-small);
+}
+
+.flight__detail {
+  color: var(--muted);
+  font-size: var(--step-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.flight__source {
+  position: absolute;
+  top: 0.85rem;
+  right: 0;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.jet__credit {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+@media (max-width: 56rem) {
+  .jet {
+    display: block;
+    height: auto;
+  }
+
+  .jet__globe {
+    height: 55svh;
+  }
+
+  .jet__still {
+    width: min(88vw, 49svh);
+  }
+
+  .jet__panel {
+    overflow: visible;
+    border-left: 0;
+  }
+}
+
+/* Phones: four nav items don't fit beside the brand. GitHub goes first;
+   the home footer still links to the source. */
+@media (max-width: 30rem) {
+  .topbar__actions {
+    gap: 1rem;
+  }
+
+  .topbar__extra {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}
