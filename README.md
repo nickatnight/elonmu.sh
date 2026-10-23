@@ -60,8 +60,27 @@ console and copy buttons. Static files are cached for a year, so templates
 reference them through `asset('static/...')`, which appends a hash of the file's
 contents to the URL.
 
+## Deploy
+
+Production runs on [Render](https://render.com) as a Docker web service, built
+from the `Dockerfile` in this repo. Merging to `main` deploys automatically once
+CI passes, and Render health-checks `/healthz` (which never calls NewsAPI).
+
+The Render service, its custom domain and its `NEWS_API_KEY` (read from AWS
+Secrets Manager) are managed as Terraform in
+[`nickatnight/emgee-labs-infra`](https://github.com/nickatnight/emgee-labs-infra)
+under `projects/elonmush/production`. Change them there, not in the Render dashboard.
+
+To run the production image locally:
+
+```shell
+$ docker build -t elonmush .
+$ docker run --rm -p 8080:8080 -e PORT=8080 --env-file .env elonmush
+$ curl localhost:8080/healthz
+```
+
 ## Why?
 
-For fun 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is basically a thin wrapper around [NewsAPI](https://newsapi.org/), and deployed using DigitalOceans App Platform.
+For fun 🤡...and to ramp up on TypeScript/Node/ExpressJS. This API is basically a thin wrapper around [NewsAPI](https://newsapi.org/), and runs on Render.
 
 Enjoy
