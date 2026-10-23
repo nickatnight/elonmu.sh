@@ -124,6 +124,22 @@ describe('GET /', () => {
     expect(html).toContain('AI-generated');
   });
 
+  it('keeps the console out of the hero, in its own section below it', () => {
+    const hero =
+      html.match(/<section class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
+    expect(hero).toContain('id="hero-title"');
+    expect(hero).not.toContain('class="console"');
+    expect(html).toMatch(
+      /<section class="try" id="try"[^>]*>\s*<figure class="console"/
+    );
+  });
+
+  it('points the hero scroll cue at the console', () => {
+    expect(html).toMatch(
+      /<a class="hero__cue" href="#try"[^>]*aria-hidden="true"/
+    );
+  });
+
   it('announces console results politely', () => {
     expect(html).toContain('aria-live="polite"');
   });
