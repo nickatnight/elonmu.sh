@@ -11,11 +11,12 @@ import {
 import axios from 'axios';
 import { createApp } from '../src/app';
 import { startTestServer, type TestServer } from './helpers';
+import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
 
 beforeAll(async () => {
-  server = await startTestServer(createApp());
+  server = await startTestServer(createApp({ jet: sampleJet() }));
 });
 
 afterEach(() => mock.restore());

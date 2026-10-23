@@ -1,6 +1,9 @@
+import compression from 'compression';
 import express from 'express';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { createJetModule } from './jet';
+import type { JetQuery } from './jet/ports';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
@@ -21,7 +24,13 @@ const assetUrl = (file: string): string => {
   return url;
 };
 
-export const createApp = (): express.Express => {
+export type AppDeps = { jet?: JetQuery };
+
+// Dependencies are injectable so tests never touch a live flight source; the
+// default wiring lives in the jet composition root.
+export const createApp = ({
+  jet = createJetModule()
+}: AppDeps = {}): express.Express => {
   const app = express();
 
   // Configure Express to use EJS
@@ -32,11 +41,15 @@ export const createApp = (): express.Express => {
   // Configure Express to parse incoming JSON data
   app.use(express.json());
 
+  // Gzip compressible responses (HTML, JSON, CSS, JS). Mounted before static
+  // so assets are compressed too; video and images are skipped by type.
+  app.use(compression());
+
   // Configure static serving
   app.use(express.static(publicDir, { maxAge: 31557600000 }));
 
   // Configure routes
-  routes.register(app);
+  routes.register(app, jet);
 
   // Configure Errors
   app.use((_req, res) => {

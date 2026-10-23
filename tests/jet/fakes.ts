@@ -1,7 +1,9 @@
 import type { Flight, Place } from '../../src/jet/domain';
-import type { Clock, HttpGet, Logger } from '../../src/jet/ports';
+import { JetService } from '../../src/jet/jet.service';
+import type { Clock, HttpGet, JetQuery, Logger } from '../../src/jet/ports';
+import { InMemoryFlightSource } from '../../src/jet/sources/memory/in-memory-flight-source';
 
-export { InMemoryFlightSource } from '../../src/jet/sources/memory/in-memory-flight-source';
+export { InMemoryFlightSource };
 
 // A clock that only moves when a test moves it.
 export class FakeClock implements Clock {
@@ -118,3 +120,16 @@ export const sampleFlights: Flight[] = [
     status: 'airborne'
   })
 ];
+
+// A real JetService over the sample flights, frozen at mid-2026. Injected into
+// every createApp() in tests so no test ever reaches a live flight source.
+export const sampleJet = (flights: Flight[] = sampleFlights): JetQuery =>
+  new JetService(
+    new InMemoryFlightSource(flights),
+    new FakeClock('2026-07-01T00:00:00.000Z')
+  );
+
+// A JetQuery whose source has never loaded: every snapshot rejects.
+export const failingJet = (): JetQuery => ({
+  snapshot: () => Promise.reject(new Error('upstream down'))
+});
