@@ -670,6 +670,143 @@ a.card__link[href] {
   margin: 0 var(--margin);
 }
 
+/* Home teaser for /jet: the night Earth with this year's arcs beside a
+   few lines of text. The whole section is one link (the button's ::after
+   covers it). Static: the only motion is CSS. */
+.teaser {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  margin: 0 var(--margin) clamp(4rem, 8vw, 7rem);
+}
+
+.teaser__map {
+  position: relative;
+}
+
+.teaser__earth {
+  width: 100%;
+  height: auto;
+}
+
+.teaser__arcs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.teaser__arc,
+.teaser__pulse {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+
+.teaser__arc {
+  stroke: var(--arc-dim);
+  stroke-width: 1;
+}
+
+.teaser__arc.is-latest {
+  stroke: var(--arc);
+  stroke-width: 2.5;
+}
+
+/* One short bright pulse runs departure → arrival along the latest arc. */
+.teaser__pulse {
+  stroke: #ffe2bd;
+  stroke-width: 3.5;
+  stroke-dasharray: 0.08 1;
+  animation: teaser-pulse 2.2s linear infinite;
+}
+
+@keyframes teaser-pulse {
+  from {
+    stroke-dashoffset: 0.08;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* An airborne newest flight: a dot at its origin with a ring pulsing out. */
+.teaser__origin {
+  fill: var(--arc);
+}
+
+.teaser__origin-ring {
+  fill: none;
+  stroke: var(--arc);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: teaser-ring 1.6s var(--ease-out) infinite;
+}
+
+@keyframes teaser-ring {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+.teaser__text {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.9rem;
+}
+
+.teaser__eyebrow,
+.teaser__credit {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.teaser__text h2 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.teaser__latest {
+  font-size: var(--step-lead);
+}
+
+.teaser__totals {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.teaser__link {
+  margin-top: 0.5rem;
+}
+
+/* The link covers the whole section. A transform would make the button the
+   ::after's containing block, so it lifts on section hover instead. */
+.teaser__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.teaser__link:hover,
+.teaser__link:active {
+  transform: none;
+}
+
+.teaser:hover .teaser__link {
+  box-shadow: 0 0 0 3px var(--arc-dim);
+}
+
 .doc__prose {
   display: flex;
   flex-direction: column;
@@ -785,6 +922,19 @@ a.card__link[href] {
 }
 
 @media (max-width: 56rem) {
+  .teaser {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .teaser__map {
+    width: min(100%, 26rem);
+  }
+
+  .teaser__text {
+    justify-self: stretch;
+  }
+
   .doc {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1179,6 +1329,12 @@ a.card__link[href] {
 @media (prefers-reduced-motion: reduce) {
   .chip {
     transition: none;
+  }
+
+  /* The teaser keeps its arcs and origin dot, without pulse or ring. */
+  .teaser__pulse,
+  .teaser__origin-ring {
+    display: none;
   }
 
   /* No pulsing ring then: the globe marks the origin with a bright dot. */
