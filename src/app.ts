@@ -1,6 +1,6 @@
-import express from 'express';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import express from 'express';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
