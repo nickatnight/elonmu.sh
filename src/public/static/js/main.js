@@ -1,4 +1,3 @@
-// elonmu.sh: the live console, copy buttons, hero clips, and section entrances.
 const announce = (text) => {
   document.querySelector('.announce').textContent = text;
 };
@@ -14,8 +13,6 @@ const announce = (text) => {
   const link = $('.card__link');
   const json = $('.json code');
 
-  // Article fields come from third parties: text goes in with textContent,
-  // and only http(s) URLs are ever used as a link or image source.
   const safeUrl = (value) => {
     try {
       const url = new URL(value);
@@ -79,7 +76,6 @@ const announce = (text) => {
     desc.hidden = !article.description;
     const href = safeUrl(article.url);
     link.hidden = !href;
-    // target and rel are in the markup; only the URL comes from the article.
     if (href) link.href = href;
     announce(`Loaded: ${title.textContent}`);
   };
@@ -123,7 +119,6 @@ const announce = (text) => {
   send.addEventListener('click', fetchArticle);
 })();
 
-// Copy buttons stay hidden when the Clipboard API is missing.
 if (navigator.clipboard) {
   for (const button of document.querySelectorAll('.copy')) {
     button.hidden = false;
@@ -143,17 +138,13 @@ if (navigator.clipboard) {
   }
 }
 
-// The hero clips: the launch plays once, then the cruise loop fades in over
-// its last frame. The toggle pauses whichever is playing, and both pause
-// while the hero is off-screen.
 (() => {
   const hero = document.querySelector('.hero');
   const launch = hero.querySelector('.hero__video--launch');
   const cruise = hero.querySelector('.hero__video--cruise');
   const toggle = hero.querySelector('.hero__toggle');
 
-  // Reduced motion: the CSS shows a still, so stop the hidden launch and
-  // drop its sources to end the download.
+  // Drop the launch's sources to end the download.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     launch.pause();
     launch.replaceChildren();
@@ -219,8 +210,6 @@ if (navigator.clipboard) {
   toggle.hidden = false;
 })();
 
-// Sections rise in once as they enter. Without this script, or with reduced
-// motion, they are simply visible.
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const observer = new IntersectionObserver(
     (entries) => {

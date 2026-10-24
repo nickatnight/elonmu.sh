@@ -11,9 +11,6 @@
 <%- include('partials/head-assets') %>
 <%- include('partials/share-tags', { url: 'https://elonmu.sh/jet', title, description }) %>
     <link rel="stylesheet" href="<%= asset('static/css/jet.css') %>" />
-    <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
-        after the page has loaded, so the 523 KB library never competes
-        with the page's own content. %>
     <script type="module" src="<%= asset('static/js/jet.js') %>"></script>
   </head>
 
@@ -23,9 +20,6 @@
 <%- include('partials/topbar', { current: 'jet-tracker' }) %>
 
     <main id="main" class="jet">
-      <%# jet.js mounts the live globe here. Without JS or WebGL, a still
-          render of the same night Earth stands in. The list is the accessible
-          equivalent, so this whole area is hidden from assistive tech. %>
       <div
         class="jet__globe"
         aria-hidden="true"
@@ -42,7 +36,6 @@
           decoding="async"
           fetchpriority="high"
         />
-        <%# Key to the globe's marks; shown once the live globe is up. %>
         <% if (page && page.flights.length) { %>
           <ul class="legend">
             <li class="legend__item"><span class="legend__mark legend__mark--latest"></span>Latest flight</li>
@@ -76,7 +69,6 @@
           <% if (page.flights.length === 0) { %>
             <p class="jet__note">No flights yet this year.</p>
           <% } else { %>
-            <%# Revealed and wired by jet.js; without JS they'd do nothing. %>
             <div class="chips" role="group" aria-label="Filter by aircraft" data-ui hidden>
               <button class="chip" type="button" data-tail="" aria-pressed="true">All</button>
               <% for (const { tail, count } of page.tails) { %>

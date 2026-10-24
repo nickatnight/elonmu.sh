@@ -1,7 +1,5 @@
 import type { Attribution, Flight, JetSnapshot, Place } from './domain';
 
-// Any provider of flights: a social feed, an ADS-B API, a fixture, a cache
-// around another source.
 export interface FlightSource {
   readonly attribution: Attribution;
   /**
@@ -17,12 +15,10 @@ export interface FlightSource {
   fetchFlights(since: Date): Promise<Flight[]>;
 }
 
-// Place name → coordinates, for sources that only have names.
 export interface PlaceResolver {
   resolve(name: string): Place | null;
 }
 
-// What routes and views see: one call for everything they render.
 export interface JetQuery {
   snapshot(): Promise<JetSnapshot>;
 }

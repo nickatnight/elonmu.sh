@@ -1,20 +1,10 @@
-// Pure globe geometry for the home teaser: great-circle sampling and an
-// orthographic projection matching scripts/render-teaser-earth.ts, so the
-// server-rendered SVG arcs sit on the pre-rendered Earth image.
-
 export type LatLon = { lat: number; lon: number };
 export type ScreenPoint = { x: number; y: number; visible: boolean };
 
-// The teaser's fixed camera, centred over the continental US where most
-// flights are. The ffmpeg render script reads both constants: change them
-// together with a re-render, never alone.
 export const TEASER_VIEW: LatLon = { lat: 32, lon: -98 };
-// Square image size in px; the Earth's disc fills it edge to edge.
 export const TEASER_SIZE = 960;
 
-// Flights whose ends are closer than this are local hops: drawn as a point.
 const SAME_PLACE_RAD = (0.1 * Math.PI) / 180;
-// Arc sampling step: smooth at teaser scale without bloating the HTML.
 const STEP_RAD = (2 * Math.PI) / 180;
 
 const rad = (deg: number) => (deg * Math.PI) / 180;
@@ -36,7 +26,6 @@ const toLatLon = ([x, y, z]: Vec): LatLon => ({
 const angleBetween = (a: Vec, b: Vec): number =>
   Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])));
 
-// The point a fraction t of the way along the great circle from a to b.
 const slerp = (a: Vec, b: Vec, ω: number, t: number): LatLon => {
   if (ω < 1e-12) return toLatLon(a);
   const s = Math.sin(ω);
@@ -49,7 +38,6 @@ const slerp = (a: Vec, b: Vec, ω: number, t: number): LatLon => {
   ]);
 };
 
-// n evenly spaced points on the shorter great circle from a to b, ends included.
 export const greatCircle = (a: LatLon, b: LatLon, n: number): LatLon[] => {
   const va = toVec(a);
   const vb = toVec(b);
@@ -59,8 +47,6 @@ export const greatCircle = (a: LatLon, b: LatLon, n: number): LatLon[] => {
   );
 };
 
-// Orthographic projection seen from far above `view`: north up, east right.
-// `visible` is false on the far side of the globe.
 export const orthographic = (
   p: LatLon,
   view: LatLon = TEASER_VIEW,
@@ -78,12 +64,24 @@ export const orthographic = (
   return { x: r + r * x, y: r - r * y, visible: cosC >= -1e-9 };
 };
 
-// Rounds to 0.1 px: plenty for SVG at teaser size, and keeps the HTML small.
 export const round1 = (v: number) => Math.round(v * 10) / 10;
 
-// An SVG path `d` for the great-circle arc a → b as seen in the teaser,
-// clipped at the horizon. '' when the ends are the same place or nothing of
-// the arc is on the near side.
+const horizonCrossing = (
+  at: (t: number) => ScreenPoint,
+  from: number,
+  to: number,
+  fromVisible: boolean
+): ScreenPoint => {
+  let lo = from;
+  let hi = to;
+  for (let k = 0; k < 24; k++) {
+    const mid = (lo + hi) / 2;
+    if (at(mid).visible === fromVisible) lo = mid;
+    else hi = mid;
+  }
+  return { ...at(fromVisible ? lo : hi), visible: true };
+};
+
 export const arcPath = (
   a: LatLon,
   b: LatLon,
@@ -99,26 +97,16 @@ export const arcPath = (
   const steps = Math.max(1, Math.ceil(ω / STEP_RAD));
   const ts = Array.from({ length: steps + 1 }, (_, i) => i / steps);
 
-  // Where visibility flips between two samples, add the exact horizon
-  // crossing so clipped arcs end on the rim, not a sample short of it.
   const samples: ScreenPoint[] = [];
   for (let i = 0; i < ts.length; i++) {
     const p = at(ts[i]);
     const prev = samples.at(-1);
     if (prev && prev.visible !== p.visible) {
-      let lo = ts[i - 1];
-      let hi = ts[i];
-      for (let k = 0; k < 24; k++) {
-        const mid = (lo + hi) / 2;
-        if (at(mid).visible === prev.visible) lo = mid;
-        else hi = mid;
-      }
-      samples.push({ ...at(prev.visible ? lo : hi), visible: true });
+      samples.push(horizonCrossing(at, ts[i - 1], ts[i], prev.visible));
     }
     samples.push(p);
   }
 
-  // One subpath per visible run (a short arc has at most one).
   const runs: ScreenPoint[][] = [];
   let run: ScreenPoint[] = [];
   for (const p of samples) {

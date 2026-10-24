@@ -143,8 +143,6 @@ describe('pairFlights', () => {
   });
 
   it('splits a takeoff from a landing whose posted flight time disagrees by over an hour', () => {
-    // The landing says 45 min, but it came 6 h after the takeoff: a missed
-    // landing and a missed takeoff in between, not one flight.
     const { flights } = run([
       ev('takeoff', '2026-09-01T10:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-01T16:00:00.000Z', HAWTHORNE, { durationMin: 45 })

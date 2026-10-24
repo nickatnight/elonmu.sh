@@ -37,7 +37,6 @@ describeFlightSource('BlueskyFlightSource', {
   since: YEAR
 });
 
-// A bot post as the feed carries it, for items the fixture lacks.
 const item = (
   rkey: string,
   text: string,
@@ -75,7 +74,6 @@ describe('BlueskyFlightSource', () => {
 
   it('files the older tail-less posts under the Unknown tail', async () => {
     const flights = await makeSource(fixtureHttp().get).fetchFlights(YEAR);
-    // The Jan 22 Zurich posts name no aircraft.
     expect(
       flights.some(
         (f) => f.tail === 'Unknown' && f.to?.name.startsWith('Zurich')
@@ -102,7 +100,6 @@ describe('BlueskyFlightSource', () => {
 
   it('stops paging once posts are older than `since`', async () => {
     const { get, calls } = fixtureHttp();
-    // Page 1 already reaches back to July.
     await makeSource(get).fetchFlights(new Date('2026-10-01T00:00:00.000Z'));
     expect(calls).toEqual([FEED]);
   });
@@ -142,11 +139,8 @@ describe('BlueskyFlightSource', () => {
   it('pages past known posts when asked to reach further back than before', async () => {
     const { get, calls } = fixtureHttp();
     const source = makeSource(get);
-    // October only: page 1 already reaches July, so the crawl stops there.
     await source.fetchFlights(new Date('2026-10-01T00:00:00.000Z'));
     expect(calls).toEqual([FEED]);
-    // From January, page 1's posts are known but don't cover January, so
-    // the client must not stop at them.
     const flights = await source.fetchFlights(YEAR);
     expect(calls).toEqual([FEED, FEED, page2Url]);
     expect(flights.some((f) => f.to?.name.startsWith('Zurich'))).toBe(true);
@@ -165,7 +159,6 @@ describe('BlueskyFlightSource', () => {
 
     failPage2 = false;
     const flights = await source.fetchFlights(YEAR);
-    // A full crawl again: page 2 was never remembered as seen.
     expect(calls.slice(2)).toEqual([FEED, page2Url]);
     expect(flights.some((f) => f.to?.name.startsWith('Zurich'))).toBe(true);
   });

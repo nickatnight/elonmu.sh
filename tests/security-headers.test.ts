@@ -26,8 +26,6 @@ afterEach(() => mock.restore());
 
 afterAll(() => server.close());
 
-// The policy from SPEC-security-headers, written out in full so a change to
-// the middleware has to be a deliberate change to this test too.
 const expected: Record<string, string> = {
   'content-security-policy': [
     "default-src 'self'",
@@ -36,7 +34,6 @@ const expected: Record<string, string> = {
     // /jet (scene cursor, tooltip, nav hint), plus the empty string: it
     // inserts each element empty before filling it. Recompute when bumping.
     "style-src 'self' 'sha256-GRFgt45UbKYCV14/Fqy6H9EB3zlAwSnH4xbsYt03Q6M=' 'sha256-9xjtvxMT1ApHlgn9ohbh2FNfvK5Tqtzy94BjfXBeMSY=' 'sha256-yfc2FhpkFR0EAy3T+zDsaAFGXSP9B3ELNvaJKDzNhkk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
-    "style-src-attr 'unsafe-inline'",
     "img-src 'self' https:",
     "media-src 'self'",
     "connect-src 'self'",

@@ -18,7 +18,6 @@ import { describeFlightSource } from './flight-source.contract';
 const TTL = 5 * 60_000;
 const YEAR = new Date('2026-01-01T00:00:00.000Z');
 
-// An inner source the test steers: counts calls, can fail, can be held open.
 class ScriptedSource implements FlightSource {
   readonly attribution: Attribution = {
     label: 'Scripted',
@@ -137,7 +136,6 @@ describe('CachedFlightSource', () => {
     await cached.fetchFlights(YEAR);
     clock.advance(TTL);
     await cached.fetchFlights(YEAR);
-    // One warning per failed refresh, so a long outage stays visible.
     expect(logger.warnings).toHaveLength(2);
     expect(logger.warnings[0].msg).toContain('serving stale flights');
     expect(logger.warnings[0].meta).toEqual({
@@ -182,7 +180,6 @@ describe('CachedFlightSource', () => {
     const { inner, cached } = setup();
     await cached.fetchFlights(new Date('2025-01-01T00:00:00.000Z'));
     inner.failing = true;
-    // New year, upstream down: last year's list must not stand in.
     await expect(cached.fetchFlights(YEAR)).rejects.toThrow('upstream down');
   });
 

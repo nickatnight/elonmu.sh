@@ -1,28 +1,22 @@
-import type { Fuel } from '../../domain';
+import type { Fuel, IsoTimestamp } from '../../domain';
 
-// One takeoff or landing as the @elonjet.net bot announces it.
 export type JetEvent = {
   kind: 'takeoff' | 'landing';
-  // null on the bot's older posts (before 2026-03-13), which name no aircraft.
   tail: string | null;
-  // Exactly as posted: "City, Region, Country".
   place: string;
-  // ISO 8601, UTC.
-  at: string;
-  // Landings only, when the bot gives an approximate flight time.
+  at: IsoTimestamp;
   durationMin: number | null;
   uri: string;
 };
 
-// "[N8628 ]Took off from|near PLACE." or
-// "[N8628 ]Landed in|near PLACE.[ Apx. flt. time [H h][ M min].]"
-// PLACE needs a comma ("City, Region, Country"), which rules out hand-typed
-// posts like "Took off from Austin Texas"; the lazy match stops at the last
-// full stop, so places like "St. Louis" keep theirs.
-const BOT_POST =
-  /^(?:(N[0-9A-Z]{1,5}) )?(Took off|Landed) (?:from|near|in) ([^,]+,.+?)\.(?: Apx\. flt\. time(?: (\d+) h)?(?: (\d+) min)?\.)?\s*$/;
+const TAIL = '(?:(N[0-9A-Z]{1,5}) )?';
+const VERB = '(Took off|Landed)';
+const PLACE_WITH_REGION = String.raw`(?:from|near|in) ([^,]+,.+?)\.`;
+const FLIGHT_TIME = String.raw`(?: Apx\. flt\. time(?: (\d+) h)?(?: (\d+) min)?\.)?`;
+const BOT_POST = new RegExp(
+  `^${TAIL}${VERB} ${PLACE_WITH_REGION}${FLIGHT_TIME}\\s*$`
+);
 
-// Parses one bot post. Anything else (hand-typed notes, chatter) is null.
 export const parseElonJetPost = (
   text: string,
   createdAt: string,
@@ -47,10 +41,7 @@ export const parseElonJetPost = (
 
 const num = (s: string) => Number(s.replaceAll(',', ''));
 
-// The bot's fuel reply under a landing:
-// "~ 782 gallons (…). ~ 5,240 lbs (…) of jet fuel used. ~ $6,083 cost of
-// fuel. ~ 8 tons of CO2 emissions." All three figures are required; the
-// bot's occasional negative estimates are rejected.
+// The bot's occasional negative estimates are rejected.
 export const parseFuelReply = (text: string): Fuel | null => {
   const gallons = /~ (-?[\d,]+(?:\.\d+)?) gallons/.exec(text)?.[1];
   const usd = /~ \$(-?[\d,]+(?:\.\d+)?) cost of fuel/.exec(text)?.[1];

@@ -1,4 +1,3 @@
-// Shape of one entry in NewsAPI's /v2/everything `articles` array.
 export const newsApiArticle = {
   source: { id: 'business-insider', name: 'Business Insider' },
   author: 'Jane Doe',

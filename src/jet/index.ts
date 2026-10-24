@@ -8,7 +8,6 @@ import { BlueskyFlightSource } from './sources/bluesky/bluesky-flight-source';
 
 const systemClock: Clock = { now: () => new Date() };
 
-// How long a crawl of the feed is reused before the next refresh.
 const CACHE_TTL_MS = 5 * 60_000;
 
 const http: HttpGet = async <T>(url: string) =>
@@ -18,9 +17,6 @@ const logger: Logger = {
   warn: (msg, meta) => console.warn(`⚠️ ${msg}`, meta ?? '')
 };
 
-// The composition root: the only place a concrete flight source is named.
-// Swapping the data source means changing the `source` line below, e.g. to
-// `new InMemoryFlightSource(sampleFlights)` from ./sources/memory.
 export const createJetModule = (): JetQuery => {
   const source = new BlueskyFlightSource({
     http,
@@ -34,9 +30,6 @@ export const createJetModule = (): JetQuery => {
   );
 };
 
-// Loads the first snapshot at startup so the first visitor doesn't wait on
-// the upstream crawl. Fire-and-forget: a failure is logged, never thrown,
-// and never holds up the server.
 export const warmUp = async (
   jet: JetQuery,
   log: Logger = logger

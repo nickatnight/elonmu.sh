@@ -25,9 +25,8 @@ afterAll(async () => {
   await down.close();
 });
 
-// The raw response headers, as the wire carries them. The body is cancelled:
-// left unread (a whole video, say) it holds the connection open and can stall
-// server.close() in afterAll past the hook timeout.
+// Left unread, a body holds the connection open and can stall server.close()
+// in afterAll past the hook timeout.
 const fetchGzip = async (url: string): Promise<Headers> => {
   const res = await fetch(url, {
     headers: { 'Accept-Encoding': 'gzip' },

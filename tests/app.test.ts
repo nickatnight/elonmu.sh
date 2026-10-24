@@ -13,7 +13,6 @@ beforeAll(async () => {
 
 afterAll(() => server.close());
 
-// The opening <video> tag that carries the given class.
 const videoTag = (cls: string): string => {
   const tag = new RegExp(`<video\\s+class="hero__video ${cls}"[^>]*>`);
   return html.match(tag)?.[0] ?? '';
@@ -108,7 +107,6 @@ describe('GET /', () => {
     )?.[0];
     const tag = link?.match(/^<a [^>]*>/)?.[0] ?? '';
     expect(tag).toContain('target="_blank"');
-    // noopener: the article's site gets no window.opener handle back to this page.
     expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
     expect(link).toContain(
       '<span class="sr-only"> (opens in a new tab)</span>'
@@ -233,10 +231,14 @@ describe('GET /', () => {
     expect(toggle).toMatch(/\shidden[\s>]/);
   });
 
-  it('gives the hero the cruise poster as its reduced-motion still', () => {
+  it('gives the cruise clip its poster, the reduced-motion still', () => {
     expect(html).toMatch(
-      /<section\s+class="hero"[^>]*style="--still: url\(\/static\/video\/clown-cruise-poster\.jpg\?v=\w+\)"/
+      /<video\s+class="hero__video hero__video--cruise"[^>]*poster="\/static\/video\/clown-cruise-poster\.jpg\?v=\w+"/
     );
+  });
+
+  it('puts no inline style attributes on the page', () => {
+    expect(html).not.toMatch(/\sstyle=/);
   });
 
   it('serves the clips and posters with video and image types', async () => {
@@ -270,7 +272,6 @@ describe('GET /', () => {
       ...html.matchAll(/url\((\/[^/)][^)]*)\)/g)
     ]
       .map(([, url]) => url)
-      // /api/news would call NewsAPI for real.
       .filter((url) => url !== '/' && url !== '/api/news');
     expect(urls.length).toBeGreaterThan(0);
     for (const url of new Set(urls)) {
@@ -284,8 +285,6 @@ describe('GET /', () => {
 const topbarNav = (page: string): string =>
   page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
 
-// The text of each link in the topbar nav, in order, ignoring inner markup.
-// Visible text only: screen-reader-only notes are dropped.
 const navLinks = (page: string): string[] =>
   [...topbarNav(page).matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
     inner
@@ -294,7 +293,6 @@ const navLinks = (page: string): string[] =>
       .trim()
   );
 
-// A made-up catalog entry, for tests that pass createApp their own services.
 const testService = (n: number) => ({
   id: `service-${n}`,
   name: `Service ${n}`,
@@ -304,7 +302,6 @@ const testService = (n: number) => ({
   cta: `Open ${n}`
 });
 
-// The topbar's GitHub link, from <a to </a>.
 const githubLink = (page: string): string =>
   topbarNav(page).match(
     /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
@@ -324,7 +321,6 @@ describe('topbar', () => {
   it('marks GitHub as external with a mark screen readers skip', () => {
     const github = githubLink(html);
     expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
-    // No <title>: the icon must not add to the link's accessible name.
     expect(github).not.toContain('<title');
   });
 
@@ -332,7 +328,6 @@ describe('topbar', () => {
     const github = githubLink(html);
     const tag = github.match(/^<a [^>]*>/)?.[0] ?? '';
     expect(tag).toContain('target="_blank"');
-    // noopener: the new tab gets no window.opener handle back to this page.
     expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
     expect(github).toContain(
       '<span class="sr-only"> (opens in a new tab)</span>'
@@ -388,7 +383,6 @@ describe('topbar', () => {
   });
 });
 
-// A tag's text with whitespace collapsed (templates wrap long lines).
 const textOf = (page: string, open: RegExp): string => {
   const match = page.match(
     new RegExp(`${open.source}([\\s\\S]*?)</`, open.flags)
@@ -462,7 +456,6 @@ const servicesSection = (page: string): string =>
     /<section class="services" id="services"[\s\S]*?<\/section>/
   )?.[0] ?? '';
 
-// Every card in the Services section: its tag, class and href (if a link).
 const serviceCards = (page: string) =>
   [
     ...servicesSection(page).matchAll(

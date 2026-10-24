@@ -4,7 +4,6 @@ import type { JetQuery } from '../../src/jet/ports';
 import { startTestServer, type TestServer } from '../helpers';
 import { failingJet, flight, places, sampleJet } from './fakes';
 
-// A JetQuery that answers only after `ms`, like a cold upstream crawl.
 const slowJet = (ms: number): JetQuery => ({
   snapshot: () =>
     new Promise((resolve) =>
@@ -20,9 +19,7 @@ const ms = {} as Record<Name, number>;
 
 beforeAll(async () => {
   const jets: Record<Name, JetQuery> = {
-    // Newest flight airborne from Austin; one visible arc (Austin → San Jose).
     full: sampleJet(),
-    // Newest flight landed: its arc is the latest.
     landed: sampleJet([
       flight({
         id: 'new',

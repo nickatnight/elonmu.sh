@@ -7,8 +7,6 @@ export interface HookResult {
   stderr: string;
 }
 
-// Runs a hook script the way Claude Code does: hook JSON on stdin, verdict in
-// the exit code and stderr.
 export const runHook = async (
   script: string,
   stdin: string,

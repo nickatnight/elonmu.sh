@@ -1,12 +1,10 @@
-// The only list of services. Each entry is one topbar link and one card in
-// the home Services section, so shipping a service means adding an entry here.
 export type Service = {
-  id: string; // kebab-case, matches the capability-map module id
-  name: string; // card title: "Jet tracker"
-  nav: string; // short topbar label: "Jet"
-  summary: string; // one sentence, plain text (rendered escaped)
-  href: string; // same-origin path or fragment: "/jet", "/#get-api"
-  cta: string; // card call to action: "Open the globe"
+  id: string;
+  name: string;
+  nav: string;
+  summary: string;
+  href: string;
+  cta: string;
 };
 
 export const SERVICES: readonly Service[] = [

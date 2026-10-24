@@ -21,7 +21,6 @@ describe('JetService.snapshot', () => {
   });
 
   it('drops other years’ flights even when the source returns them', async () => {
-    // A source that ignores `since`: the core must not trust it.
     const sloppy: FlightSource = {
       attribution: { label: 'Sloppy', url: 'https://example.com' },
       fetchFlights: async () => [
@@ -39,7 +38,6 @@ describe('JetService.snapshot', () => {
   });
 
   it('computes the year in UTC, not local time', async () => {
-    // 23:30 on Dec 31 in Los Angeles is already Jan 1 in UTC.
     const snap = await serviceAt('2026-12-31T23:30:00.000-08:00').snapshot();
     expect(snap.year).toBe(2027);
     expect(snap.flights).toEqual([]);
@@ -59,7 +57,6 @@ describe('JetService.snapshot', () => {
     const snap = await serviceAt('2026-07-01T00:00:00.000Z').snapshot();
     expect(snap.totals).toEqual({
       flights: 4,
-      // 210 + 60 + 40 minutes; the airborne flight has no duration yet.
       hours: 310 / 60,
       gallons: 1200,
       usd: 7200,

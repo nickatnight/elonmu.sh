@@ -1,9 +1,6 @@
 import type { Attribution, Flight, JetSnapshot, Place, Totals } from './domain';
 import { flightTime, UNKNOWN_TAIL } from './domain';
 
-// Plain-number formatting for the jet surfaces. Pure, so the views only
-// print strings and every wording is unit-tested.
-
 const sig3 = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
 const whole = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const tonnes = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
@@ -42,13 +39,11 @@ export const formatTotals = (t: Totals): TotalPart[] => [
   { value: sig3.format(t.co2Tons), unit: 't CO₂' }
 ];
 
-// "313 flights · 515 h · 153,000 gal · $1.08M fuel · 1,610 t CO₂"
 export const totalsLine = (t: Totals): string =>
   formatTotals(t)
     .map((p) => `${p.value} ${p.unit}`)
     .join(' · ');
 
-// "2 h 5 min", "45 min", "3 h": the bot's own wording.
 export const formatDuration = (min: number): string => {
   const h = Math.floor(min / 60);
   const m = min % 60;
@@ -59,7 +54,6 @@ export const formatDuration = (min: number): string => {
 const city = (place: Place | null): string | null =>
   place ? place.name.split(',')[0] : null;
 
-// "Austin → San Jose", or words when an end is missing.
 const route = (f: Flight): string => {
   const from = city(f.from);
   const to = city(f.to);
@@ -76,7 +70,6 @@ const airborneNote = (f: Flight): string | null =>
     ? `In the air since ${clock.format(new Date(f.departedAt))} UTC${f.from ? ` from ${city(f.from)}` : ''}`
     : null;
 
-// The one-line summary of the newest flight, shared by /jet and the teaser.
 export const latestSentence = (flights: readonly Flight[]): string | null => {
   const latest = flights[0];
   if (!latest) return null;
@@ -97,7 +90,6 @@ export type FlightRow = {
   datetime: string;
   date: string;
   route: string;
-  // Full place names, for the row's accessible description.
   places: string;
   duration: string | null;
   fuel: string | null;
@@ -132,20 +124,17 @@ const row = (f: Flight, i: number): FlightRow => {
       : null,
     status: f.status,
     note: airborneNote(f),
-    // Post-derived links are only ever https.
     sourceUrl: f.sourceUrl?.startsWith('https://') ? f.sourceUrl : null,
     latest: i === 0
   };
 };
 
-// Tail chips in alphabetical order, with the catch-all "Unknown" last.
 const byTailUnknownLast = (a: { tail: string }, b: { tail: string }) => {
   if (a.tail === UNKNOWN_TAIL) return 1;
   if (b.tail === UNKNOWN_TAIL) return -1;
   return a.tail.localeCompare(b.tail);
 };
 
-// Everything the /jet page prints, from one snapshot.
 export const jetPage = (snapshot: JetSnapshot): JetPage => {
   const counts = new Map<string, number>();
   for (const f of snapshot.flights)

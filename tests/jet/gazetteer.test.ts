@@ -21,7 +21,6 @@ describe('GazetteerPlaceResolver', () => {
 
   it('returns null for a place it does not know', () => {
     expect(resolver.resolve('Atlantis, Ocean, Nowhere')).toBeNull();
-    // Lookups are exact: no fuzzy matching on case or spacing.
     expect(resolver.resolve('austin, texas, united states')).toBeNull();
   });
 
@@ -73,7 +72,6 @@ describe('places.json', () => {
     const near = (name: string, lat: number, lon: number) => {
       const p = resolver.resolve(name);
       expect(p).not.toBeNull();
-      // Within about a degree: the city, not a namesake elsewhere.
       expect(Math.abs((p?.lat ?? 0) - lat)).toBeLessThan(1);
       expect(Math.abs((p?.lon ?? 0) - lon)).toBeLessThan(1);
     };

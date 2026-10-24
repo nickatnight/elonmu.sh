@@ -8,8 +8,6 @@ import placesJson from '../../src/jet/places/places.json';
 import { startTestServer, type TestServer } from '../helpers';
 import { FakeClock, flight, InMemoryFlightSource } from './fakes';
 
-// Spec success criterion 11 (budgets) and 2 (swappability), as guards.
-
 const root = path.join(import.meta.dir, '../..');
 const publicDir = path.join(root, 'src/public');
 const KB = 1024;
@@ -41,8 +39,6 @@ describe('asset budgets', () => {
   });
 });
 
-// A year-end-sized snapshot: ~390 flights at this year's pace, spread over
-// the real gazetteer's places (the busiest routes repeat, as in life).
 const gazetteer: Place[] = Object.entries(placesJson).map(
   ([name, [lat, lon]]) => ({
     name,
@@ -50,9 +46,6 @@ const gazetteer: Place[] = Object.entries(placesJson).map(
     lon
   })
 );
-// Seeded pseudo-random numbers: the data must compress like the real
-// feed's (random record keys, irregular times), or a gzip budget test
-// passes long after real data would fail it.
 let seed = 42;
 const rand = () => {
   seed = (seed * 1103515245 + 12345) % 2 ** 31;
@@ -62,9 +55,6 @@ const B32 = 'abcdefghijklmnopqrstuvwxyz234567';
 const rkey = () =>
   `3m${Array.from({ length: 11 }, () => B32[Math.floor(rand() * 32)]).join('')}`;
 
-// Places weighted by how often 2026's posts name them (the Task 4 survey):
-// a few hubs dominate and routes repeat. Uniform picks would make every
-// flight a new long arc, a worst case rather than a forecast.
 const POSTS_PER_PLACE: Record<string, number> = {
   Austin: 179,
   'San Jose': 118,
@@ -112,7 +102,6 @@ const yearEnd: Flight[] = Array.from({ length: 390 }, (_, i) => {
 
 let server: TestServer;
 beforeAll(async () => {
-  // Clock at Dec 31 so all 390 flights count as this year.
   const jet = new JetService(
     new InMemoryFlightSource(yearEnd),
     new FakeClock('2026-12-31T23:00:00.000Z')
@@ -128,7 +117,6 @@ const gzippedSize = async (url: string): Promise<number> => {
   });
   expect(res.headers.get('content-encoding')).toBe('gzip');
   const bytes = (await res.arrayBuffer()).byteLength;
-  // PRINT_BUDGETS=1 bun test tests/jet/budgets.test.ts shows the headroom.
   if (process.env.PRINT_BUDGETS) {
     console.log(
       `${new URL(url).pathname}: ${(bytes / KB).toFixed(1)} KB gzipped`
@@ -156,7 +144,6 @@ describe('response budgets at a year-end volume', () => {
 });
 
 describe('swappable data source', () => {
-  // Only the adapter folder and the composition root may name Bluesky.
   const tsFiles = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
       const p = path.join(dir, e.name);

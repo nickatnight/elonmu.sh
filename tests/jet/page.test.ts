@@ -5,7 +5,6 @@ import { createApp } from '../../src/app';
 import { startTestServer, type TestServer } from '../helpers';
 import { failingJet, flight, sampleJet } from './fakes';
 
-// sampleJet() is frozen at 2026-07-01: four 2026 flights, newest airborne.
 const servers: Record<'full' | 'empty' | 'down' | 'nasty', TestServer> =
   {} as never;
 const html: Record<keyof typeof servers, string> = {} as never;
@@ -46,11 +45,9 @@ describe('GET /jet', () => {
   });
 
   it('prints the year-to-date totals as plain numbers', () => {
-    // The visible text: values and units are styled separately.
     const totals =
       html.full.match(/<ul class="totals"[\s\S]*?<\/ul>/)?.[0] ?? '';
     const text = totals.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
-    // 210 + 60 + 40 min = 5 h; fuel from the three fuelled flights.
     expect(text).toContain('4 flights');
     expect(text).toContain('5 h');
     expect(text).toContain('1,200 gal');
@@ -93,7 +90,6 @@ describe('GET /jet', () => {
     const chips = html.full.match(/<div class="chips"[^>]*>/)?.[0] ?? '';
     expect(chips).toContain('hidden');
     const buttons = html.full.match(/<button[^>]*class="chip"[^>]*>/g) ?? [];
-    // All, then N628TS, N7628, N8628.
     expect(buttons).toHaveLength(4);
     for (const b of buttons) expect(b).toMatch(/aria-pressed="(true|false)"/);
     expect(buttons[0]).toContain('aria-pressed="true"');
@@ -149,8 +145,6 @@ describe('the live globe', () => {
     expect(html.full).toMatch(
       /<script type="module" src="\/static\/js\/jet\.js\?v=\w+"><\/script>/
     );
-    // No script tag: the 523 KB library must not compete with the page's
-    // own content for bandwidth. jet.js reads its hashed URL from here.
     expect(html.full).not.toMatch(/<script[^>]+globe\.gl/);
     expect(html.full).toMatch(
       /class="jet__globe"[^>]*data-globe-src="\/static\/vendor\/globe\.gl\.min\.js\?v=\w+"/
@@ -219,7 +213,6 @@ describe('the live globe', () => {
         (url) =>
           !['/', '/jet', '/api/news'].includes(url) && !url.startsWith('/#')
       );
-    // Vendor script, jet.js, both globe images, stylesheet, icons.
     for (const want of [
       'globe.gl.min.js',
       'jet.js',
@@ -247,7 +240,6 @@ describe('the live globe', () => {
     const body = await res.arrayBuffer();
     expect(res.status).toBe(200);
     expect(res.headers.get('content-encoding')).toBe('gzip');
-    // Budget: ≤ 530 KB on the wire (spec, raised 2026-10-23).
     expect(body.byteLength).toBeLessThanOrEqual(530 * 1024);
   });
 });
@@ -273,14 +265,11 @@ describe('topbar', () => {
 
 describe('stylesheets', () => {
   const cssDir = path.join(import.meta.dir, '../../src/public/static/css');
-  // Comments name jet.js and the like; only rules count.
   const css = (file: string) =>
     readFileSync(path.join(cssDir, file), 'utf8').replace(
       /\/\*[\s\S]*?\*\//g,
       ''
     );
-  // Class selectors only /jet uses: .jet, .jet__*, .jet-tip, .chip(s)*,
-  // .flight(s)*, .legend*, .totals*. The teaser's .teaser__totals doesn't match.
   const jetOnly = /\.(?:jet|chips?|flights?|legend|totals)(?![a-z])/g;
 
   it('keeps the /jet-only rules out of main.css, which every home visitor loads', () => {
@@ -302,7 +291,6 @@ describe('stylesheets', () => {
     ]);
   });
 
-  // Links show they're links by changing colour on hover/focus, not by underline.
   it.each(['main.css', 'jet.css'])('underlines nothing in %s', (file) => {
     expect(css(file)).not.toMatch(
       /text-decoration:\s*underline|text-decoration-thickness/

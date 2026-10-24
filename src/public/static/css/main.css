@@ -1,5 +1,3 @@
-/* elonmu.sh: landing hero with a live console, API reference below. */
-
 :root {
   color-scheme: dark light;
 
@@ -32,11 +30,8 @@
   --topbar: 3.75rem;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
-  /* Secondary text and the focus ring on --hero-bg, in both schemes: the
-     dark scheme's values (light's #59606b and #c8102e are too dim there). */
   --hero-muted: #a1a8b3;
   --hero-accent: #e31937;
-  /* Flight arcs on the globe; jet.js uses the same values. */
   --arc: #ffa94d;
   --arc-dim: rgb(255 169 77 / 0.32);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -99,8 +94,6 @@ svg {
   max-width: 100%;
 }
 
-/* No underlines: links show themselves by colour on hover/focus, scoped to
-   each component so their resting colours stay their own. */
 a {
   color: inherit;
   text-decoration: none;
@@ -131,7 +124,6 @@ pre {
   top: 0.5rem;
 }
 
-/* One button shape for the page: a flat pill in the ink colour. */
 .button {
   display: inline-block;
   padding: 0.45rem 1.1rem;
@@ -152,7 +144,6 @@ pre {
   transform: translateY(1px);
 }
 
-/* Top bar */
 .topbar {
   position: sticky;
   top: 0;
@@ -179,14 +170,12 @@ pre {
   font-size: var(--step-small);
 }
 
-/* Quiet links: muted until hovered; the current page is ink with an accent
-   bar. Only colour changes, so there is no motion to reduce. */
 .topbar__actions a {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
-  padding-block: 0.375rem; /* ≥ 24px tap target */
+  padding-block: 0.375rem;
   color: var(--muted);
   transition: color 150ms var(--ease-out);
 }
@@ -212,8 +201,6 @@ pre {
   height: 0.65em;
 }
 
-/* Hero: the name and one sentence, filling the first screen, over the
-   launch clip. It stays dark in both colour schemes. */
 .hero {
   position: relative;
   isolation: isolate;
@@ -228,7 +215,6 @@ pre {
   color: var(--hero-ink);
 }
 
-/* The clips cover the hero, with the clown kept in view right of centre. */
 .hero__video {
   position: absolute;
   inset: 0;
@@ -239,7 +225,6 @@ pre {
   object-position: 72% 50%;
 }
 
-/* The cruise loop fades in over the launch's last frame. */
 .hero__video--cruise {
   opacity: 0;
   transition: opacity 400ms ease-out;
@@ -249,7 +234,6 @@ pre {
   opacity: 1;
 }
 
-/* Scrim: darkens the left and the bottom, where the text sits. */
 .hero::before {
   content: "";
   position: absolute;
@@ -296,7 +280,6 @@ pre {
   animation: fade 700ms ease-out 450ms both;
 }
 
-/* Scroll cue: points down at the console below the fold. */
 .hero__cue {
   position: absolute;
   bottom: clamp(1rem, 3vh, 1.75rem);
@@ -308,7 +291,6 @@ pre {
   animation: fade 700ms ease-out 900ms both;
 }
 
-/* Pause toggle: a small round button in the hero's bottom-right corner. */
 .hero__toggle {
   position: absolute;
   right: var(--margin);
@@ -334,7 +316,6 @@ pre {
   display: none;
 }
 
-/* Two bars while playing, a triangle while paused. */
 .hero__toggle-icon {
   width: 0.7rem;
   height: 0.8rem;
@@ -347,9 +328,6 @@ pre {
   clip-path: polygon(15% 0, 100% 50%, 15% 100%);
 }
 
-/* The console: a real-size fragment of the API's request and response. */
-/* Services: one flat tile per catalog entry, below the hero. Tiles lift to
-   the raised grey on hover or focus; "More soon" is an outline, not a link. */
 .services {
   margin: 0 var(--margin);
   padding: clamp(4rem, 8vw, 7rem) 0 clamp(4rem, 8vw, 6rem);
@@ -530,7 +508,6 @@ a.service:focus-visible .service__arrow {
   color: var(--tok-str);
 }
 
-/* Footer */
 .footer {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 12rem)) 1fr;
@@ -572,7 +549,6 @@ a.service:focus-visible .service__arrow {
   color: var(--muted);
 }
 
-/* Testimonials: one large voice, two small ones, the speaker's portrait. */
 .praise {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -674,7 +650,6 @@ a.service:focus-visible .service__arrow {
     margin-top: 2rem;
   }
 
-  /* Portrait crops put the rocket behind the text: darken the lower half. */
   .hero::before {
     background: linear-gradient(
       to top,
@@ -722,17 +697,16 @@ a.service:focus-visible .service__arrow {
     transition: none;
   }
 
-  /* No clips: the cruise poster stands in as a still. */
-  .hero {
-    background: var(--hero-bg) var(--still) 72% 50% / cover no-repeat;
+  .hero__video--launch {
+    display: none;
   }
 
-  .hero__video {
-    display: none;
+  .hero__video--cruise {
+    opacity: 1;
+    transition: none;
   }
 }
 
-/* Live console */
 .console__send {
   white-space: nowrap;
   border: 0;
@@ -780,7 +754,6 @@ a.card__link[href]:focus-visible {
   white-space: nowrap;
 }
 
-/* Section entrances, added by main.js only. */
 .will-reveal > * {
   opacity: 0;
   transform: translateY(1.5rem);
@@ -802,21 +775,12 @@ a.card__link[href]:focus-visible {
   transform: none;
 }
 
-/* Reference rows: prose on the left, its code on a dark column. */
 .doc {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   margin: 0 var(--margin);
 }
 
-/* Home teaser for /jet: the night Earth with this year's arcs beside a
-   few lines of text. The whole section is one link (the button's ::after
-   covers it). Static: the only motion is CSS.
-   A full-bleed night band, dark in both schemes like the hero, so it reads
-   apart from the console above and the docs below. The colour tokens are
-   rebound to their night values, so the text, the ink-pill button and the
-   focus ring follow without rules of their own. The side padding keeps the
-   content inside the page margins, so the Earth's box is unchanged. */
 .teaser {
   --bg: var(--hero-bg);
   --ink: var(--hero-ink);
@@ -867,7 +831,6 @@ a.card__link[href]:focus-visible {
   stroke-width: 2.5;
 }
 
-/* One short bright pulse runs departure → arrival along the latest arc. */
 .teaser__pulse {
   stroke: #ffe2bd;
   stroke-width: 3.5;
@@ -884,7 +847,6 @@ a.card__link[href]:focus-visible {
   }
 }
 
-/* An airborne newest flight: a dot at its origin with a ring pulsing out. */
 .teaser__origin {
   fill: var(--arc);
 }
@@ -941,8 +903,8 @@ a.card__link[href]:focus-visible {
   margin-top: 0.5rem;
 }
 
-/* The link covers the whole section. A transform would make the button the
-   ::after's containing block, so it lifts on section hover instead. */
+/* A transform would make the button the ::after's containing block, so it
+   lifts on section hover instead. */
 .teaser__link::after {
   content: "";
   position: absolute;
@@ -1052,7 +1014,6 @@ a.card__link[href]:focus-visible {
   font-size: var(--step-small);
 }
 
-/* Real tables keep their lines. */
 .fields {
   width: 100%;
   border-collapse: collapse;
@@ -1107,9 +1068,6 @@ a.card__link[href]:focus-visible {
   }
 }
 
-/* Phones: tighter nav spacing. All three links fit beside the brand from
-   360px (41px to spare); below that GitHub goes, and the home footer still
-   links to the source. */
 @media (max-width: 30rem) {
   .topbar__actions {
     gap: 1rem;
@@ -1117,14 +1075,12 @@ a.card__link[href]:focus-visible {
 }
 
 @media (max-width: 22.49rem) {
-  /* Matches `.topbar__actions a`'s specificity, which sets display. */
   .topbar__actions .topbar__extra {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The teaser keeps its arcs and origin dot, without pulse or ring. */
   .teaser__pulse,
   .teaser__origin-ring {
     display: none;
