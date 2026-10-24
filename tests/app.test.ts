@@ -279,6 +279,26 @@ describe('topbar', () => {
     expect(github).not.toContain('<title');
   });
 
+  it('renders the same nav on / and /jet', async () => {
+    const jet = await (await fetch(`${server.url}/jet`)).text();
+    expect(navLinks(jet)).toEqual(navLinks(html));
+  });
+
+  it('points every nav link and card at a page that exists', async () => {
+    const hrefs = [
+      ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
+      ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
+    ].map(([, href]) => href);
+    expect(hrefs.length).toBe(4);
+    for (const href of new Set(hrefs)) {
+      const [path, fragment] = href.split('#');
+      const res = await fetch(`${server.url}${path}`);
+      const page = await res.text();
+      expect({ href, status: res.status }).toEqual({ href, status: 200 });
+      if (fragment) expect(page).toContain(`id="${fragment}"`);
+    }
+  });
+
   it('points News API at the docs section', () => {
     expect(html).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
   });
