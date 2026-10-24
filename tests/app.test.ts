@@ -360,6 +360,14 @@ describe('catalog copy', () => {
     expect(png.byteLength).toBeLessThanOrEqual(150 * 1024);
   });
 
+  it('credits each service data source in the footer', () => {
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+    expect(footer).toContain('<a href="https://newsapi.org/">NewsAPI.org</a>');
+    expect(footer).toMatch(
+      /<a href="https:\/\/bsky\.app\/profile\/elonjet\.net"[^>]*>@elonjet\.net<\/a> by Jack Sweeney/
+    );
+  });
+
   it('labels the console as the News API', () => {
     expect(html).toContain(
       '<section class="try" id="try" aria-label="Try the News API">'
