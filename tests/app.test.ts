@@ -343,6 +343,23 @@ describe('catalog copy', () => {
     expect(metaContent(html, 'name="twitter:description"')).toBe(share);
   });
 
+  it('describes the share card it shows', () => {
+    expect(metaContent(html, 'property="og:image:alt"')).toBe(
+      'Musk as a Service: enterprise-grade tools for monitoring our Lord ' +
+        'and Savior. News API, Jet tracker, and more soon.'
+    );
+  });
+
+  it('serves a share card that is 1200x630 and at most 150 KB', async () => {
+    const src = html.match(/content="https:\/\/elonmu\.sh(\/og\.png\?v=\w+)"/);
+    const png = new DataView(
+      await (await fetch(`${server.url}${src?.[1]}`)).arrayBuffer()
+    );
+    // PNG IHDR: width and height are the big-endian u32s at bytes 16 and 20.
+    expect([png.getUint32(16), png.getUint32(20)]).toEqual([1200, 630]);
+    expect(png.byteLength).toBeLessThanOrEqual(150 * 1024);
+  });
+
   it('labels the console as the News API', () => {
     expect(html).toContain(
       '<section class="try" id="try" aria-label="Try the News API">'
