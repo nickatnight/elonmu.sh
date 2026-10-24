@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
+import { TEASER_SIZE } from '../../src/jet/projection';
 import { startTestServer, type TestServer } from '../helpers';
 import { failingJet, flight, sampleJet } from './fakes';
 
@@ -107,7 +108,9 @@ describe('GET /jet', () => {
       '';
     expect(globe).toContain('aria-hidden="true"');
     expect(globe).toMatch(
-      /<img[^>]+src="\/static\/img\/globe\/teaser-earth\.webp\?v=\w+"/
+      new RegExp(
+        String.raw`<img[^>]+src="/static/img/globe/teaser-earth\.webp\?v=\w+"[^>]+width="${TEASER_SIZE}"[^>]+height="${TEASER_SIZE}"`
+      )
     );
   });
 

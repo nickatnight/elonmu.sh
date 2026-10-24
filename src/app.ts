@@ -5,6 +5,7 @@ import express from 'express';
 import { SERVICES, type Service } from './catalog';
 import { createJetModule } from './jet';
 import type { JetQuery } from './jet/ports';
+import { TEASER_SIZE } from './jet/projection';
 import { securityHeaders } from './middleware/security-headers';
 import * as routes from './routes';
 
@@ -41,6 +42,7 @@ export const createApp = ({
   app.set('view engine', 'ejs');
   app.locals.asset = assetUrl;
   app.locals.services = services;
+  app.locals.teaserSize = TEASER_SIZE;
 
   app.use(express.json());
 

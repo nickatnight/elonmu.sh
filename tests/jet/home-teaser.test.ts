@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../../src/app';
 import type { JetQuery } from '../../src/jet/ports';
+import { TEASER_SIZE } from '../../src/jet/projection';
 import { startTestServer, type TestServer } from '../helpers';
 import { failingJet, flight, places, sampleJet } from './fakes';
 
@@ -65,11 +66,15 @@ describe('home jet teaser', () => {
   it('draws one SVG path per visible arc over the lazy, fixed-size Earth image', () => {
     const t = teaser('full');
     expect(t).toMatch(
-      /<img[^>]+src="\/static\/img\/globe\/teaser-earth\.webp\?v=\w+"[^>]+width="960"[^>]+height="960"[^>]+loading="lazy"/
+      new RegExp(
+        String.raw`<img[^>]+src="/static/img/globe/teaser-earth\.webp\?v=\w+"[^>]+width="${TEASER_SIZE}"[^>]+height="${TEASER_SIZE}"[^>]+loading="lazy"`
+      )
     );
     expect(t.match(/<path class="teaser__arc[^"]*"/g)).toHaveLength(1);
     expect(t).toMatch(
-      /<svg[^>]+viewBox="0 0 960 960"[^>]+role="img"[^>]+aria-label="Map of 4 flights so far in 2026\.[^"]*"/
+      new RegExp(
+        String.raw`<svg[^>]+viewBox="0 0 ${TEASER_SIZE} ${TEASER_SIZE}"[^>]+role="img"[^>]+aria-label="Map of 4 flights so far in 2026\.[^"]*"`
+      )
     );
   });
 
