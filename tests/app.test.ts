@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
-import { startTestServer, type TestServer } from './helpers';
+import { metaContent, startTestServer, type TestServer } from './helpers';
 import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
@@ -141,9 +141,9 @@ describe('GET /', () => {
     );
   });
 
-  it('points the hero scroll cue at the console', () => {
+  it('points the hero scroll cue at the services', () => {
     expect(html).toMatch(
-      /<a class="hero__cue" href="#try"[^>]*aria-hidden="true"/
+      /<a class="hero__cue" href="#services"[^>]*aria-hidden="true"/
     );
   });
 
@@ -245,6 +245,264 @@ describe('GET /', () => {
       const res = await fetch(`${server.url}${url}`);
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
+    }
+  });
+});
+
+const topbarNav = (page: string): string =>
+  page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
+
+// The text of each link in the topbar nav, in order, ignoring inner markup.
+// Visible text only: screen-reader-only notes are dropped.
+const navLinks = (page: string): string[] =>
+  [...topbarNav(page).matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
+    inner
+      .replace(/<span class="sr-only">[\s\S]*?<\/span>/g, '')
+      .replace(/<[^>]+>/g, '')
+      .trim()
+  );
+
+// A made-up catalog entry, for tests that pass createApp their own services.
+const testService = (n: number) => ({
+  id: `service-${n}`,
+  name: `Service ${n}`,
+  nav: `S${n}`,
+  summary: `Does thing ${n}.`,
+  href: `/s${n}`,
+  cta: `Open ${n}`
+});
+
+// The topbar's GitHub link, from <a to </a>.
+const githubLink = (page: string): string =>
+  topbarNav(page).match(
+    /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
+  )?.[0] ?? '';
+
+describe('topbar', () => {
+  it('reads News API · Jet · GitHub', () => {
+    expect(navLinks(html)).toEqual(['News API', 'Jet', 'GitHub']);
+  });
+
+  it('has no GET /api button', () => {
+    const topbar = html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0];
+    expect(topbar).toBeDefined();
+    expect(topbar).not.toContain('class="button"');
+  });
+
+  it('marks GitHub as external with a mark screen readers skip', () => {
+    const github = githubLink(html);
+    expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    // No <title>: the icon must not add to the link's accessible name.
+    expect(github).not.toContain('<title');
+  });
+
+  it('opens GitHub in a new tab, safely, and says so to screen readers', () => {
+    const github = githubLink(html);
+    const tag = github.match(/^<a [^>]*>/)?.[0] ?? '';
+    expect(tag).toContain('target="_blank"');
+    // noopener: the new tab gets no window.opener handle back to this page.
+    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
+    expect(github).toContain(
+      '<span class="sr-only"> (opens in a new tab)</span>'
+    );
+  });
+
+  it('opens only GitHub in a new tab; service links stay in this one', () => {
+    const newTab = [
+      ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)
+    ];
+    expect(newTab.length).toBe(1);
+    expect(newTab[0]?.[0]).toContain('href="https://github.com/');
+  });
+
+  it('renders the same nav on / and /jet', async () => {
+    const jet = await (await fetch(`${server.url}/jet`)).text();
+    expect(navLinks(jet)).toEqual(navLinks(html));
+  });
+
+  it('points every nav link and card at a page that exists', async () => {
+    const hrefs = [
+      ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
+      ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
+    ].map(([, href]) => href);
+    expect(hrefs.length).toBe(4);
+    for (const href of new Set(hrefs)) {
+      const [path, fragment] = href.split('#');
+      const res = await fetch(`${server.url}${path}`);
+      const page = await res.text();
+      expect({ href, status: res.status }).toEqual({ href, status: 200 });
+      if (fragment) expect(page).toContain(`id="${fragment}"`);
+    }
+  });
+
+  it('points News API at the docs section', () => {
+    expect(html).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
+  });
+
+  it('renders one link per catalog entry, with no template change', async () => {
+    const three = await startTestServer(
+      createApp({
+        jet: sampleJet(),
+        services: [testService(1), testService(2), testService(3)]
+      })
+    );
+    try {
+      const page = await (await fetch(`${three.url}/`)).text();
+      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'GitHub']);
+      expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
+    } finally {
+      await three.close();
+    }
+  });
+});
+
+// A tag's text with whitespace collapsed (templates wrap long lines).
+const textOf = (page: string, open: RegExp): string => {
+  const match = page.match(
+    new RegExp(`${open.source}([\\s\\S]*?)</`, open.flags)
+  );
+  return (match?.[1] ?? '').replace(/\s+/g, ' ').trim();
+};
+
+describe('catalog copy', () => {
+  it('leads the hero with the service catalog', () => {
+    expect(textOf(html, /<p class="hero__lead">/)).toBe(
+      'Enterprise-grade tools for monitoring our Lord and Savior, Elon Musk. ' +
+        'Random news, private-jet emissions, and whatever we ship next. ' +
+        'Free, no key, no signup. /s'
+    );
+  });
+
+  it('describes the catalog to search engines', () => {
+    expect(metaContent(html, 'name="description"')).toBe(
+      'Free, satirical tools about Elon Musk: a random-news JSON API and a ' +
+        'year-to-date private-jet tracker.'
+    );
+  });
+
+  it('describes the catalog on shared links', () => {
+    const share =
+      'Enterprise-grade tools for monitoring our Lord and Savior. Random ' +
+      'news as JSON, private-jet emissions on a globe. /s';
+    expect(metaContent(html, 'property="og:description"')).toBe(share);
+    expect(metaContent(html, 'name="twitter:description"')).toBe(share);
+  });
+
+  it('describes the share card it shows', () => {
+    expect(metaContent(html, 'property="og:image:alt"')).toBe(
+      'Musk as a Service: enterprise-grade tools for monitoring our Lord ' +
+        'and Savior. News API, Jet tracker, and more soon.'
+    );
+  });
+
+  it('serves a share card that is 1200x630 and at most 150 KB', async () => {
+    const src = html.match(/content="https:\/\/elonmu\.sh(\/og\.png\?v=\w+)"/);
+    const png = new DataView(
+      await (await fetch(`${server.url}${src?.[1]}`)).arrayBuffer()
+    );
+    // PNG IHDR: width and height are the big-endian u32s at bytes 16 and 20.
+    expect([png.getUint32(16), png.getUint32(20)]).toEqual([1200, 630]);
+    expect(png.byteLength).toBeLessThanOrEqual(150 * 1024);
+  });
+
+  it('credits each service data source in the footer', () => {
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+    expect(footer).toContain('<a href="https://newsapi.org/">NewsAPI.org</a>');
+    expect(footer).toMatch(
+      /<a href="https:\/\/bsky\.app\/profile\/elonjet\.net"[^>]*>@elonjet\.net<\/a> by Jack Sweeney/
+    );
+  });
+
+  it('labels the console as the News API', () => {
+    expect(html).toContain(
+      '<section class="try" id="try" aria-label="Try the News API">'
+    );
+  });
+
+  it('drops the single-endpoint copy', () => {
+    expect(html).not.toContain('One endpoint');
+    expect(html).not.toContain('Stay Informed');
+  });
+});
+
+const servicesSection = (page: string): string =>
+  page.match(
+    /<section class="services" id="services"[\s\S]*?<\/section>/
+  )?.[0] ?? '';
+
+// Every card in the Services section: its tag, class and href (if a link).
+const serviceCards = (page: string) =>
+  [
+    ...servicesSection(page).matchAll(
+      /<(a|div) class="(service(?: [^"]*)?)"(?: href="([^"]*)")?/g
+    )
+  ].map(([, tag, cls, href]) => ({
+    tag,
+    cls,
+    // An unmatched optional group is undefined at runtime
+    href: href as string | undefined
+  }));
+
+describe('services section', () => {
+  it('sits between the hero and the console', () => {
+    const hero = html.search(/<section\s+class="hero"/);
+    const services = html.indexOf('<section class="services" id="services"');
+    const tryIt = html.indexOf('<section class="try" id="try"');
+    expect(hero).toBeGreaterThan(-1);
+    expect(services).toBeGreaterThan(hero);
+    expect(tryIt).toBeGreaterThan(services);
+  });
+
+  it('has the Services heading and its subline', () => {
+    const section = servicesSection(html);
+    expect(section).toContain('aria-labelledby="services-title"');
+    expect(section).toMatch(/<h2 id="services-title">Services<\/h2>/);
+    expect(section).toContain('Our product suite. All free, all unsolicited.');
+  });
+
+  it('links one card per catalog entry, in order, then More soon', () => {
+    expect(serviceCards(html)).toEqual([
+      { tag: 'a', cls: 'service', href: '/#get-api' },
+      { tag: 'a', cls: 'service', href: '/jet' },
+      { tag: 'div', cls: 'service service--soon', href: undefined }
+    ]);
+    const section = servicesSection(html);
+    for (const text of [
+      'News API',
+      'One random news article about Elon Musk, as JSON.',
+      'Jet tracker',
+      'Open the globe',
+      'More soon',
+      'Shipping next quarter. Which quarter is unspecified.'
+    ]) {
+      expect(section).toContain(text);
+    }
+  });
+
+  it('renders one card per entry for any catalog, escaping its text', async () => {
+    const three = await startTestServer(
+      createApp({
+        jet: sampleJet(),
+        services: [
+          testService(1),
+          testService(2),
+          { ...testService(3), summary: 'Uses <b>bold</b> & more.' }
+        ]
+      })
+    );
+    try {
+      const page = await (await fetch(`${three.url}/`)).text();
+      expect(serviceCards(page).map(({ href }) => href)).toEqual([
+        '/s1',
+        '/s2',
+        '/s3',
+        undefined
+      ]);
+      expect(servicesSection(page)).toContain(
+        'Uses &lt;b&gt;bold&lt;/b&gt; &amp; more.'
+      );
+    } finally {
+      await three.close();
     }
   });
 });

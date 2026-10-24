@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jet tracker | elonmu.sh</title>
-    <meta
-      name="description"
-      content="This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."
-    />
+<% const title = 'Jet tracker | elonmu.sh'; -%>
+<% const description = "This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
     <link rel="canonical" href="https://elonmu.sh/jet" />
 <%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/jet', title, description }) %>
     <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
         after the page has loaded, so the 523 KB library never competes
         with the page's own content. %>
@@ -19,7 +19,7 @@
   <body class="jet-page">
     <a class="skip" href="#jet-panel">Skip to the flight list</a>
 
-<%- include('partials/topbar', { current: 'jet' }) %>
+<%- include('partials/topbar', { current: 'jet-tracker' }) %>
 
     <main id="main" class="jet">
       <%# jet.js mounts the live globe here. Without JS or WebGL, a still

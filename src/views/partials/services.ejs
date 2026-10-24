@@ -1,0 +1,25 @@
+<%# Services: one card per catalog entry, then a placeholder that is not a
+    link (it names no feature). Catalog text is always escaped. %>
+      <section class="services" id="services" aria-labelledby="services-title" data-reveal>
+        <div class="services__head">
+          <h2 id="services-title">Services</h2>
+          <p class="services__sub">Our product suite. All free, all unsolicited.</p>
+        </div>
+        <ul class="services__grid" role="list">
+<% for (const service of services) { -%>
+          <li>
+            <a class="service" href="<%= service.href %>">
+              <h3 class="service__name"><%= service.name %></h3>
+              <p class="service__summary"><%= service.summary %></p>
+              <span class="service__cta"><%= service.cta %> <span class="service__arrow" aria-hidden="true">→</span></span>
+            </a>
+          </li>
+<% } -%>
+          <li>
+            <div class="service service--soon">
+              <h3 class="service__name">More soon</h3>
+              <p class="service__summary">Shipping next quarter. Which quarter is unspecified.</p>
+            </div>
+          </li>
+        </ul>
+      </section>
