@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
-import { startTestServer, type TestServer } from './helpers';
+import { metaContent, startTestServer, type TestServer } from './helpers';
 import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
@@ -262,6 +262,22 @@ const navLinks = (page: string): string[] =>
       .trim()
   );
 
+// A made-up catalog entry, for tests that pass createApp their own services.
+const testService = (n: number) => ({
+  id: `service-${n}`,
+  name: `Service ${n}`,
+  nav: `S${n}`,
+  summary: `Does thing ${n}.`,
+  href: `/s${n}`,
+  cta: `Open ${n}`
+});
+
+// The topbar's GitHub link, from <a to </a>.
+const githubLink = (page: string): string =>
+  topbarNav(page).match(
+    /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
+  )?.[0] ?? '';
+
 describe('topbar', () => {
   it('reads News API · Jet · GitHub', () => {
     expect(navLinks(html)).toEqual(['News API', 'Jet', 'GitHub']);
@@ -274,20 +290,14 @@ describe('topbar', () => {
   });
 
   it('marks GitHub as external with a mark screen readers skip', () => {
-    const github =
-      topbarNav(html).match(
-        /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
-      )?.[0] ?? '';
+    const github = githubLink(html);
     expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
     // No <title>: the icon must not add to the link's accessible name.
     expect(github).not.toContain('<title');
   });
 
   it('opens GitHub in a new tab, safely, and says so to screen readers', () => {
-    const github =
-      topbarNav(html).match(
-        /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
-      )?.[0] ?? '';
+    const github = githubLink(html);
     const tag = github.match(/^<a [^>]*>/)?.[0] ?? '';
     expect(tag).toContain('target="_blank"');
     // noopener: the new tab gets no window.opener handle back to this page.
@@ -330,16 +340,11 @@ describe('topbar', () => {
   });
 
   it('renders one link per catalog entry, with no template change', async () => {
-    const entry = (n: number) => ({
-      id: `service-${n}`,
-      name: `Service ${n}`,
-      nav: `S${n}`,
-      summary: `Does thing ${n}.`,
-      href: `/s${n}`,
-      cta: `Open ${n}`
-    });
     const three = await startTestServer(
-      createApp({ jet: sampleJet(), services: [1, 2, 3].map(entry) })
+      createApp({
+        jet: sampleJet(),
+        services: [testService(1), testService(2), testService(3)]
+      })
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();
@@ -358,12 +363,6 @@ const textOf = (page: string, open: RegExp): string => {
   );
   return (match?.[1] ?? '').replace(/\s+/g, ' ').trim();
 };
-
-// The content attribute of the meta tag with the given name/property.
-const metaContent = (page: string, attr: string): string =>
-  (
-    page.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1] ?? ''
-  ).replace(/\s+/g, ' ');
 
 describe('catalog copy', () => {
   it('leads the hero with the service catalog', () => {
@@ -481,16 +480,15 @@ describe('services section', () => {
   });
 
   it('renders one card per entry for any catalog, escaping its text', async () => {
-    const entry = (n: number) => ({
-      id: `service-${n}`,
-      name: `Service ${n}`,
-      nav: `S${n}`,
-      summary: n === 3 ? 'Uses <b>bold</b> & more.' : `Does thing ${n}.`,
-      href: `/s${n}`,
-      cta: `Open ${n}`
-    });
     const three = await startTestServer(
-      createApp({ jet: sampleJet(), services: [1, 2, 3].map(entry) })
+      createApp({
+        jet: sampleJet(),
+        services: [
+          testService(1),
+          testService(2),
+          { ...testService(3), summary: 'Uses <b>bold</b> & more.' }
+        ]
+      })
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();

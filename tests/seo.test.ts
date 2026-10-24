@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
-import { startTestServer, type TestServer } from './helpers';
+import { metaContent, startTestServer, type TestServer } from './helpers';
 import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
@@ -74,17 +74,14 @@ describe('/jet share tags', () => {
     jet = await (await fetch(`${server.url}/jet`)).text();
   });
 
-  // The content of the meta tag with the given attribute, e.g.
-  // 'property="og:url"'.
-  const meta = (attr: string): string | undefined =>
-    jet.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1];
+  const meta = (attr: string) => metaContent(jet, attr);
 
   it('points og:url at its own canonical', () => {
     expect(meta('property="og:url"')).toBe('https://elonmu.sh/jet');
   });
 
   it('shares its own title and description', () => {
-    const title = jet.match(/<title>([^<]+)<\/title>/)?.[1];
+    const title = jet.match(/<title>([^<]+)<\/title>/)?.[1] ?? '';
     const description = meta('name="description"');
     expect(description).toBeTruthy();
     expect(meta('property="og:title"')).toBe(title);
@@ -94,8 +91,6 @@ describe('/jet share tags', () => {
   });
 
   it('uses the site share card, with its size and alt text', () => {
-    const home = (attr: string) =>
-      html.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1];
     for (const attr of [
       'property="og:image"',
       'property="og:image:width"',
@@ -103,7 +98,10 @@ describe('/jet share tags', () => {
       'property="og:image:alt"',
       'name="twitter:image"'
     ]) {
-      expect({ attr, value: meta(attr) }).toEqual({ attr, value: home(attr) });
+      expect({ attr, value: meta(attr) }).toEqual({
+        attr,
+        value: metaContent(html, attr)
+      });
     }
     expect(meta('name="twitter:card"')).toBe('summary_large_image');
     expect(meta('property="og:type"')).toBe('website');
