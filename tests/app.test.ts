@@ -102,7 +102,25 @@ describe('GET /', () => {
     expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
   });
 
-  it('documents a response example with the real /api keys', () => {
+  it('names GET /api/news in the console, the docs heading and the curl example', () => {
+    expect(html).toContain(
+      '<code class="console__url">https://elonmu.sh/api/news</code>'
+    );
+    expect(html).toContain(
+      '<h2 id="get-api-title"><code>GET /api/news</code></h2>'
+    );
+    expect(html).toContain('<code>curl https://elonmu.sh/api/news</code>');
+  });
+
+  it('sends the console request to /api/news', async () => {
+    const js = await Bun.file(
+      `${import.meta.dir}/../src/public/static/js/main.js`
+    ).text();
+    expect(js).toContain("fetch('/api/news'");
+    expect(js).not.toContain("fetch('/api'");
+  });
+
+  it('documents a response example with the real /api/news keys', () => {
     const block = html.match(/data-example="response"[^>]*>([\s\S]*?)<\/pre>/);
     expect(block).not.toBeNull();
     const text = (block?.[1] ?? '')
@@ -239,7 +257,8 @@ describe('GET /', () => {
       ...html.matchAll(/url\((\/[^/)][^)]*)\)/g)
     ]
       .map(([, url]) => url)
-      .filter((url) => url !== '/' && url !== '/api');
+      // /api/news would call NewsAPI for real.
+      .filter((url) => url !== '/' && url !== '/api/news');
     expect(urls.length).toBeGreaterThan(0);
     for (const url of new Set(urls)) {
       const res = await fetch(`${server.url}${url}`);
@@ -470,6 +489,7 @@ describe('services section', () => {
     for (const text of [
       'News API',
       'One random news article about Elon Musk, as JSON.',
+      'GET /api/news',
       'Jet tracker',
       'Open the globe',
       'More soon',

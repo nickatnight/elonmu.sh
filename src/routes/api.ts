@@ -3,7 +3,8 @@ import type * as express from 'express';
 import { fetchNewsArticle } from '../services/news.service';
 
 export const register = (app: express.Application) => {
-  app.get(`/api`, async (_req, res) => {
+  // The old `/api` path was removed with no alias: it falls through to 404.
+  app.get('/api/news', async (_req, res) => {
     try {
       const randomArticle = await fetchNewsArticle();
       const article = {

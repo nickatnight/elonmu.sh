@@ -83,7 +83,7 @@ describe('security headers', () => {
     spyOn(axios, 'get').mockResolvedValue({
       data: { articles: [newsApiArticle] }
     });
-    const res = await fetch(`${server.url}/api`);
+    const res = await fetch(`${server.url}/api/news`);
     expect(res.status).toBe(200);
     expectSecurityHeaders(res);
   });

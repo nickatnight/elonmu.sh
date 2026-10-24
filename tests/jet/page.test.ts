@@ -200,7 +200,8 @@ describe('the live globe', () => {
     ]
       .map(([, url]) => url)
       .filter(
-        (url) => !['/', '/jet', '/api'].includes(url) && !url.startsWith('/#')
+        (url) =>
+          !['/', '/jet', '/api/news'].includes(url) && !url.startsWith('/#')
       );
     // Vendor script, jet.js, both globe images, stylesheet, icons.
     for (const want of [
