@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { createApp } from '../../src/app';
 import { startTestServer, type TestServer } from '../helpers';
 import { failingJet, flight, sampleJet } from './fakes';
@@ -113,8 +115,13 @@ describe('GET /jet', () => {
     );
   });
 
-  it('links the stylesheet with a content hash', () => {
-    expect(html.full).toMatch(/href="\/static\/css\/main\.css\?v=\w+"/);
+  it('links main.css then jet.css, each with a content hash', () => {
+    const sheets = [
+      ...html.full.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
+    ].map(([, href]) => href);
+    expect(sheets).toHaveLength(2);
+    expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
+    expect(sheets[1]).toMatch(/^\/static\/css\/jet\.css\?v=\w+$/);
   });
 
   it('says so when there are no flights yet this year', () => {
@@ -186,6 +193,15 @@ describe('the live globe', () => {
     expect(home).not.toContain('three');
   });
 
+  it('links only main.css on the home page, never jet.css', async () => {
+    const home = await (await fetch(`${servers.full.url}/`)).text();
+    const sheets = [
+      ...home.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
+    ].map(([, href]) => href);
+    expect(sheets).toHaveLength(1);
+    expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
+  });
+
   it('fetches the still Earth (the page’s LCP) ahead of the globe library', () => {
     const still = html.full.match(/<img\s+class="jet__still"[^>]*>/)?.[0] ?? '';
     expect(still).toContain('fetchpriority="high"');
@@ -251,5 +267,37 @@ describe('topbar', () => {
 
   it('marks only Jet as the current page', () => {
     expect(html.full.match(/aria-current="page"/g)?.length).toBe(1);
+  });
+});
+
+describe('stylesheets', () => {
+  const cssDir = path.join(import.meta.dir, '../../src/public/static/css');
+  // Comments name jet.js and the like; only rules count.
+  const css = (file: string) =>
+    readFileSync(path.join(cssDir, file), 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      ''
+    );
+  // Class selectors only /jet uses: .jet, .jet__*, .jet-tip, .chip(s)*,
+  // .flight(s)*, .legend*, .totals*. The teaser's .teaser__totals doesn't match.
+  const jetOnly = /\.(?:jet|chips?|flights?|legend|totals)(?![a-z])/g;
+
+  it('keeps the /jet-only rules out of main.css, which every home visitor loads', () => {
+    expect(css('main.css').match(jetOnly)).toBeNull();
+  });
+
+  it('puts them in jet.css', () => {
+    const found = new Set(
+      css('jet.css')
+        .match(jetOnly)
+        ?.map((s) => s.replace(/s$/, ''))
+    );
+    expect([...found].sort()).toEqual([
+      '.chip',
+      '.flight',
+      '.jet',
+      '.legend',
+      '.total'
+    ]);
   });
 });
