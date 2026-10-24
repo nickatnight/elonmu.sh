@@ -99,13 +99,11 @@ svg {
   max-width: 100%;
 }
 
+/* No underlines: links show themselves by colour on hover/focus, scoped to
+   each component so their resting colours stay their own. */
 a {
   color: inherit;
-  text-underline-offset: 0.2em;
-}
-
-a:hover {
-  text-decoration-thickness: 2px;
+  text-decoration: none;
 }
 
 :focus-visible {
@@ -172,7 +170,6 @@ pre {
   align-items: center;
   gap: 0.6rem;
   font-weight: 700;
-  text-decoration: none;
 }
 
 .topbar__actions {
@@ -191,7 +188,6 @@ pre {
   gap: 0.3em;
   padding-block: 0.375rem; /* ≥ 24px tap target */
   color: var(--muted);
-  text-decoration: none;
   transition: color 150ms var(--ease-out);
 }
 
@@ -308,7 +304,6 @@ pre {
   translate: -50% 0;
   font-size: var(--step-lead);
   line-height: 1;
-  text-decoration: none;
   opacity: 0.7;
   animation: fade 700ms ease-out 900ms both;
 }
@@ -391,7 +386,6 @@ pre {
   gap: 0.5rem;
   padding: clamp(1.25rem, 2.5vw, 1.75rem);
   background: var(--surface);
-  text-decoration: none;
   transition: background-color 150ms var(--ease-out);
 }
 
@@ -559,6 +553,11 @@ a.service:focus-visible .service__arrow {
 
 .footer li + li {
   margin-top: 0.3rem;
+}
+
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--ink);
 }
 
 .social {
@@ -767,8 +766,9 @@ a.service:focus-visible .service__arrow {
   display: none;
 }
 
-a.card__link[href] {
-  text-decoration: underline;
+a.card__link[href]:hover,
+a.card__link[href]:focus-visible {
+  color: var(--accent);
 }
 
 .sr-only {

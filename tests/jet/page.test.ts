@@ -301,4 +301,16 @@ describe('stylesheets', () => {
       '.total'
     ]);
   });
+
+  // Links show they're links by changing colour on hover/focus, not by underline.
+  it.each(['main.css', 'jet.css'])('underlines nothing in %s', (file) => {
+    expect(css(file)).not.toMatch(
+      /text-decoration:\s*underline|text-decoration-thickness/
+    );
+  });
+
+  it('removes the browser underline from every link', () => {
+    const base = css('main.css').match(/(?:^|\n)a\s*\{([^}]*)\}/)?.[1];
+    expect(base).toMatch(/text-decoration:\s*none/);
+  });
 });

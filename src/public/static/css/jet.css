@@ -262,9 +262,10 @@
   cursor: pointer;
 }
 
-.flight__show:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+/* The date reads like a link, so it gets the full-ink links' accent cue. */
+.flight__show:hover,
+.flight__show:focus-visible {
+  color: var(--accent);
 }
 
 .flight:has(.flight__show) {
@@ -302,6 +303,13 @@
   right: 0;
   color: var(--muted);
   font-size: var(--step-small);
+}
+
+.flight__source:hover,
+.flight__source:focus-visible,
+.jet__credit a:hover,
+.jet__credit a:focus-visible {
+  color: var(--ink);
 }
 
 /* "Show 25 more · 25 of 313" under the list (added by jet.js). */
