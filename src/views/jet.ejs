@@ -3,36 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Jet tracker | elonmu.sh</title>
-    <meta
-      name="description"
-      content="This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."
-    />
+<% const title = 'Jet tracker | elonmu.sh'; -%>
+<% const description = "This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
     <link rel="canonical" href="https://elonmu.sh/jet" />
 <%- include('partials/head-assets') %>
-
-    <%# Share tags: this page's own URL, title and description, with the
-        site's share card (it lists the Jet tracker). %>
-    <meta property="og:url" content="https://elonmu.sh/jet" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Jet tracker | elonmu.sh" />
-    <meta
-      property="og:description"
-      content="This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."
-    />
-    <meta property="og:image" content="https://elonmu.sh<%= asset('og.png') %>" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Musk as a Service: enterprise-grade tools for monitoring our Lord and Savior. News API, Jet tracker, and more soon." />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:domain" content="elonmu.sh" />
-    <meta property="twitter:url" content="https://elonmu.sh/jet" />
-    <meta name="twitter:title" content="Jet tracker | elonmu.sh" />
-    <meta
-      name="twitter:description"
-      content="This year's private-jet flights on a globe, with hours flown, fuel burned and CO₂, from public flight-tracking posts."
-    />
-    <meta name="twitter:image" content="https://elonmu.sh<%= asset('og.png') %>" />
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/jet', title, description }) %>
     <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
         after the page has loaded, so the 523 KB library never competes
         with the page's own content. %>
