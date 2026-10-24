@@ -1,5 +1,5 @@
-# Crawlers only: API consumers can still call /api. Each crawler hit on /api
-# spends NewsAPI quota, so it stays disallowed.
+# Crawlers only: API consumers can still call /api/news. Each crawler hit on
+# it spends NewsAPI quota, so the /api prefix (news and jet) stays disallowed.
 User-agent: *
 Disallow: /api
 Disallow: /healthz

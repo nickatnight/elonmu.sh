@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 
 // Fitted to what the page loads; add a source here when the page needs one.
-// Everything is self-hosted except article images from /api, which come from
+// Everything is self-hosted except article images from /api/news, which come from
 // any news site over HTTPS. The hero's `style="--still: url(…)"` keeps its
 // content-hashed poster URL, hence the inline style attribute allowance.
 //
