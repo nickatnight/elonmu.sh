@@ -79,10 +79,8 @@ const announce = (text) => {
     desc.hidden = !article.description;
     const href = safeUrl(article.url);
     link.hidden = !href;
-    if (href) {
-      link.href = href;
-      link.rel = 'noopener noreferrer';
-    }
+    // target and rel are in the markup; only the URL comes from the article.
+    if (href) link.href = href;
     announce(`Loaded: ${title.textContent}`);
   };
 
