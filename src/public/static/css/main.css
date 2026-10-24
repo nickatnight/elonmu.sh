@@ -1449,13 +1449,16 @@ a.card__link[href] {
   }
 }
 
-/* Phones: three nav items don't fit beside the brand. GitHub goes first;
-   the home footer still links to the source. */
+/* Phones: tighter nav spacing. All three links fit beside the brand from
+   360px (41px to spare); below that GitHub goes, and the home footer still
+   links to the source. */
 @media (max-width: 30rem) {
   .topbar__actions {
     gap: 1rem;
   }
+}
 
+@media (max-width: 22.49rem) {
   /* Matches `.topbar__actions a`'s specificity, which sets display. */
   .topbar__actions .topbar__extra {
     display: none;
