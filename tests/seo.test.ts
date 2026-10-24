@@ -51,12 +51,62 @@ describe('GET /sitemap.xml', () => {
     expect(res.headers.get('content-security-policy')).toBeTruthy();
   });
 
-  it('lists exactly one URL, equal to the page canonical', async () => {
+  it('lists one URL per page, each equal to that page canonical', async () => {
     const body = await (await fetch(`${server.url}/sitemap.xml`)).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-    const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
-    expect(canonical).toBeTruthy();
-    expect(locs).toEqual([canonical as string]);
+    const canonicals: string[] = [];
+    for (const path of ['/', '/jet']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+      const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+      expect({ path, canonical }).toEqual({
+        path,
+        canonical: expect.any(String)
+      });
+      canonicals.push(canonical as string);
+    }
+    expect(locs).toEqual(canonicals);
+  });
+});
+
+describe('/jet share tags', () => {
+  let jet: string;
+  beforeAll(async () => {
+    jet = await (await fetch(`${server.url}/jet`)).text();
+  });
+
+  // The content of the meta tag with the given attribute, e.g.
+  // 'property="og:url"'.
+  const meta = (attr: string): string | undefined =>
+    jet.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1];
+
+  it('points og:url at its own canonical', () => {
+    expect(meta('property="og:url"')).toBe('https://elonmu.sh/jet');
+  });
+
+  it('shares its own title and description', () => {
+    const title = jet.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = meta('name="description"');
+    expect(description).toBeTruthy();
+    expect(meta('property="og:title"')).toBe(title);
+    expect(meta('name="twitter:title"')).toBe(title);
+    expect(meta('property="og:description"')).toBe(description);
+    expect(meta('name="twitter:description"')).toBe(description);
+  });
+
+  it('uses the site share card, with its size and alt text', () => {
+    const home = (attr: string) =>
+      html.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1];
+    for (const attr of [
+      'property="og:image"',
+      'property="og:image:width"',
+      'property="og:image:height"',
+      'property="og:image:alt"',
+      'name="twitter:image"'
+    ]) {
+      expect({ attr, value: meta(attr) }).toEqual({ attr, value: home(attr) });
+    }
+    expect(meta('name="twitter:card"')).toBe('summary_large_image');
+    expect(meta('property="og:type"')).toBe('website');
   });
 });
 
