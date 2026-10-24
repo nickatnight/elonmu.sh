@@ -68,6 +68,26 @@ describe('GET /sitemap.xml', () => {
   });
 });
 
+describe('share tag URLs', () => {
+  it('point og:url and twitter:url at each page canonical', async () => {
+    for (const path of ['/', '/jet']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+      const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+      expect({ path, canonical }).toEqual({
+        path,
+        canonical: expect.any(String)
+      });
+      for (const attr of ['property="og:url"', 'property="twitter:url"']) {
+        expect({ path, attr, url: metaContent(page, attr) }).toEqual({
+          path,
+          attr,
+          url: canonical as string
+        });
+      }
+    }
+  });
+});
+
 describe('/jet share tags', () => {
   let jet: string;
   beforeAll(async () => {
