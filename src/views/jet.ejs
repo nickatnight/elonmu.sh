@@ -10,6 +10,7 @@
     <link rel="canonical" href="https://elonmu.sh/jet" />
 <%- include('partials/head-assets') %>
 <%- include('partials/share-tags', { url: 'https://elonmu.sh/jet', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/jet.css') %>" />
     <%# The live globe: /jet only, never home. jet.js fetches globe.gl itself
         after the page has loaded, so the 523 KB library never competes
         with the page's own content. %>
