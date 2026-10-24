@@ -102,6 +102,19 @@ describe('GET /', () => {
     expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
   });
 
+  it('opens the console article in a new tab, safely, and says so to screen readers', () => {
+    const link = html.match(
+      /<a [^>]*class="card__link"[^>]*>[\s\S]*?<\/a>/
+    )?.[0];
+    const tag = link?.match(/^<a [^>]*>/)?.[0] ?? '';
+    expect(tag).toContain('target="_blank"');
+    // noopener: the article's site gets no window.opener handle back to this page.
+    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
+    expect(link).toContain(
+      '<span class="sr-only"> (opens in a new tab)</span>'
+    );
+  });
+
   it('names GET /api/news in the console, the docs heading and the curl example', () => {
     expect(html).toContain(
       '<code class="console__url">https://elonmu.sh/api/news</code>'
