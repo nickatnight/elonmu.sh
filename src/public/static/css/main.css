@@ -32,6 +32,10 @@
   --topbar: 3.75rem;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
+  /* Secondary text and the focus ring on --hero-bg, in both schemes: the
+     dark scheme's values (light's #59606b and #c8102e are too dim there). */
+  --hero-muted: #a1a8b3;
+  --hero-accent: #e31937;
   /* Flight arcs on the globe; jet.js uses the same values. */
   --arc: #ffa94d;
   --arc-dim: rgb(255 169 77 / 0.32);
@@ -807,14 +811,26 @@ a.card__link[href] {
 
 /* Home teaser for /jet: the night Earth with this year's arcs beside a
    few lines of text. The whole section is one link (the button's ::after
-   covers it). Static: the only motion is CSS. */
+   covers it). Static: the only motion is CSS.
+   A full-bleed night band, dark in both schemes like the hero, so it reads
+   apart from the console above and the docs below. The colour tokens are
+   rebound to their night values, so the text, the ink-pill button and the
+   focus ring follow without rules of their own. The side padding keeps the
+   content inside the page margins, so the Earth's box is unchanged. */
 .teaser {
+  --bg: var(--hero-bg);
+  --ink: var(--hero-ink);
+  --muted: var(--hero-muted);
+  --accent: var(--hero-accent);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 5rem);
   align-items: center;
-  margin: 0 var(--margin) clamp(4rem, 8vw, 7rem);
+  margin: 0 0 clamp(4rem, 8vw, 7rem);
+  padding: clamp(4rem, 9vw, 7.5rem) var(--margin);
+  background: var(--bg);
+  color: var(--ink);
 }
 
 .teaser__map {

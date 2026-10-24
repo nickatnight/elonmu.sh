@@ -16,7 +16,7 @@ export const SERVICES: readonly Service[] = [
     nav: 'News API',
     summary: 'One random news article about Elon Musk, as JSON.',
     href: '/#get-api',
-    cta: 'GET /api'
+    cta: 'GET /api/news'
   },
   {
     id: 'jet-tracker',

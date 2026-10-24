@@ -27,11 +27,24 @@ afterEach(() => mock.restore());
 afterAll(() => server.close());
 
 const getApi = async () => {
-  const res = await fetch(`${server.url}/api`);
+  const res = await fetch(`${server.url}/api/news`);
   return { status: res.status, body: await res.json() };
 };
 
 describe('GET /api', () => {
+  // The old path was removed on purpose, with no alias (spec question 5).
+  it('is gone: the plain-text 404, and NewsAPI is never called', async () => {
+    const get = spyOn(axios, 'get').mockResolvedValue({
+      data: { articles: [newsApiArticle] }
+    });
+    const res = await fetch(`${server.url}/api`);
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe('does not compute...');
+    expect(get).not.toHaveBeenCalled();
+  });
+});
+
+describe('GET /api/news', () => {
   it('maps a NewsAPI article to the public shape', async () => {
     spyOn(axios, 'get').mockResolvedValue({
       data: { articles: [newsApiArticle] }

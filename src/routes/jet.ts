@@ -4,7 +4,7 @@ import type { JetQuery } from '../jet/ports';
 
 export const register = (app: express.Application, jet: JetQuery) => {
   // This year's flights. A failed upstream answers 200 with an error body,
-  // like /api: the server is fine, only the flight data isn't.
+  // like /api/news: the server is fine, only the flight data isn't.
   app.get('/api/jet/flights', async (_req, res) => {
     try {
       const snapshot = await jet.snapshot();
