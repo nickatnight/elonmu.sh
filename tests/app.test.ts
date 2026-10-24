@@ -253,9 +253,13 @@ const topbarNav = (page: string): string =>
   page.match(/<nav class="topbar__actions"[\s\S]*?<\/nav>/)?.[0] ?? '';
 
 // The text of each link in the topbar nav, in order, ignoring inner markup.
+// Visible text only: screen-reader-only notes are dropped.
 const navLinks = (page: string): string[] =>
   [...topbarNav(page).matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/g)].map(([, inner]) =>
-    inner.replace(/<[^>]+>/g, '').trim()
+    inner
+      .replace(/<span class="sr-only">[\s\S]*?<\/span>/g, '')
+      .replace(/<[^>]+>/g, '')
+      .trim()
   );
 
 describe('topbar', () => {
@@ -277,6 +281,28 @@ describe('topbar', () => {
     expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
     // No <title>: the icon must not add to the link's accessible name.
     expect(github).not.toContain('<title');
+  });
+
+  it('opens GitHub in a new tab, safely, and says so to screen readers', () => {
+    const github =
+      topbarNav(html).match(
+        /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
+      )?.[0] ?? '';
+    const tag = github.match(/^<a [^>]*>/)?.[0] ?? '';
+    expect(tag).toContain('target="_blank"');
+    // noopener: the new tab gets no window.opener handle back to this page.
+    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
+    expect(github).toContain(
+      '<span class="sr-only"> (opens in a new tab)</span>'
+    );
+  });
+
+  it('opens only GitHub in a new tab; service links stay in this one', () => {
+    const newTab = [
+      ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)
+    ];
+    expect(newTab.length).toBe(1);
+    expect(newTab[0]?.[0]).toContain('href="https://github.com/');
   });
 
   it('renders the same nav on / and /jet', async () => {
