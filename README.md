@@ -72,8 +72,20 @@ $ bun install
 $ cp .env.example .env    # then set NEWS_API_KEY
 $ bun run dev             # http://localhost:8080, restarts on changes
 $ bun test
+$ bun test tests/jet/parse.test.ts   # one file
+$ bun test -t 'pairs a takeoff'      # tests whose name matches
+$ bun run format          # apply Biome formatting
 $ bun run check           # format check, lint, typecheck, tests (what CI runs)
 ```
+
+Two scripts are run by hand, offline:
+
+```shell
+$ bun scripts/geocode-places.ts      # when the server logs "jet: unknown place"
+$ bun scripts/render-teaser-earth.ts # after changing TEASER_VIEW or TEASER_SIZE (needs ffmpeg)
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how the code fits together.
 
 The landing page at `/` is plain server-rendered HTML with no build step:
 `src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and one
