@@ -245,7 +245,11 @@ describe('topbar', () => {
     expect(html.full).toMatch(/<a href="\/jet" aria-current="page">Jet<\/a>/);
   });
 
-  it('points Docs at the home page section from /jet', () => {
-    expect(html.full).toContain('href="/#get-api"');
+  it('points News API at the home page section from /jet', () => {
+    expect(html.full).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
+  });
+
+  it('marks only Jet as the current page', () => {
+    expect(html.full.match(/aria-current="page"/g)?.length).toBe(1);
   });
 });

@@ -4,41 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>MaaS | Musk as a Service</title>
-    <meta name="description" content="A free JSON API that returns a random news article about Elon Musk." />
+    <meta name="description" content="Free, satirical tools about Elon Musk: a random-news JSON API and a year-to-date private-jet tracker." />
     <link rel="canonical" href="https://elonmu.sh/" />
 
 <%- include('partials/head-assets') %>
     <script src="<%= asset('static/js/main.js') %>" defer></script>
 
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://elonmu.sh/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="MaaS | Musk as a Service" />
-    <meta
-      property="og:description"
-      content="Access Random News Articles with Our Free Public API - Stay Informed and Ahead of Trends!"
-    />
-    <meta property="og:image" content="https://elonmu.sh<%= asset('og.png') %>" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Musk as a Service: one endpoint, one random Elon Musk article, as JSON." />
-
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:domain" content="elonmu.sh" />
-    <meta property="twitter:url" content="https://elonmu.sh/" />
-    <meta name="twitter:title" content="MaaS | Musk as a Service" />
-    <meta
-      name="twitter:description"
-      content="Access Random News Articles with Our Free Public API - Stay Informed and Ahead of Trends!"
-    />
-    <meta name="twitter:image" content="https://elonmu.sh<%= asset('og.png') %>" />
+<%- include('partials/share-tags', {
+  url: 'https://elonmu.sh/',
+  title: 'MaaS | Musk as a Service',
+  description: 'Enterprise-grade tools for monitoring our Lord and Savior. Random news as JSON, private-jet emissions on a globe. /s'
+}) %>
   </head>
 
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-<%- include('partials/topbar', { current: 'home' }) %>
+<%- include('partials/topbar') %>
 
     <main id="main">
       <section
@@ -77,16 +59,19 @@
           <span class="line"><span>a Service</span></span>
         </h1>
         <p class="hero__lead">
-          One endpoint. One random news article about our Lord and Savior, Elon
-          Musk, as JSON. Free, no key, no signup. /s
+          Enterprise-grade tools for monitoring our Lord and Savior, Elon Musk.
+          Random news, private-jet emissions, and whatever we ship next. Free,
+          no key, no signup. /s
         </p>
-        <a class="hero__cue" href="#try" tabindex="-1" aria-hidden="true">↓</a>
+        <a class="hero__cue" href="#services" tabindex="-1" aria-hidden="true">↓</a>
         <button class="hero__toggle" type="button" aria-pressed="false" aria-label="Pause background" hidden>
           <span class="hero__toggle-icon" aria-hidden="true"></span>
         </button>
       </section>
 
-      <section class="try" id="try" aria-label="Try the API">
+<%- include('partials/services') %>
+
+      <section class="try" id="try" aria-label="Try the News API">
         <figure class="console" data-ui aria-label="Request and response">
           <div class="console__bar">
             <code class="console__method">GET</code>
@@ -286,6 +271,7 @@
         <h2>Credits</h2>
         <ul>
           <li>News via <a href="https://newsapi.org/">NewsAPI.org</a></li>
+          <li>Flights via <a href="https://bsky.app/profile/elonjet.net" rel="noopener noreferrer">@elonjet.net</a> by Jack Sweeney</li>
           <li>Portraits and illustration: AI-generated. The people are fictional.</li>
         </ul>
       </div>

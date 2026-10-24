@@ -178,6 +178,40 @@ pre {
   font-size: var(--step-small);
 }
 
+/* Quiet links: muted until hovered; the current page is ink with an accent
+   bar. Only colour changes, so there is no motion to reduce. */
+.topbar__actions a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding-block: 0.375rem; /* ≥ 24px tap target */
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 150ms var(--ease-out);
+}
+
+.topbar__actions a:hover,
+.topbar__actions a[aria-current="page"] {
+  color: var(--ink);
+}
+
+.topbar__actions a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+.topbar__out {
+  display: inline-block;
+  width: 0.65em;
+  height: 0.65em;
+}
+
 /* Hero: the name and one sentence, filling the first screen, over the
    launch clip. It stays dark in both colour schemes. */
 .hero {
@@ -315,6 +349,107 @@ pre {
 }
 
 /* The console: a real-size fragment of the API's request and response. */
+/* Services: one flat tile per catalog entry, below the hero. Tiles lift to
+   the raised grey on hover or focus; "More soon" is an outline, not a link. */
+.services {
+  margin: 0 var(--margin);
+  padding: clamp(4rem, 8vw, 7rem) 0 clamp(4rem, 8vw, 6rem);
+}
+
+.services h2 {
+  font-size: var(--step-head);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.services__sub {
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.services__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.services__grid > li {
+  display: flex;
+}
+
+.service {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  background: var(--surface);
+  text-decoration: none;
+  transition: background-color 150ms var(--ease-out);
+}
+
+.service__name {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.service__summary {
+  color: var(--muted);
+}
+
+.service__cta {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: var(--step-small);
+  font-weight: 600;
+}
+
+.service__arrow {
+  display: inline-block;
+  transition: transform 150ms var(--ease-out);
+}
+
+a.service:hover,
+a.service:focus-visible {
+  background: var(--raised);
+}
+
+a.service:hover .service__arrow,
+a.service:focus-visible .service__arrow {
+  transform: translateX(3px);
+}
+
+.service--soon {
+  background: none;
+  outline: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.service--soon .service__name {
+  color: var(--muted);
+}
+
+@media (min-width: 56.25rem) {
+  .services__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service__arrow {
+    transition: none;
+  }
+
+  a.service:hover .service__arrow,
+  a.service:focus-visible .service__arrow {
+    transform: none;
+  }
+}
+
 .try {
   margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);
 }
@@ -1314,14 +1449,18 @@ a.card__link[href] {
   }
 }
 
-/* Phones: four nav items don't fit beside the brand. GitHub goes first;
-   the home footer still links to the source. */
+/* Phones: tighter nav spacing. All three links fit beside the brand from
+   360px (41px to spare); below that GitHub goes, and the home footer still
+   links to the source. */
 @media (max-width: 30rem) {
   .topbar__actions {
     gap: 1rem;
   }
+}
 
-  .topbar__extra {
+@media (max-width: 22.49rem) {
+  /* Matches `.topbar__actions a`'s specificity, which sets display. */
+  .topbar__actions .topbar__extra {
     display: none;
   }
 }

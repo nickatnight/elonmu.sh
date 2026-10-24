@@ -7,9 +7,12 @@
 
 # elonmu.sh
 
-MaaS is a free public API for fetching random news articles which mention our Lord and Savior...Elon Musk /s
+Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
+No key, no signup. /s
 
-## Usage
+## News API
+
+One random news article about Elon Musk, as JSON.
 
 ```shell
 # Retrieve a random article
@@ -40,6 +43,25 @@ Example 200 response when NewsAPI fails or is unreachable (the service itself is
 ```
 
 Any other failure returns a 500 with the same `{ "error": "..." }` shape.
+
+## Jet tracker
+
+Every private-jet flight this year, on a globe, with the fuel bill:
+[elonmu.sh/jet](https://elonmu.sh/jet). The flights come from the public posts
+of [@elonjet.net](https://bsky.app/profile/elonjet.net) by Jack Sweeney on
+Bluesky.
+
+The same data is available as JSON:
+
+```shell
+$ curl --request GET \
+       --url 'https://elonmu.sh/api/jet/flights' \
+       --header 'accept: application/json'
+```
+
+The response has `year`, `updatedAt`, `attribution`, `flights` (newest first)
+and `totals`. It is cached for 60 seconds. If the flight data is unavailable,
+it returns a 200 with `{ "error": "..." }`, like the News API.
 
 ## Development
 

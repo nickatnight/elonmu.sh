@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import compression from 'compression';
 import express from 'express';
+import { SERVICES, type Service } from './catalog';
 import { createJetModule } from './jet';
 import type { JetQuery } from './jet/ports';
 import { securityHeaders } from './middleware/security-headers';
@@ -29,12 +30,14 @@ const assetUrl = (file: string): string => {
   return url;
 };
 
-export type AppDeps = { jet?: JetQuery };
+export type AppDeps = { jet?: JetQuery; services?: readonly Service[] };
 
 // Dependencies are injectable so tests never touch a live flight source; the
-// default wiring lives in the jet composition root.
+// default wiring lives in the jet composition root. `services` is injectable
+// so tests can prove a new catalog entry needs no template change.
 export const createApp = ({
-  jet = createJetModule()
+  jet = createJetModule(),
+  services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
   app.disable('x-powered-by');
@@ -46,6 +49,7 @@ export const createApp = ({
   app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', 'ejs');
   app.locals.asset = assetUrl;
+  app.locals.services = services;
 
   // Configure Express to parse incoming JSON data
   app.use(express.json());
