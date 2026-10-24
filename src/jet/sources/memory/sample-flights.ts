@@ -1,8 +1,5 @@
 import type { Flight, Place } from '../../domain';
 
-// Stand-in data until a real FlightSource is wired in src/jet/index.ts.
-// Plausible 2026 flights between the usual places; not real records.
-
 const austin: Place = {
   name: 'Austin, Texas, United States',
   lat: 30.27,

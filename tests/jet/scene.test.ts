@@ -21,7 +21,6 @@ const snap = (flights: Flight[]): JetSnapshot => ({
   totals: { flights: flights.length, hours: 0, gallons: 0, usd: 0, co2Tons: 0 }
 });
 
-// Newest first, as the API sends them.
 const flights: Flight[] = [
   flight({
     id: 'up',
@@ -100,7 +99,6 @@ describe('toScene', () => {
       ['sj-a-new', 3, true],
       ['h-a', 1, false]
     ]);
-    // The arc runs the way its newest flight flew (San Jose → Austin).
     expect(scene.arcs[0]).toMatchObject({
       startLat: places.sanJose.lat,
       endLat: places.austin.lat
@@ -158,7 +156,6 @@ describe('toScene', () => {
 
   it('treats the newest flight as the latest even when it draws as a point', () => {
     const scene = toScene(snap(flights), '');
-    // 'up' is newest: no arc is bright; its ring carries the emphasis.
     expect(scene.arcs.every((a) => !a.latest)).toBe(true);
   });
 
@@ -215,7 +212,6 @@ describe('focusPoint', () => {
 });
 
 describe('list paging', () => {
-  // 60 rows, newest first: every third one is N7628.
   const rows = Array.from({ length: 60 }, (_, i) => ({
     id: `r${i}`,
     tail: i % 3 === 0 ? 'N7628' : 'N8628'
@@ -246,7 +242,6 @@ describe('list paging', () => {
   });
 
   it('counts position within the tail filter when revealing', () => {
-    // r57 is the 20th N7628 row.
     expect(limitToReveal(rows, 'N7628', 'r57', 25)).toBe(25);
   });
 

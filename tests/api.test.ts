@@ -32,7 +32,6 @@ const getApi = async () => {
 };
 
 describe('GET /api', () => {
-  // The old path was removed on purpose, with no alias (spec question 5).
   it('is gone: the plain-text 404, and NewsAPI is never called', async () => {
     const get = spyOn(axios, 'get').mockResolvedValue({
       data: { articles: [newsApiArticle] }

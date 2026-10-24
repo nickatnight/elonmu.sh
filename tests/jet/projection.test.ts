@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import path from 'node:path';
 import {
   arcPath,
   greatCircle,
@@ -8,10 +9,14 @@ import {
 } from '../../src/jet/projection';
 import { places } from './fakes';
 
+const TEASER_WEBP = path.join(
+  import.meta.dir,
+  '../../src/public/static/img/globe/teaser-earth.webp'
+);
+
 const centre = TEASER_SIZE / 2;
 const radius = TEASER_SIZE / 2;
 
-// Every "x y" pair in an SVG path string.
 const pathPoints = (d: string): { x: number; y: number }[] =>
   [...d.matchAll(/(-?[\d.]+)[ ,](-?[\d.]+)/g)].map((m) => ({
     x: Number(m[1]),
@@ -35,7 +40,6 @@ describe('greatCircle', () => {
   });
 
   it('bends poleward between two mid-latitude points, unlike a straight line', () => {
-    // New York → Madrid: the great circle passes north of both ends.
     const pts = greatCircle(
       { lat: 40.7, lon: -74 },
       { lat: 40.4, lon: -3.7 },
@@ -113,14 +117,12 @@ describe('arcPath', () => {
     const pts = pathPoints(d);
     const from = orthographic(places.austin);
     expect(pts[0].x).toBeCloseTo(from.x, 1);
-    // Rounding to 0.1 px can nudge a rim point up to ~0.07 px outward.
     const rounding = 0.1;
     for (const { x, y } of pts) {
       expect(Math.hypot(x - centre, y - centre)).toBeLessThanOrEqual(
         radius + rounding
       );
     }
-    // The clipped end lands on the horizon itself, not a sample short of it.
     const end = pts.at(-1) as { x: number; y: number };
     expect(
       Math.abs(Math.hypot(end.x - centre, end.y - centre) - radius)
@@ -135,5 +137,15 @@ describe('arcPath', () => {
   it('draws nothing for a flight entirely on the far side', () => {
     const newDelhi = { name: 'New Delhi, India', lat: 28.61, lon: 77.21 };
     expect(arcPath(places.tokyo, newDelhi)).toBe('');
+  });
+});
+
+describe('the teaser camera', () => {
+  it('matches the committed teaser-earth.webp (re-run scripts/render-teaser-earth.ts when this changes)', async () => {
+    const bytes = new Uint8Array(await Bun.file(TEASER_WEBP).arrayBuffer());
+    const u24 = (o: number) =>
+      bytes[o] | (bytes[o + 1] << 8) | (bytes[o + 2] << 16);
+    expect([u24(24) + 1, u24(27) + 1]).toEqual([TEASER_SIZE, TEASER_SIZE]);
+    expect(TEASER_VIEW).toEqual({ lat: 32, lon: -98 });
   });
 });

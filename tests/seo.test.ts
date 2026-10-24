@@ -136,8 +136,6 @@ describe('static asset caching', () => {
     if (!href) throw new Error('main.css link not found');
     const res = await fetch(`${server.url}${href}`);
     expect(res.status).toBe(200);
-    // serve-static caps maxAge at one year, so this is 31536000, not the
-    // 31557600 passed in app.ts
     expect(res.headers.get('cache-control')).toBe('public, max-age=31536000');
   });
 });

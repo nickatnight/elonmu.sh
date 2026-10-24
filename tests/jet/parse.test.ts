@@ -8,7 +8,6 @@ import feedPages from '../fixtures/elonjet-feed.json';
 const at = '2026-09-29T20:06:40.347712+00:00';
 const uri = 'at://did:plc:test/app.bsky.feed.post/abc';
 
-// Real post texts, copied verbatim from @elonjet.net (2026).
 describe('parseElonJetPost: bot posts', () => {
   const cases: [
     string,
@@ -119,8 +118,6 @@ describe('parseElonJetPost: bot posts', () => {
       }
     ],
     [
-      // Synthetic: not in the feed yet, but a place with its own full stop
-      // must survive.
       'N628TS Landed in St. Louis, Missouri, United States. Apx. flt. time 1 h 2 min.',
       {
         kind: 'landing',
@@ -157,7 +154,6 @@ describe('parseElonJetPost: bot posts', () => {
   });
 });
 
-// Real hand-typed and chatty posts from the same account: none is an event.
 describe('parseElonJetPost: everything else', () => {
   const ignored = [
     'N7628 took off a bit ago from Austin',
@@ -199,8 +195,6 @@ describe('parseFuelReply', () => {
   });
 
   it('reads fractional tonnes', () => {
-    // Synthetic: the bot emits fractional tonnes (seen only in its negative
-    // estimates so far), so a small positive one must parse too.
     const text =
       '\n~ 6 gallons (22 liters). \n~ 40 lbs (18 kg) of jet fuel used. \n~ $40 cost of fuel. \n~ 0.0625 tons of CO2 emissions.';
     expect(parseFuelReply(text)?.co2Tons).toBe(0.0625);
@@ -229,7 +223,6 @@ describe('the feed fixture', () => {
   );
 
   it('parses every bot-format takeoff and landing', () => {
-    // Bot posts: optional tail, capitalised verb, "City, Region, Country."
     const botShaped = posts.filter((r) =>
       /^(N\w+ )?(Took off|Landed) (from|near|in) [^,]+, .+\.( Apx\. flt\. time .+\.)?\s*$/.test(
         r.text

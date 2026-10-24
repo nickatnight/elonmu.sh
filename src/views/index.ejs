@@ -26,9 +26,7 @@
       <section
         class="hero"
         aria-labelledby="hero-title"
-        style="--still: url(<%= asset('static/video/clown-cruise-poster.jpg') %>)"
       >
-        <%# Plays once; without JS it ends and holds on the space frame. %>
         <video
           class="hero__video hero__video--launch"
           autoplay
@@ -41,7 +39,6 @@
           <source src="<%= asset('static/video/clown-launch.webm') %>" type="video/webm" />
           <source src="<%= asset('static/video/clown-launch.mp4') %>" type="video/mp4" />
         </video>
-        <%# JS-only: loaded once the launch starts, faded in when it ends. %>
         <video
           class="hero__video hero__video--cruise"
           muted

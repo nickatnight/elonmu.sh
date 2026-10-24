@@ -19,8 +19,6 @@ export type BlueskyFlightSourceDeps = {
 
 const ACTOR = 'elonjet.net';
 
-// A Logger that passes each distinct warning (message and meta) through
-// once, so a refresh every 5 minutes doesn't repeat the same warnings.
 const warnOnce = (logger: Logger): Logger => {
   const warned = new Set<string>();
   return {
@@ -33,8 +31,6 @@ const warnOnce = (logger: Logger): Logger => {
   };
 };
 
-// Flights from @elonjet.net's Bluesky posts: feed → parse → pair → places.
-// The only module that knows the data comes from Bluesky.
 export class BlueskyFlightSource implements FlightSource {
   readonly attribution: Attribution = {
     label: '@elonjet.net by Jack Sweeney',
@@ -54,8 +50,6 @@ export class BlueskyFlightSource implements FlightSource {
   }
 
   async fetchFlights(since: Date): Promise<Flight[]> {
-    // The feed client returns only posts from `since` on, so every flight
-    // built from them is in range (contract rule 1) without a filter here.
     const items = await this.feed.postsSince(since);
 
     const events: JetEvent[] = [];

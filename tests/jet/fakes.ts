@@ -5,7 +5,6 @@ import { InMemoryFlightSource } from '../../src/jet/sources/memory/in-memory-fli
 
 export { InMemoryFlightSource };
 
-// A clock that only moves when a test moves it.
 export class FakeClock implements Clock {
   private at: number;
 
@@ -26,7 +25,6 @@ export class FakeClock implements Clock {
   }
 }
 
-// Collects warnings instead of printing them.
 export class FakeLogger implements Logger {
   readonly warnings: { msg: string; meta?: object }[] = [];
 
@@ -35,8 +33,6 @@ export class FakeLogger implements Logger {
   }
 }
 
-// An HttpGet answering from a URL → body table, recording each call. Unknown
-// URLs reject, like an upstream 404.
 export const fakeHttpGet = (
   responses: Record<string, unknown>
 ): { get: HttpGet; calls: string[] } => {
@@ -65,7 +61,6 @@ export const places = {
   tokyo: { name: 'Tokyo, Japan', lat: 35.68, lon: 139.69 }
 } satisfies Record<string, Place>;
 
-// A landed flight with fuel; override any field per test.
 export const flight = (overrides: Partial<Flight> = {}): Flight => ({
   id: 'f1',
   tail: 'N628TS',
@@ -80,7 +75,6 @@ export const flight = (overrides: Partial<Flight> = {}): Flight => ({
   ...overrides
 });
 
-// A mixed set spanning two years: the 2026 flights plus one from late 2025.
 export const sampleFlights: Flight[] = [
   flight({
     id: 'last-year',
@@ -121,15 +115,12 @@ export const sampleFlights: Flight[] = [
   })
 ];
 
-// A real JetService over the sample flights, frozen at mid-2026. Injected into
-// every createApp() in tests so no test ever reaches a live flight source.
 export const sampleJet = (flights: Flight[] = sampleFlights): JetQuery =>
   new JetService(
     new InMemoryFlightSource(flights),
     new FakeClock('2026-07-01T00:00:00.000Z')
   );
 
-// A JetQuery whose source has never loaded: every snapshot rejects.
 export const failingJet = (): JetQuery => ({
   snapshot: () => Promise.reject(new Error('upstream down'))
 });

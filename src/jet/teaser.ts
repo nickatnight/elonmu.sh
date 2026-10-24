@@ -4,17 +4,12 @@ import { arcPath, orthographic, round1, TEASER_SIZE } from './projection';
 
 export type TeaserArc = { id: string; d: string; latest: boolean };
 
-// Everything the home teaser prints, from the same snapshot /jet uses.
 export type Teaser = {
-  // The SVG viewBox side, equal to the pre-rendered Earth image.
   size: number;
-  // Oldest first, so the latest is drawn on top.
   arcs: TeaserArc[];
-  // An airborne newest flight's origin, when it's on the visible side.
   origin: { x: number; y: number } | null;
   latest: string | null;
   totalsLine: string;
-  // The map's accessible name.
   summary: string;
   attribution: Attribution;
   empty: boolean;
@@ -24,8 +19,6 @@ export const toTeaser = (snapshot: JetSnapshot): Teaser => {
   const { flights, year } = snapshot;
   const newest = flights[0];
 
-  // Flights with two distinct ends become arcs; far-side ones project to
-  // nothing and are left off the map (they still count in the totals).
   const arcs: TeaserArc[] = [];
   flights.forEach((f, i) => {
     if (f.status === 'airborne' || !f.from || !f.to) return;

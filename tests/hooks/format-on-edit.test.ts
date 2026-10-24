@@ -7,7 +7,7 @@ import { isBiomeTarget } from '../../.claude/hooks/lib';
 import { runHook } from './run-hook';
 
 const projectDir = path.join(import.meta.dir, '../..');
-// Lives in the repo so Biome applies biome.json; removed after every test.
+// Lives in the repo so Biome applies biome.json.
 const fixture = path.join(import.meta.dir, 'tmp-format-fixture.ts');
 
 const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
@@ -116,7 +116,6 @@ describe('format-on-edit hook', () => {
   });
 
   it('fails open with a note when Biome is not installed', async () => {
-    // A copy of the project config without node_modules.
     const bare = await mkdtemp(path.join(tmpdir(), 'format-on-edit-'));
     await cp(
       path.join(projectDir, 'biome.json'),

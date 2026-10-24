@@ -1,16 +1,10 @@
-<%#
-  Home teaser for /jet. Static: the pre-rendered night Earth plus this
-  year's arcs as inline SVG, drawn on the server from the same projection
-  the image was rendered with. No script. `teaser` is null when the flight
-  data failed or wasn't ready in time: then the bare Earth, a note and the link.
-%>
       <section class="teaser" aria-labelledby="teaser-title">
         <div class="teaser__map">
           <img
             class="teaser__earth"
             src="<%= asset('static/img/globe/teaser-earth.webp') %>"
-            width="960"
-            height="960"
+            width="<%= teaserSize %>"
+            height="<%= teaserSize %>"
             loading="lazy"
             decoding="async"
             alt=""
@@ -45,7 +39,6 @@
             <% } %>
             <p class="teaser__totals"><%= teaser.totalsLine %></p>
           <% } %>
-          <%# One link; its ::after stretches over the whole section. %>
           <a class="button teaser__link" href="/jet">Explore the globe <span aria-hidden="true">→</span></a>
           <% if (teaser) { %>
             <p class="teaser__credit">Flight data: <%= teaser.attribution.label %></p>

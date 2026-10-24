@@ -6,8 +6,6 @@ const defaultAttribution: Attribution = {
   url: 'https://elonmu.sh/jet'
 };
 
-// A FlightSource over a fixed list: the test fake, and the stand-in until a
-// real adapter is wired. `error` makes every fetch fail like a dead upstream.
 export class InMemoryFlightSource implements FlightSource {
   readonly attribution: Attribution;
   private readonly error: Error | null;

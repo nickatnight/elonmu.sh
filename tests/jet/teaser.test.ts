@@ -23,7 +23,6 @@ const snap = (flights: Flight[], year = 2026): JetSnapshot => ({
   }
 });
 
-// Newest first, as the core returns them.
 const flights: Flight[] = [
   flight({
     id: 'newest',

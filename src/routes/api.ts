@@ -1,9 +1,9 @@
 import { AxiosError } from 'axios';
 import type * as express from 'express';
 import { fetchNewsArticle } from '../services/news.service';
+import { upstreamFailure } from './upstream-failure';
 
 export const register = (app: express.Application) => {
-  // The old `/api` path was removed with no alias: it falls through to 404.
   app.get('/api/news', async (_req, res) => {
     try {
       const randomArticle = await fetchNewsArticle();
@@ -17,29 +17,23 @@ export const register = (app: express.Application) => {
       };
       res.json({ ...article });
     } catch (err: unknown) {
-      let errorMessage = '';
-      let status = 500;
-      if (err instanceof AxiosError) {
-        // NewsAPI failures return 200: this server is healthy, only the
-        // upstream call failed. 500 is reserved for our own errors.
-        if (err.response) {
-          // The client was given an error response (5xx, 4xx)
-          status = 200;
-          errorMessage =
-            'There was an error with NewsAPI. Please try again later.';
-        } else if (err.request) {
-          // The client never received a response, and the request was never left
-          status = 200;
-          errorMessage =
-            'There was an error with request. Please try again later.';
-        } else {
-          // Anything else
-          errorMessage = 'Something broke. Please try again later.';
-        }
+      if (err instanceof AxiosError && err.response) {
+        upstreamFailure(
+          res,
+          'There was an error with NewsAPI. Please try again later.'
+        );
+      } else if (err instanceof AxiosError && err.request) {
+        upstreamFailure(
+          res,
+          'There was an error with request. Please try again later.'
+        );
       } else {
-        errorMessage = 'An unknown error occurred. Please try again later.';
+        const error =
+          err instanceof AxiosError
+            ? 'Something broke. Please try again later.'
+            : 'An unknown error occurred. Please try again later.';
+        res.status(500).json({ error });
       }
-      res.status(status).json({ error: errorMessage });
     }
   });
 };

@@ -3,13 +3,6 @@ import type { Clock, FlightSource, Logger } from './ports';
 
 const silent: Logger = { warn: () => {} };
 
-// Adds caching to any FlightSource without changing it:
-// - a result is reused for `ttlMs` (5 minutes by default);
-// - concurrent callers share one in-flight request;
-// - when a refresh fails, the last good result for the same `since` is
-//   served; with nothing to fall back on, the error is thrown.
-// Every failed refresh is logged, so an upstream outage hidden behind stale
-// data still shows up in the logs.
 export class CachedFlightSource implements FlightSource {
   private last: { at: number; since: number; flights: Flight[] } | null = null;
   private inFlight: { since: number; promise: Promise<Flight[]> } | null = null;

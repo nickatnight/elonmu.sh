@@ -2,11 +2,8 @@ import { describe, expect, it } from 'bun:test';
 import { type Flight, flightTime } from '../../src/jet/domain';
 import type { FlightSource } from '../../src/jet/ports';
 
-// What a FlightSource implementation hands the contract suite.
 export type ContractSubject = {
-  // A working source holding flights both before and on/after `since`.
   make: () => FlightSource;
-  // The same source with its upstream failing.
   makeFailing: () => FlightSource;
   since: Date;
 };
@@ -16,8 +13,6 @@ const isIsoDate = (value: string): boolean =>
     value
   ) && !Number.isNaN(Date.parse(value));
 
-// Rules 2–6 on an already-fetched list. Exported so pure pieces of an adapter
-// (e.g. pairing) can be held to the same rules as the whole source.
 export const assertFlightShape = (flights: Flight[]): void => {
   expect(new Set(flights.map((f) => f.id)).size).toBe(flights.length);
   for (const f of flights) {
@@ -39,8 +34,6 @@ export const assertFlightShape = (flights: Flight[]): void => {
   }
 };
 
-// The written FlightSource contract (src/jet/ports.ts) as one suite every
-// implementation runs.
 export const describeFlightSource = (
   name: string,
   subject: ContractSubject
@@ -50,7 +43,6 @@ export const describeFlightSource = (
       const { since } = subject;
       const all = await subject.make().fetchFlights(new Date(0));
       const recent = await subject.make().fetchFlights(since);
-      // Guard against a vacuous pass: the subject must hold both kinds.
       expect(recent.length).toBeGreaterThan(0);
       expect(recent.length).toBeLessThan(all.length);
       for (const f of recent) {
