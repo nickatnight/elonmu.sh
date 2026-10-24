@@ -99,7 +99,7 @@ const announce = (text) => {
     status.textContent = 'Waiting for the Lord…';
     const started = performance.now();
     try {
-      const res = await fetch('/api', {
+      const res = await fetch('/api/news', {
         headers: { accept: 'application/json' }
       });
       const ms = Math.round(performance.now() - started);

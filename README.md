@@ -17,7 +17,7 @@ One random news article about Elon Musk, as JSON.
 ```shell
 # Retrieve a random article
 $ curl --request GET \
-       --url 'https://elonmu.sh/api' \
+       --url 'https://elonmu.sh/api/news' \
        --header 'accept: application/json'
 ```
 
