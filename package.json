@@ -1,7 +1,7 @@
 {
   "name": "elonmu.sh",
   "version": "0.2.1",
-  "description": "ExpressJS api to fetch a random news article about our Lord and Savior Elon Musk",
+  "description": "Musk as a Service: satirical public tools about Elon Musk (news API, private-jet tracker)",
   "main": "src/index.ts",
   "packageManager": "bun@1.4.4",
   "engines": {
@@ -22,7 +22,11 @@
     "funny",
     "satire",
     "gag",
-    "api"
+    "api",
+    "elon-musk",
+    "news",
+    "private-jet",
+    "flight-tracker"
   ],
   "author": {
     "email": "nickkelly.858@gmail.com",

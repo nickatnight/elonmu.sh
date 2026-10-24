@@ -305,6 +305,56 @@ describe('topbar', () => {
   });
 });
 
+// A tag's text with whitespace collapsed (templates wrap long lines).
+const textOf = (page: string, open: RegExp): string => {
+  const match = page.match(
+    new RegExp(`${open.source}([\\s\\S]*?)</`, open.flags)
+  );
+  return (match?.[1] ?? '').replace(/\s+/g, ' ').trim();
+};
+
+// The content attribute of the meta tag with the given name/property.
+const metaContent = (page: string, attr: string): string =>
+  (
+    page.match(new RegExp(`<meta\\s+${attr}\\s+content="([^"]*)"`))?.[1] ?? ''
+  ).replace(/\s+/g, ' ');
+
+describe('catalog copy', () => {
+  it('leads the hero with the service catalog', () => {
+    expect(textOf(html, /<p class="hero__lead">/)).toBe(
+      'Enterprise-grade tools for monitoring our Lord and Savior, Elon Musk. ' +
+        'Random news, private-jet emissions, and whatever we ship next. ' +
+        'Free, no key, no signup. /s'
+    );
+  });
+
+  it('describes the catalog to search engines', () => {
+    expect(metaContent(html, 'name="description"')).toBe(
+      'Free, satirical tools about Elon Musk: a random-news JSON API and a ' +
+        'year-to-date private-jet tracker.'
+    );
+  });
+
+  it('describes the catalog on shared links', () => {
+    const share =
+      'Enterprise-grade tools for monitoring our Lord and Savior. Random ' +
+      'news as JSON, private-jet emissions on a globe. /s';
+    expect(metaContent(html, 'property="og:description"')).toBe(share);
+    expect(metaContent(html, 'name="twitter:description"')).toBe(share);
+  });
+
+  it('labels the console as the News API', () => {
+    expect(html).toContain(
+      '<section class="try" id="try" aria-label="Try the News API">'
+    );
+  });
+
+  it('drops the single-endpoint copy', () => {
+    expect(html).not.toContain('One endpoint');
+    expect(html).not.toContain('Stay Informed');
+  });
+});
+
 const servicesSection = (page: string): string =>
   page.match(
     /<section class="services" id="services"[\s\S]*?<\/section>/
