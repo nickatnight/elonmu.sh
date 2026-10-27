@@ -9,13 +9,35 @@
  * }} Toggle
  */
 
+// The HTML spec lets browsers fire `timeupdate` as rarely as every 250 ms.
+const TIMEUPDATE_INTERVAL_S = 0.25;
+
+export const toSeconds = (/** @type {string} */ cssTime) => {
+  const value = Number.parseFloat(cssTime);
+  return cssTime.trim().endsWith('ms') ? value / 1000 : value;
+};
+
 /**
- * @param {{ hero: Stage, launch: Clip, cruise: Clip, toggle: Toggle }} parts
+ * @param {{
+ *   hero: Stage, launch: Clip, cruise: Clip, toggle: Toggle,
+ *   fadeSeconds: number
+ * }} parts
  */
-export const startHeroPlayback = ({ hero, launch, cruise, toggle }) => {
-  let current = launch;
+export const startHeroPlayback = ({
+  hero,
+  launch,
+  cruise,
+  toggle,
+  fadeSeconds
+}) => {
+  let handedOff = false;
   let userPaused = false;
   let onScreen = true;
+
+  const liveClips = () => {
+    if (!handedOff) return [launch];
+    return launch.ended ? [cruise] : [launch, cruise];
+  };
 
   const syncToggle = () => {
     toggle.setAttribute('aria-pressed', String(userPaused));
@@ -23,17 +45,19 @@ export const startHeroPlayback = ({ hero, launch, cruise, toggle }) => {
 
   const updatePlayback = () => {
     if (userPaused || !onScreen) {
-      current.pause();
+      for (const clip of liveClips()) clip.pause();
       return;
     }
     // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
     // Other rejections, like a pending play() cut short by pause() when the
     // hero scrolls away, are not the viewer's choice and change nothing.
-    current.play().catch((error) => {
-      if (error.name !== 'NotAllowedError') return;
-      userPaused = true;
-      syncToggle();
-    });
+    for (const clip of liveClips()) {
+      clip.play().catch((error) => {
+        if (error.name !== 'NotAllowedError') return;
+        userPaused = true;
+        syncToggle();
+      });
+    }
   };
 
   const loadCruise = () => {
@@ -46,15 +70,22 @@ export const startHeroPlayback = ({ hero, launch, cruise, toggle }) => {
     loadCruise();
   }
 
-  launch.addEventListener('ended', () => {
-    current = cruise;
+  const handOff = () => {
+    if (handedOff) return;
+    handedOff = true;
     cruise.addEventListener(
       'playing',
       () => hero.classList.add('is-cruising'),
       { once: true }
     );
     updatePlayback();
+  };
+
+  launch.addEventListener('timeupdate', () => {
+    const handoffAt = launch.duration - fadeSeconds - TIMEUPDATE_INTERVAL_S;
+    if (launch.currentTime >= handoffAt) handOff();
   });
+  launch.addEventListener('ended', handOff);
 
   toggle.addEventListener('click', () => {
     userPaused = !userPaused;
@@ -92,7 +123,15 @@ const start = () => {
     return;
   }
 
-  const playback = startHeroPlayback({ hero, launch, cruise, toggle });
+  const playback = startHeroPlayback({
+    hero,
+    launch,
+    cruise,
+    toggle,
+    fadeSeconds: toSeconds(
+      getComputedStyle(hero).getPropertyValue('--hero-handoff')
+    )
+  });
 
   // Records can arrive batched (a fast scroll in and out): the last is current.
   new IntersectionObserver((entries) => {

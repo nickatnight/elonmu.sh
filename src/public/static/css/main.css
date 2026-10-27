@@ -28,6 +28,7 @@
 
   --margin: clamp(1rem, 0.5rem + 2vw, 2rem);
   --topbar: 3.75rem;
+  --hero-handoff: 400ms;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
   --hero-muted: #a1a8b3;
@@ -227,7 +228,7 @@ pre {
 
 .hero__video--cruise {
   opacity: 0;
-  transition: opacity 400ms ease-out;
+  transition: opacity var(--hero-handoff) ease-out;
 }
 
 .hero.is-cruising .hero__video--cruise {
