@@ -12,10 +12,10 @@ export const metaContent = (page: string, attr: string): string =>
   ).replace(/\s+/g, ' ');
 
 export const mp4Duration = (file: Buffer): number => {
-  const box = file.indexOf('mvhd');
-  if (box < 0) throw new Error('no mvhd box');
-  const longDates = file[box + 4] === 1;
-  const timescaleAt = box + (longDates ? 24 : 16);
+  const mvhdAt = file.indexOf('mvhd');
+  if (mvhdAt < 0) throw new Error('no mvhd box');
+  const longDates = file[mvhdAt + 4] === 1;
+  const timescaleAt = mvhdAt + (longDates ? 24 : 16);
   const timescale = file.readUInt32BE(timescaleAt);
   const units = longDates
     ? Number(file.readBigUInt64BE(timescaleAt + 4))
@@ -33,12 +33,12 @@ export const webmDuration = (file: Buffer): number => {
     scaleAt < 0
       ? DEFAULT_TIMECODE_SCALE_NS
       : file.readUIntBE(scaleAt + 4, file[scaleAt + 3] & 0x7f);
-  const at = file.indexOf(EBML_DURATION);
-  if (at < 0) throw new Error('no Duration element');
+  const durationAt = file.indexOf(EBML_DURATION);
+  if (durationAt < 0) throw new Error('no Duration element');
   const ticks =
-    (file[at + 2] & 0x7f) === 8
-      ? file.readDoubleBE(at + 3)
-      : file.readFloatBE(at + 3);
+    (file[durationAt + 2] & 0x7f) === 8
+      ? file.readDoubleBE(durationAt + 3)
+      : file.readFloatBE(durationAt + 3);
   return (ticks * scaleNs) / 1e9;
 };
 

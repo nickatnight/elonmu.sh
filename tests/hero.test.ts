@@ -60,7 +60,7 @@ class FakeToggle extends EventTarget {
   }
 }
 
-const blocked = (name: string): Error =>
+const playRejection = (name: string): Error =>
   Object.assign(new Error('play() was rejected'), { name });
 
 const flushMicrotasks = () => Promise.resolve();
@@ -142,7 +142,7 @@ describe('hero playback', () => {
 
   it('leaves the toggle on play when autoplay is blocked', async () => {
     const { launch, toggle, playback } = setup();
-    launch.playError = blocked('NotAllowedError');
+    launch.playError = playRejection('NotAllowedError');
     playback.setOnScreen(true);
     await flushMicrotasks();
     expect(toggle.attributes.get('aria-pressed')).toBe('true');
@@ -206,7 +206,7 @@ describe('hero playback', () => {
 
   it('ignores a play() that a pause cut short', async () => {
     const { launch, toggle, playback } = setup();
-    launch.playError = blocked('AbortError');
+    launch.playError = playRejection('AbortError');
     playback.setOnScreen(true);
     await flushMicrotasks();
     expect(toggle.attributes.get('aria-pressed')).toBeUndefined();

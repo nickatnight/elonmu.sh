@@ -104,16 +104,10 @@ export const startHeroPlayback = ({
 };
 
 const start = () => {
-  const hero = /** @type {HTMLElement} */ (document.querySelector('.hero'));
-  const launch = /** @type {HTMLVideoElement} */ (
-    hero.querySelector('.hero__video--launch')
-  );
-  const cruise = /** @type {HTMLVideoElement} */ (
-    hero.querySelector('.hero__video--cruise')
-  );
-  const toggle = /** @type {HTMLButtonElement} */ (
-    hero.querySelector('.hero__toggle')
-  );
+  const hero = document.querySelector('.hero');
+  const launch = hero.querySelector('.hero__video--launch');
+  const cruise = hero.querySelector('.hero__video--cruise');
+  const toggle = hero.querySelector('.hero__toggle');
 
   // Drop the launch's sources to end the download.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -135,7 +129,7 @@ const start = () => {
 
   // Records can arrive batched (a fast scroll in and out): the last is current.
   new IntersectionObserver((entries) => {
-    playback.setOnScreen(entries.at(-1)?.isIntersecting ?? false);
+    playback.setOnScreen(entries.at(-1).isIntersecting);
   }).observe(hero);
 };
 
