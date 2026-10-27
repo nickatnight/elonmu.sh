@@ -1,0 +1,103 @@
+/**
+ * @typedef {EventTarget & {
+ *   paused: boolean, ended: boolean, currentTime: number, duration: number,
+ *   preload: string, play(): Promise<void>, pause(): void, load(): void
+ * }} Clip
+ * @typedef {{ classList: { add(name: string): unknown } }} Stage
+ * @typedef {EventTarget & {
+ *   hidden: boolean, setAttribute(name: string, value: string): void
+ * }} Toggle
+ */
+
+/**
+ * @param {{ hero: Stage, launch: Clip, cruise: Clip, toggle: Toggle }} parts
+ */
+export const startHeroPlayback = ({ hero, launch, cruise, toggle }) => {
+  let current = launch;
+  let userPaused = false;
+  let onScreen = true;
+
+  const syncToggle = () => {
+    toggle.setAttribute('aria-pressed', String(userPaused));
+  };
+
+  const updatePlayback = () => {
+    if (userPaused || !onScreen) {
+      current.pause();
+      return;
+    }
+    // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
+    // Other rejections, like a pending play() cut short by pause() when the
+    // hero scrolls away, are not the viewer's choice and change nothing.
+    current.play().catch((error) => {
+      if (error.name !== 'NotAllowedError') return;
+      userPaused = true;
+      syncToggle();
+    });
+  };
+
+  const loadCruise = () => {
+    cruise.preload = 'auto';
+    cruise.load();
+  };
+  if (launch.paused) {
+    launch.addEventListener('playing', loadCruise, { once: true });
+  } else {
+    loadCruise();
+  }
+
+  launch.addEventListener('ended', () => {
+    current = cruise;
+    cruise.addEventListener(
+      'playing',
+      () => hero.classList.add('is-cruising'),
+      { once: true }
+    );
+    updatePlayback();
+  });
+
+  toggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    syncToggle();
+    updatePlayback();
+  });
+
+  toggle.hidden = false;
+
+  return {
+    setOnScreen: (/** @type {boolean} */ visible) => {
+      onScreen = visible;
+      updatePlayback();
+    }
+  };
+};
+
+const start = () => {
+  const hero = /** @type {HTMLElement} */ (document.querySelector('.hero'));
+  const launch = /** @type {HTMLVideoElement} */ (
+    hero.querySelector('.hero__video--launch')
+  );
+  const cruise = /** @type {HTMLVideoElement} */ (
+    hero.querySelector('.hero__video--cruise')
+  );
+  const toggle = /** @type {HTMLButtonElement} */ (
+    hero.querySelector('.hero__toggle')
+  );
+
+  // Drop the launch's sources to end the download.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    launch.pause();
+    launch.replaceChildren();
+    launch.load();
+    return;
+  }
+
+  const playback = startHeroPlayback({ hero, launch, cruise, toggle });
+
+  // Records can arrive batched (a fast scroll in and out): the last is current.
+  new IntersectionObserver((entries) => {
+    playback.setOnScreen(entries.at(-1)?.isIntersecting ?? false);
+  }).observe(hero);
+};
+
+if (typeof document !== 'undefined') start();

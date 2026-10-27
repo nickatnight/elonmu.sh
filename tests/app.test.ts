@@ -113,6 +113,12 @@ describe('GET /', () => {
     );
   });
 
+  it('loads the hero playback as a module, with a content hash', () => {
+    expect(html).toMatch(
+      /<script type="module" src="\/static\/js\/hero\.js\?v=[0-9a-f]+"><\/script>/
+    );
+  });
+
   it('renders the console send button hidden until the script runs', () => {
     expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
   });
