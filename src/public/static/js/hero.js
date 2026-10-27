@@ -20,11 +20,17 @@ const toSeconds = (/** @type {string} */ cssTime) => {
 /**
  * @param {{
  *   hero: Stage, launch: Clip, cruise: Clip, toggle: Toggle,
- *   fade: string
- * }} parts `fade` is the cruise's CSS fade-in time, e.g. `400ms`.
+ *   cruiseFadeCssTime: string
+ * }} parts
  */
-export const startHeroPlayback = ({ hero, launch, cruise, toggle, fade }) => {
-  const fadeSeconds = toSeconds(fade);
+export const startHeroPlayback = ({
+  hero,
+  launch,
+  cruise,
+  toggle,
+  cruiseFadeCssTime
+}) => {
+  const fadeSeconds = toSeconds(cruiseFadeCssTime);
   let handedOff = false;
   let userPaused = false;
   let onScreen = true;
@@ -98,17 +104,20 @@ export const startHeroPlayback = ({ hero, launch, cruise, toggle, fade }) => {
   };
 };
 
+const abortDownload = (/** @type {HTMLVideoElement} */ video) => {
+  video.pause();
+  video.replaceChildren();
+  video.load();
+};
+
 const start = () => {
   const hero = document.querySelector('.hero');
   const launch = hero.querySelector('.hero__video--launch');
   const cruise = hero.querySelector('.hero__video--cruise');
   const toggle = hero.querySelector('.hero__toggle');
 
-  // Drop the launch's sources to end the download.
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    launch.pause();
-    launch.replaceChildren();
-    launch.load();
+    abortDownload(launch);
     return;
   }
 
@@ -117,7 +126,7 @@ const start = () => {
     launch,
     cruise,
     toggle,
-    fade: getComputedStyle(hero).getPropertyValue('--hero-handoff')
+    cruiseFadeCssTime: getComputedStyle(hero).getPropertyValue('--hero-handoff')
   });
 
   // Records can arrive batched (a fast scroll in and out): the last is current.

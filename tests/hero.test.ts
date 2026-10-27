@@ -73,13 +73,22 @@ const TIMEUPDATE_INTERVAL_S = 0.25;
 const HANDOFF_AT_S = LAUNCH_S - 0.4 - TIMEUPDATE_INTERVAL_S;
 const DURING_OVERLAP_S = HANDOFF_AT_S + 0.1;
 
-const setup = ({ autoplayStarted = true, fade = ' 400ms' } = {}) => {
+const setup = ({
+  autoplayStarted = true,
+  cruiseFadeCssTime = ' 400ms'
+} = {}) => {
   const launch = new FakeClip(LAUNCH_S);
   const cruise = new FakeClip(4.667);
   const toggle = new FakeToggle();
   const hero = { classList: new Set<string>() };
   launch.paused = !autoplayStarted;
-  const playback = startHeroPlayback({ hero, launch, cruise, toggle, fade });
+  const playback = startHeroPlayback({
+    hero,
+    launch,
+    cruise,
+    toggle,
+    cruiseFadeCssTime
+  });
   return { launch, cruise, toggle, hero, playback };
 };
 
@@ -151,10 +160,10 @@ describe('hero playback', () => {
   });
 
   it('reads a fade given in seconds the same as in milliseconds', () => {
-    const early = setup({ fade: '0.4s' });
+    const early = setup({ cruiseFadeCssTime: '0.4s' });
     early.launch.reaches(HANDOFF_AT_S - 0.05);
     expect(early.cruise.paused).toBe(true);
-    const due = setup({ fade: '0.4s' });
+    const due = setup({ cruiseFadeCssTime: '0.4s' });
     due.launch.reaches(HANDOFF_AT_S);
     expect(due.cruise.paused).toBe(false);
   });
