@@ -1,6 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
-import { metaContent, startTestServer, type TestServer } from './helpers';
+import {
+  metaContent,
+  mp4Duration,
+  startTestServer,
+  type TestServer,
+  webmDuration
+} from './helpers';
 import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
@@ -12,6 +18,16 @@ beforeAll(async () => {
 });
 
 afterAll(() => server.close());
+
+const clip = async (name: string): Promise<Buffer> =>
+  Buffer.from(
+    await Bun.file(
+      `${import.meta.dir}/../src/public/static/video/${name}`
+    ).arrayBuffer()
+  );
+
+const FRAME_S = 1 / 24;
+const LAUNCH_MOTION_ENDS_S = 6.5;
 
 const videoTag = (cls: string): string => {
   const tag = new RegExp(`<video\\s+class="hero__video ${cls}"[^>]*>`);
@@ -94,6 +110,12 @@ describe('GET /', () => {
   it('loads the script deferred, with a content hash', () => {
     expect(html).toMatch(
       /<script src="\/static\/js\/main\.js\?v=[0-9a-f]+" defer><\/script>/
+    );
+  });
+
+  it('loads the hero playback as a module, with a content hash', () => {
+    expect(html).toMatch(
+      /<script type="module" src="\/static\/js\/hero\.js\?v=[0-9a-f]+"><\/script>/
     );
   });
 
@@ -235,6 +257,30 @@ describe('GET /', () => {
     expect(html).toMatch(
       /<video\s+class="hero__video hero__video--cruise"[^>]*poster="\/static\/video\/clown-cruise-poster\.jpg\?v=\w+"/
     );
+  });
+
+  it('reads clip durations from the MP4 and WebM headers', async () => {
+    expect(mp4Duration(await clip('clown-cruise.mp4'))).toBeCloseTo(4.667, 2);
+    expect(webmDuration(await clip('clown-cruise.webm'))).toBeCloseTo(4.667, 2);
+  });
+
+  it('cuts the launch clip at 6.5 s, before its frames go still', async () => {
+    const mp4 = mp4Duration(await clip('clown-launch.mp4'));
+    const webm = webmDuration(await clip('clown-launch.webm'));
+    expect(mp4).toBeLessThanOrEqual(LAUNCH_MOTION_ENDS_S);
+    expect(Math.abs(webm - mp4)).toBeLessThanOrEqual(FRAME_S);
+  });
+
+  it('fades the cruise in over the --hero-handoff time that hero.js reads', async () => {
+    const source = (path: string) =>
+      Bun.file(`${import.meta.dir}/../src/public/static/${path}`).text();
+    const css = await source('css/main.css');
+    const js = await source('js/hero.js');
+    expect(css).toMatch(/:root\s*\{[^}]*--hero-handoff:\s*\d+m?s;/);
+    expect(css).toMatch(
+      /\.hero__video--cruise\s*\{[^}]*transition:\s*opacity var\(--hero-handoff\)/
+    );
+    expect(js).toContain("getPropertyValue('--hero-handoff')");
   });
 
   it('puts no inline style attributes on the page', () => {
