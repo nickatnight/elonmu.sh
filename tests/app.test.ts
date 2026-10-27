@@ -271,6 +271,18 @@ describe('GET /', () => {
     expect(Math.abs(webm - mp4)).toBeLessThanOrEqual(FRAME_S);
   });
 
+  it('fades the cruise in over the --hero-handoff time that hero.js reads', async () => {
+    const source = (path: string) =>
+      Bun.file(`${import.meta.dir}/../src/public/static/${path}`).text();
+    const css = await source('css/main.css');
+    const js = await source('js/hero.js');
+    expect(css).toMatch(/:root\s*\{[^}]*--hero-handoff:\s*\d+m?s;/);
+    expect(css).toMatch(
+      /\.hero__video--cruise\s*\{[^}]*transition:\s*opacity var\(--hero-handoff\)/
+    );
+    expect(js).toContain("getPropertyValue('--hero-handoff')");
+  });
+
   it('puts no inline style attributes on the page', () => {
     expect(html).not.toMatch(/\sstyle=/);
   });

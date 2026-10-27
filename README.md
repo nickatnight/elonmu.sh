@@ -88,9 +88,11 @@ $ bun scripts/render-teaser-earth.ts # after changing TEASER_VIEW or TEASER_SIZE
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how the code fits together.
 
 The landing page at `/` is plain server-rendered HTML with no build step:
-`src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and one
-small vanilla script (`src/public/static/js/main.js`) that powers the live
-console and copy buttons. Static files are cached for a year, so templates
+`src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and two
+small vanilla scripts: `src/public/static/js/main.js` powers the live console
+and copy buttons, and `src/public/static/js/hero.js` (an ES module) plays the
+launch clip, crossfades into the cruise loop and runs the pause toggle. Static
+files are cached for a year, so templates
 reference them through `asset('static/...')`, which appends a hash of the file's
 contents to the URL.
 
