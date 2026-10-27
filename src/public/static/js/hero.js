@@ -12,7 +12,7 @@
 // The HTML spec lets browsers fire `timeupdate` as rarely as every 250 ms.
 const TIMEUPDATE_INTERVAL_S = 0.25;
 
-export const toSeconds = (/** @type {string} */ cssTime) => {
+const toSeconds = (/** @type {string} */ cssTime) => {
   const value = Number.parseFloat(cssTime);
   return cssTime.trim().endsWith('ms') ? value / 1000 : value;
 };
@@ -20,16 +20,11 @@ export const toSeconds = (/** @type {string} */ cssTime) => {
 /**
  * @param {{
  *   hero: Stage, launch: Clip, cruise: Clip, toggle: Toggle,
- *   fadeSeconds: number
- * }} parts
+ *   fade: string
+ * }} parts `fade` is the cruise's CSS fade-in time, e.g. `400ms`.
  */
-export const startHeroPlayback = ({
-  hero,
-  launch,
-  cruise,
-  toggle,
-  fadeSeconds
-}) => {
+export const startHeroPlayback = ({ hero, launch, cruise, toggle, fade }) => {
+  const fadeSeconds = toSeconds(fade);
   let handedOff = false;
   let userPaused = false;
   let onScreen = true;
@@ -122,9 +117,7 @@ const start = () => {
     launch,
     cruise,
     toggle,
-    fadeSeconds: toSeconds(
-      getComputedStyle(hero).getPropertyValue('--hero-handoff')
-    )
+    fade: getComputedStyle(hero).getPropertyValue('--hero-handoff')
   });
 
   // Records can arrive batched (a fast scroll in and out): the last is current.

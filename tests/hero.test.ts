@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'bun:test';
-import { startHeroPlayback, toSeconds } from '../src/public/static/js/hero.js';
+import { startHeroPlayback } from '../src/public/static/js/hero.js';
 
 class FakeClip extends EventTarget {
   paused = true;
   ended = false;
   currentTime = 0;
   preload = 'none';
-  plays = 0;
   loads = 0;
   playError: Error | null = null;
 
@@ -20,8 +19,12 @@ class FakeClip extends EventTarget {
   }
 
   play(): Promise<void> {
-    this.plays += 1;
     if (this.playError) return Promise.reject(this.playError);
+    // Like a real <video>, play() after the end starts over from 0.
+    if (this.ended) {
+      this.ended = false;
+      this.currentTime = 0;
+    }
     this.paused = false;
     return Promise.resolve();
   }
@@ -49,7 +52,7 @@ class FakeClip extends EventTarget {
 
 class FakeToggle extends EventTarget {
   hidden = true;
-  readonly attributes = new Map<string, string>();
+  readonly attributes = new Map([['aria-pressed', 'false']]);
 
   setAttribute(name: string, value: string): void {
     this.attributes.set(name, value);
@@ -66,33 +69,19 @@ const playRejection = (name: string): Error =>
 const flushMicrotasks = () => Promise.resolve();
 
 const LAUNCH_S = 6.5;
-const FADE_S = 0.4;
 const TIMEUPDATE_INTERVAL_S = 0.25;
-const HANDOFF_AT_S = LAUNCH_S - FADE_S - TIMEUPDATE_INTERVAL_S;
+const HANDOFF_AT_S = LAUNCH_S - 0.4 - TIMEUPDATE_INTERVAL_S;
 const DURING_OVERLAP_S = HANDOFF_AT_S + 0.1;
 
-const setup = ({ autoplayStarted = true } = {}) => {
+const setup = ({ autoplayStarted = true, fade = ' 400ms' } = {}) => {
   const launch = new FakeClip(LAUNCH_S);
   const cruise = new FakeClip(4.667);
   const toggle = new FakeToggle();
   const hero = { classList: new Set<string>() };
   launch.paused = !autoplayStarted;
-  const playback = startHeroPlayback({
-    hero,
-    launch,
-    cruise,
-    toggle,
-    fadeSeconds: FADE_S
-  });
+  const playback = startHeroPlayback({ hero, launch, cruise, toggle, fade });
   return { launch, cruise, toggle, hero, playback };
 };
-
-describe('toSeconds', () => {
-  it('reads CSS times in milliseconds and seconds', () => {
-    expect(toSeconds(' 400ms')).toBe(0.4);
-    expect(toSeconds('0.4s')).toBe(0.4);
-  });
-});
 
 describe('hero playback', () => {
   it('shows the pause toggle once it starts', () => {
@@ -161,6 +150,15 @@ describe('hero playback', () => {
     expect(launch.paused).toBe(false);
   });
 
+  it('reads a fade given in seconds the same as in milliseconds', () => {
+    const early = setup({ fade: '0.4s' });
+    early.launch.reaches(HANDOFF_AT_S - 0.05);
+    expect(early.cruise.paused).toBe(true);
+    const due = setup({ fade: '0.4s' });
+    due.launch.reaches(HANDOFF_AT_S);
+    expect(due.cruise.paused).toBe(false);
+  });
+
   it('fades the cruise in while the launch is still moving', () => {
     const { launch, cruise, hero } = setup();
     launch.reaches(DURING_OVERLAP_S);
@@ -169,12 +167,14 @@ describe('hero playback', () => {
     expect(launch.paused).toBe(false);
   });
 
-  it('hands off only once across timeupdates and the end', () => {
-    const { launch, cruise } = setup();
+  it('keeps the cruise showing and playing when the launch ends', () => {
+    const { launch, cruise, hero } = setup();
     launch.reaches(DURING_OVERLAP_S);
-    launch.reaches(DURING_OVERLAP_S + 0.25);
+    cruise.startsPlaying();
     launch.ends();
-    expect(cruise.plays).toBe(1);
+    expect(cruise.paused).toBe(false);
+    expect(cruise.loads).toBe(1);
+    expect(hero.classList.has('is-cruising')).toBe(true);
   });
 
   it('pauses and resumes both clips while they overlap', () => {
@@ -193,15 +193,14 @@ describe('hero playback', () => {
     expect([launch.paused, cruise.paused]).toEqual([true, true]);
   });
 
-  it('resumes only the cruise once the launch has ended', () => {
+  it('does not replay the launch when resuming after it ended', () => {
     const { launch, cruise, toggle } = setup();
     launch.reaches(DURING_OVERLAP_S);
     launch.ends();
-    const launchPlays = launch.plays;
     toggle.press();
     toggle.press();
     expect(cruise.paused).toBe(false);
-    expect(launch.plays).toBe(launchPlays);
+    expect([launch.ended, launch.paused]).toEqual([true, true]);
   });
 
   it('ignores a play() that a pause cut short', async () => {
@@ -209,6 +208,6 @@ describe('hero playback', () => {
     launch.playError = playRejection('AbortError');
     playback.setOnScreen(true);
     await flushMicrotasks();
-    expect(toggle.attributes.get('aria-pressed')).toBeUndefined();
+    expect(toggle.attributes.get('aria-pressed')).toBe('false');
   });
 });

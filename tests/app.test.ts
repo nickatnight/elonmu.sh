@@ -264,7 +264,7 @@ describe('GET /', () => {
     expect(webmDuration(await clip('clown-cruise.webm'))).toBeCloseTo(4.667, 2);
   });
 
-  it('ends the launch clip before it stops moving', async () => {
+  it('cuts the launch clip at 6.5 s, before its frames go still', async () => {
     const mp4 = mp4Duration(await clip('clown-launch.mp4'));
     const webm = webmDuration(await clip('clown-launch.webm'));
     expect(mp4).toBeLessThanOrEqual(LAUNCH_MOTION_ENDS_S);
