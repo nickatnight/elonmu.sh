@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<% const title = 'DOGE since SNL | elonmu.sh'; -%>
+<% const description = "Dogecoin's price now against the minute he went on air hosting Saturday Night Live, 8 May 2021."; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <link rel="canonical" href="https://elonmu.sh/doge" />
+<%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/doge', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/doge.css') %>" />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+<%- include('partials/topbar', { current: 'doge-since-snl' }) %>
+
+    <main id="main" class="doge">
+      <header class="doge__head">
+        <h1>DOGE since SNL</h1>
+        <p class="doge__lead"><%= description %></p>
+      </header>
+
+<% if (page.state === 'unavailable') { -%>
+      <p class="doge__note">Dogecoin prices are unavailable right now. Please try again in a few minutes.</p>
+<% } else { -%>
+      <div class="doge__result">
+        <p class="doge__change"><span aria-hidden="true"><%= page.change.text %></span><span class="sr-only"><%= page.change.words %></span></p>
+        <p class="doge__line"><span data-out="doge"><%= page.holding.doge %></span> DOGE was worth <b data-out="atShowtime"><%= page.holding.atShowtime %></b> at showtime. Today it is worth <b data-out="today"><%= page.holding.today %></b>.</p>
+      </div>
+
+      <dl class="doge__pair">
+        <div class="doge__cell">
+          <dt>SNL night</dt>
+          <dd class="doge__worth" data-out="atShowtime"><%= page.holding.atShowtime %></dd>
+          <dd class="doge__when"><span class="doge__detail"><%= page.snl.price %> · </span><time datetime="<%= page.snl.datetime %>"><%= page.snl.date %><span class="doge__detail">, <%= page.snl.time %></span></time></dd>
+        </div>
+        <div class="doge__cell">
+          <dt>Now</dt>
+          <dd class="doge__worth" data-out="today"><%= page.holding.today %></dd>
+          <dd class="doge__when"><span class="doge__detail"><%= page.now.price %> · </span><time datetime="<%= page.now.datetime %>"><span class="doge__detail"><%= page.now.time %>, </span><%= page.now.date %></time></dd>
+        </div>
+      </dl>
+
+      <p class="doge__credit">Live price: <a href="<%= page.attribution.url %>" rel="noopener noreferrer"><%= page.attribution.label %></a>. SNL price: <a href="<%= page.snl.source.url %>" rel="noopener noreferrer"><%= page.snl.source.label %></a>.</p>
+<% } -%>
+    </main>
+  </body>
+</html>

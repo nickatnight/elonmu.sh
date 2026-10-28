@@ -1,0 +1,110 @@
+.doge {
+  display: grid;
+  gap: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 1rem + 4vw, 4rem) var(--margin)
+    clamp(3rem, 2rem + 5vw, 6rem);
+}
+
+.doge__head h1 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.doge__lead {
+  max-width: 40rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: var(--step-lead);
+}
+
+.doge__note {
+  color: var(--muted);
+}
+
+.doge__change {
+  color: var(--accent);
+  font-size: clamp(4rem, 2rem + 14vw, 9rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__line {
+  max-width: 34ch;
+  margin-top: 0.75rem;
+  font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.375rem);
+  line-height: 1.45;
+}
+
+.doge__line b {
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  max-width: 34rem;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--raised);
+  border-radius: 8px;
+  background: var(--raised);
+}
+
+.doge__cell {
+  display: grid;
+  align-content: start;
+  gap: 0.125rem;
+  min-width: 0;
+  padding: 0.875rem 1rem;
+  background: var(--surface);
+}
+
+.doge__cell dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.doge__cell dd {
+  margin: 0;
+}
+
+.doge__worth {
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.doge__when {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__credit {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.doge__credit a {
+  color: inherit;
+}
+
+.doge__credit a:hover,
+.doge__credit a:focus-visible {
+  color: var(--ink);
+}
+
+@media (max-width: 22.5rem) {
+  .doge__detail {
+    display: none;
+  }
+}
