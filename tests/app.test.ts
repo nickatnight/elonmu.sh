@@ -567,13 +567,21 @@ describe('services section', () => {
     const css = await Bun.file(
       `${import.meta.dir}/../src/public/static/css/main.css`
     ).text();
-    const columns = Number(
+    const desktop =
       css.match(
-        /@media \(min-width: 56\.25rem\) \{\s*\.services__grid \{\s*grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\);/
+        /@media \(min-width: 56\.25rem\) \{\s*\.services__grid \{([^}]*)\}/
+      )?.[1] ?? '';
+    const columns = Number(
+      desktop.match(
+        /grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\);/
       )?.[1]
     );
     expect(columns).toBe(2);
     expect(serviceCards(html).length % columns).toBe(0);
+    expect(desktop).toContain('grid-auto-rows: 1fr;');
+    const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
+    expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
+    expect(base).not.toContain('grid-auto-rows');
   });
 
   it('renders one card per entry for any catalog, escaping its text', async () => {
