@@ -23,6 +23,10 @@ bundler. Bun runs the TypeScript directly.
 
 ## Shared ports and cache
 
+These began in `src/jet/` and moved out when the hype meter became the second
+module that needed them (spec Decision 5). There was no copy per module and
+no re-export shim. The jet cache's tests passed with only their imports
+changed, which shows the move kept its behaviour.
 - `src/ports.ts` defines the ports every module uses: `Clock`, `HttpGet` and
   `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`)
   builds the real ones.
@@ -32,6 +36,10 @@ bundler. Bun runs the TypeScript directly.
   `empty` message and throws if there is nothing to serve. Callers pass in
   both messages. By default a value is only served stale for its own key;
   `staleAcrossKeys` lets a new key fall back to the previous key's value.
+  Jet leaves it off, so last year's flights are never served for a new year.
+  Hype turns it on, because its key is a day that changes at midnight UTC.
+  The cache does not back off after a failure: every miss while the upstream
+  is down tries again.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
 
 ## Jet tracker (`src/jet/`)
@@ -103,10 +111,20 @@ WikimediaPageviewSource → CachedPageviewSource (4 h TTL, stale across keys) �
 - `chart.ts` is a pure function from the series to seismograph geometry for a
   wide (720) and a narrow (360) frame: a log₂ scale of views over the median
   from ½× to the next power of two at or above the peak (at least 4×), one
-  path per colour for the needles, month ticks and stacked spike labels.
+  path per colour for the needles, month ticks and spike labels.
   `format.ts` builds the `/hype` page model from it, like jet's `format.ts`.
+- Spike labels are placed highest spike first. A label that would overlap an
+  earlier label, or cover another spike's dot, moves up and gets a leader
+  line down to its own dot. The overlap maths assumes the chart's
+  `fontSize`. The view prints that value as the SVG's `font-size` attribute,
+  so `hype.css` must not set a `font-size` on chart text; a page test checks
+  this.
 - `/hype` is server-rendered inline SVG with no client JS. The SVG uses
   presentation attributes and classes, never `style=""`, so the CSP is
   unchanged. Its rules live in `hype.css` (`.hype*`), which the home page
   never loads; `tests/hype/page.test.ts` enforces that and a 60 KB HTML
   budget.
+- Below 48rem the page swaps to the narrow chart and stacks the stats. The
+  spike rows (date, views, multiplier) share columns through `subgrid`, and
+  only stack below 30rem. A page test checks which rules sit in each media
+  query.
