@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
+import { seismograph } from '../../src/hype/chart';
 import type { HypeQuery } from '../../src/hype/ports';
 import { metaContent, startTestServer, type TestServer } from '../helpers';
 import { sampleJet } from '../jet/fakes';
@@ -89,6 +90,17 @@ describe('GET /hype', () => {
       expect(svg).toContain('role="img"');
       expect(svg).toContain(
         'aria-label="Daily views, 27 Oct 2025 – 26 Oct 2026, peak 194,434 on 12 Jun 2026"'
+      );
+    }
+  });
+
+  it('sets the chart text size once, from the chart geometry', async () => {
+    const series = await sampleHype(capturedDays()).series();
+    const charts = svgs(html.full);
+    for (const [i, frame] of (['wide', 'narrow'] as const).entries()) {
+      const { fontSize } = seismograph(series, frame);
+      expect(charts[i].match(/^<svg\b[^>]*>/)?.[0]).toContain(
+        `font-size="${fontSize}"`
       );
     }
   });
@@ -207,6 +219,14 @@ describe('hype stylesheets', () => {
 
   it('keeps the /hype-only rules out of main.css, which every home visitor loads', () => {
     expect(css('main.css').match(hypeOnly)).toBeNull();
+  });
+
+  it('leaves the chart text size to the SVG, not hype.css', () => {
+    const svgText = css('hype.css').match(
+      /\.hype__(?:axis|label)\s*\{[^}]*\}/g
+    );
+    expect(svgText?.length).toBe(2);
+    for (const rule of svgText ?? []) expect(rule).not.toContain('font-size');
   });
 
   it('puts them in hype.css', () => {

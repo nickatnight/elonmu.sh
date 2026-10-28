@@ -47,7 +47,6 @@
 
 .hype__axis {
   fill: var(--muted);
-  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -75,7 +74,6 @@
 
 .hype__label {
   fill: var(--ink);
-  font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   paint-order: stroke;
@@ -117,6 +115,13 @@
 }
 
 .hype__spikes {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 1fr) minmax(5.5rem, auto) minmax(
+      9rem,
+      1.2fr
+    );
+  column-gap: 1rem;
+  max-width: 50rem;
   margin: 0.75rem 0 0;
   padding: 0;
   list-style: none;
@@ -124,18 +129,20 @@
 
 .hype__spike {
   display: grid;
-  grid-template-columns: minmax(7.5rem, 10rem) minmax(0, 1fr) auto;
-  gap: 0.25rem 1rem;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  row-gap: 0.25rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--raised);
   font-variant-numeric: tabular-nums;
 }
 
-.hype__spike time {
+.hype__spike-views {
   font-weight: 600;
+  text-align: right;
 }
 
-.hype__spike-views {
+.hype__spike-size {
   color: var(--muted);
 }
 
@@ -167,11 +174,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .hype__spike {
+  .hype__spikes {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .hype__spike-size {
     grid-column: 1 / -1;
+    font-size: var(--step-small);
   }
 }

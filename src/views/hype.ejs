@@ -31,7 +31,7 @@
 <% } else { -%>
       <figure class="hype__chart">
 <% for (const c of [page.charts.wide, page.charts.narrow]) { -%>
-        <svg class="hype__svg hype__svg--<%= c.frame %>" viewBox="0 0 <%= c.width %> <%= c.height %>" role="img" aria-label="<%= page.summary %>">
+        <svg class="hype__svg hype__svg--<%= c.frame %>" viewBox="0 0 <%= c.width %> <%= c.height %>" font-size="<%= c.fontSize %>" role="img" aria-label="<%= page.summary %>">
 <% for (const g of c.gridlines) { -%>
           <line class="hype__gridline<%= g.y === c.baselineY ? ' hype__gridline--base' : '' %>" x1="<%= c.plot.left %>" x2="<%= c.plot.right %>" y1="<%= g.y %>" y2="<%= g.y %>" />
           <text class="hype__axis" x="<%= c.plot.left - 6 %>" y="<%= g.y + 4 %>" text-anchor="end"><%= g.label %></text>
