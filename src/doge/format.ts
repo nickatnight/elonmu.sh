@@ -1,11 +1,5 @@
+import { holding, positionOf } from '../public/static/js/doge.js';
 import type { Attribution, DogeComparison, IsoTimestamp } from './domain';
-
-const cents = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-});
 
 const pricePerCoin = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -14,26 +8,14 @@ const pricePerCoin = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 4
 });
 
-const coins = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
-
 const oneDecimal = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1
 });
 
-const MINUS = '−';
+const MINUS = '\u2212';
 
-export type Holding = { doge: string; atShowtime: string; today: string };
-
-export const holding = (
-  amount: number,
-  snlUsd: number,
-  nowUsd: number
-): Holding => ({
-  doge: coins.format(amount),
-  atShowtime: cents.format(amount * snlUsd),
-  today: cents.format(amount * nowUsd)
-});
+export type Holding = ReturnType<typeof holding>;
 
 type Change = { text: string; words: string };
 
@@ -91,6 +73,7 @@ export type LoadedDogePage = {
   state: 'loaded';
   change: Change;
   holding: Holding;
+  held: { value: string; position: number };
   snl: PricePoint & { source: Attribution };
   now: PricePoint;
   attribution: Attribution;
@@ -100,10 +83,15 @@ export type DogePage = LoadedDogePage | { state: 'unavailable' };
 
 export const dogePage = (comparison: DogeComparison): DogePage => {
   const { snl, now } = comparison;
+  const thousandDollarsOfDoge = 1000 / snl.usd;
   return {
     state: 'loaded',
     change: change(comparison.changePercent),
-    holding: holding(1000 / snl.usd, snl.usd, now.usd),
+    holding: holding(thousandDollarsOfDoge, snl.usd, now.usd),
+    held: {
+      value: thousandDollarsOfDoge.toFixed(2),
+      position: positionOf(thousandDollarsOfDoge)
+    },
     snl: {
       ...easternMoment(snl.at),
       usd: snl.usd,

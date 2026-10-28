@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
 import type { DogeQuery } from '../../src/doge/ports';
+import { SNL_SHOWTIME } from '../../src/doge/snl';
+import { holding } from '../../src/public/static/js/doge.js';
 import { metaContent, startTestServer, type TestServer } from '../helpers';
 import { sampleHype } from '../hype/fakes';
 import { sampleJet } from '../jet/fakes';
@@ -182,6 +184,117 @@ describe('GET /doge', () => {
   });
 });
 
+const heldControl = (page: string): string =>
+  page.match(/<div class="doge__held"[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? '';
+
+const scripts = (page: string): string[] =>
+  page.match(/<script\b[^>]*>[\s\S]*?<\/script>/g) ?? [];
+
+describe('the DOGE-held control', () => {
+  it('is rendered hidden, so visitors without JS never see a dead slider', () => {
+    expect(heldControl(html.down)).toMatch(
+      /^<div class="doge__held"[^>]*\shidden[\s>]/
+    );
+  });
+
+  it('carries both prices for the script, so it never fetches', () => {
+    const open = heldControl(html.down).match(/^<div[^>]*>/)?.[0] ?? '';
+    expect(open).toContain(`data-snl-usd="${SNL_SHOWTIME.usd}"`);
+    expect(open).toContain(`data-now-usd="${NOW_QUOTE.usd}"`);
+  });
+
+  it('labels the exact-amount field and starts it at the DOGE $1,000 bought', () => {
+    const control = heldControl(html.down);
+    expect(control).toContain(
+      '<label for="doge-held">DOGE you held at showtime</label>'
+    );
+    expect(control).toMatch(
+      /<input id="doge-held" type="number" inputmode="decimal" min="0" step="any" value="1484.94"/
+    );
+  });
+
+  it('labels the log-scale range and starts it at step 362 of 1,000, read out in DOGE', () => {
+    const range =
+      heldControl(html.down).match(/<input class="doge__range"[^>]*>/)?.[0] ??
+      '';
+    expect(range).toContain('type="range"');
+    expect(range).toContain('min="0" max="1000" step="1" value="362"');
+    expect(range).toContain('aria-label="DOGE you held at showtime"');
+    expect(range).toContain('aria-valuetext="1,484.94 DOGE"');
+  });
+
+  it('marks the ends of the range 10 and 10M', () => {
+    expect(text(heldControl(html.down))).toEndWith('10 10M');
+  });
+
+  it('renders the same default numbers the script computes', () => {
+    const values = holding(
+      1000 / SNL_SHOWTIME.usd,
+      SNL_SHOWTIME.usd,
+      NOW_QUOTE.usd
+    );
+    for (const [out, value] of Object.entries(values)) {
+      const printed = [
+        ...html.down.matchAll(new RegExp(`data-out="${out}">([^<]*)<`, 'g'))
+      ].map(([, v]) => v);
+      expect({ out, printed }).toEqual({
+        out,
+        printed: out === 'doge' ? [value] : [value, value]
+      });
+    }
+  });
+
+  it('updates the amount and its worth then and now, with no loss or gain line', () => {
+    for (const name of ['down', 'up'] as const) {
+      const outs = [...html[name].matchAll(/data-out="([^"]*)"/g)].map(
+        ([, out]) => out
+      );
+      expect({ name, outs }).toEqual({
+        name,
+        outs: ['doge', 'atShowtime', 'today', 'atShowtime', 'today']
+      });
+      const main = html[name].match(/<main[\s\S]*?<\/main>/)?.[0] ?? '';
+      expect(text(main)).not.toMatch(/\b(lost|loss|gained|gain)\b/i);
+    }
+  });
+
+  it('loads doge.js as a module from this origin, and no inline script', () => {
+    expect(scripts(html.down)).toEqual([
+      expect.stringMatching(
+        /^<script type="module" src="\/static\/js\/doge\.js\?v=\w+"><\/script>$/
+      )
+    ]);
+  });
+
+  it('loads no script and no control when prices are unavailable', () => {
+    expect(scripts(html.unavailable)).toEqual([]);
+    expect(html.unavailable).not.toContain('doge__held');
+  });
+
+  it('never loads doge.js on the home page', async () => {
+    const home = await (await fetch(`${servers.down.url}/`)).text();
+    expect(home).not.toContain('doge.js');
+  });
+
+  it('keeps doge.js at or under 4 KB', () => {
+    const file = path.join(
+      import.meta.dir,
+      '../../src/public/static/js/doge.js'
+    );
+    expect(readFileSync(file).byteLength).toBeLessThanOrEqual(4 * 1024);
+  });
+
+  it('writes to the page with textContent only', () => {
+    const source = readFileSync(
+      path.join(import.meta.dir, '../../src/public/static/js/doge.js'),
+      'utf8'
+    );
+    expect(source).not.toMatch(
+      /innerHTML|outerHTML|insertAdjacentHTML|fetch\(/
+    );
+  });
+});
+
 describe('doge stylesheets', () => {
   const sheets = (page: string): string[] =>
     [...page.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(
@@ -233,6 +346,19 @@ describe('doge stylesheets', () => {
         /@media \(max-width: 22\.5rem\) \{([\s\S]*?)\n\}/
       )?.[1] ?? '';
     expect(narrow).toMatch(/\.doge__detail\s*\{\s*display:\s*none;/);
+  });
+
+  it("holds the hidden control's space while scripting is on, and drops it when off", () => {
+    const sheet = css('doge.css');
+    expect(sheet).toMatch(
+      /\.doge__held\[hidden\]\s*\{\s*display:\s*none;\s*\}/
+    );
+    const scripting =
+      sheet.match(/@media \(scripting: enabled\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const held =
+      scripting.match(/\.doge__held\[hidden\]\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(held).toMatch(/display:\s*grid;/);
+    expect(held).toMatch(/visibility:\s*hidden;/);
   });
 
   it('keeps a visible focus style, no underlines and no !important', () => {

@@ -11,6 +11,9 @@
 <%- include('partials/head-assets') %>
 <%- include('partials/share-tags', { url: 'https://elonmu.sh/doge', title, description }) %>
     <link rel="stylesheet" href="<%= asset('static/css/doge.css') %>" />
+<% if (page.state === 'loaded') { -%>
+    <script type="module" src="<%= asset('static/js/doge.js') %>"></script>
+<% } -%>
   </head>
 
   <body>
@@ -30,6 +33,15 @@
       <div class="doge__result">
         <p class="doge__change"><span aria-hidden="true"><%= page.change.text %></span><span class="sr-only"><%= page.change.words %></span></p>
         <p class="doge__line"><span data-out="doge"><%= page.holding.doge %></span> DOGE was worth <b data-out="atShowtime"><%= page.holding.atShowtime %></b> at showtime. Today it is worth <b data-out="today"><%= page.holding.today %></b>.</p>
+      </div>
+
+      <div class="doge__held" data-snl-usd="<%= page.snl.usd %>" data-now-usd="<%= page.now.usd %>" hidden>
+        <div class="doge__held-top">
+          <label for="doge-held">DOGE you held at showtime</label>
+          <span class="doge__field"><input id="doge-held" type="number" inputmode="decimal" min="0" step="any" value="<%= page.held.value %>" /> <span aria-hidden="true">DOGE</span></span>
+        </div>
+        <input class="doge__range" type="range" min="0" max="1000" step="1" value="<%= page.held.position %>" aria-label="DOGE you held at showtime" aria-valuetext="<%= page.holding.doge %> DOGE" />
+        <div class="doge__ends" aria-hidden="true"><span>10</span><span>10M</span></div>
       </div>
 
       <dl class="doge__pair">
