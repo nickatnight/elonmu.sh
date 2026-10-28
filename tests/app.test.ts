@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
+import { sampleDoge } from './doge/fakes';
 import {
   metaContent,
   mp4Duration,
@@ -15,7 +16,7 @@ let html: string;
 
 beforeAll(async () => {
   server = await startTestServer(
-    createApp({ jet: sampleJet(), hype: sampleHype() })
+    createApp({ jet: sampleJet(), hype: sampleHype(), doge: sampleDoge() })
   );
   html = await (await fetch(`${server.url}/`)).text();
 });
@@ -456,7 +457,8 @@ describe('catalog copy', () => {
   it('describes the catalog to search engines', () => {
     expect(metaContent(html, 'name="description"')).toBe(
       'Free, satirical tools about Elon Musk: a random-news JSON API, a ' +
-        'year-to-date private-jet tracker and a Wikipedia hype meter.'
+        'year-to-date private-jet tracker, a Wikipedia hype meter and DOGE ' +
+        'since SNL.'
     );
   });
 
