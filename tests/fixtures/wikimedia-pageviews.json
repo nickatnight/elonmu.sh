@@ -1,0 +1,3289 @@
+{
+  "items": [
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025102700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19194
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025102800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24767
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025102900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21893
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025103000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21098
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025103100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20256
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20057
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19925
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22975
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23169
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23148
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27096
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 49137
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33467
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025110900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26057
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23829
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22478
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21425
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21336
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24363
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21786
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21529
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23326
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23307
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025111900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22802
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22788
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22602
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21854
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20850
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21902
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21106
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18398
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18010
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18613
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025112900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18258
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025113000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27431
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 60649
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 43005
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31537
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26648
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22982
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21716
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22384
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22810
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025120900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20421
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23333
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22611
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27130
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20990
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20818
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21365
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27845
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27646
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25223
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025121900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25120
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27008
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 34654
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 32215
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 28590
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25236
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23629
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24244
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 29266
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23454
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025122900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24665
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025123000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24121
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2025123100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20804
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21909
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23927
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25836
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22379
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22032
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22525
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21814
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27470
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026010900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 30717
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27054
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27133
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 30738
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33325
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26944
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33559
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31047
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33470
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26698
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026011900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25335
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26445
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25050
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25760
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 26298
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24570
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23426
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21942
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23147
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22682
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026012900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22654
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026013000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24289
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026013100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 36270
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 36197
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 36509
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 41423
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 43500
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 41810
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31478
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 28777
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24884
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026020900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25301
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24718
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25382
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22516
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20365
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19101
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19423
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22028
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20200
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20794
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026021900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19994
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20628
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19242
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19273
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19229
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20252
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18450
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18846
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19302
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026022800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17010
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16963
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17655
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16331
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18649
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16695
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16580
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15703
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15969
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026030900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16894
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17124
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19059
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18453
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17602
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15764
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17297
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16080
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16210
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15841
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026031900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17216
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20057
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27753
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22029
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19682
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19407
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18461
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18018
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16529
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18925
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026032900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17149
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026033000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16594
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026033100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15816
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17481
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18827
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16853
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15615
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15372
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16995
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16031
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14572
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026040900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15214
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16085
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17558
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16375
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17844
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16402
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17442
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16064
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15339
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15404
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026041900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15426
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16233
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15611
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15209
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16432
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15090
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14203
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14831
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15947
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17413
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026042900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17642
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026043000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15607
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15393
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14556
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14368
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16378
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17001
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21796
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23160
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18926
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026050900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15393
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25057
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27101
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18397
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22562
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27657
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 34731
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27935
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27018
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25242
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026051900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24669
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21772
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33050
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24453
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23260
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25770
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22292
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21171
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19508
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18917
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026052900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20146
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026053000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17262
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026053100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18347
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17019
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18361
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21356
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31006
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25221
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21912
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22896
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22635
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026060900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22983
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23532
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 28855
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 194434
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 186157
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 115219
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 86924
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 78595
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 64370
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 50111
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026061900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 42998
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 37160
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 38373
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 35042
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 32645
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 33182
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 29407
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31853
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24492
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 29582
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026062900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27772
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026063000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23087
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24189
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21064
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20114
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19784
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20624
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18847
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18397
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17436
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026070900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17445
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18804
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17806
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17433
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17729
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17343
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17062
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16407
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16242
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15970
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026071900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16241
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14862
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14673
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20803
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19000
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 29946
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24896
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22278
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 21731
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22483
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026072900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20742
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026073000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19620
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026073100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18525
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17487
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18042
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17003
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16824
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18935
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19427
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16363
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15116
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026080900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15443
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16405
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15653
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15410
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14784
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15871
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15950
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14717
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15307
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15820
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026081900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15147
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17810
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16370
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17703
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15889
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14612
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16057
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16723
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15009
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14986
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026082900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 12956
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026083000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 13693
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026083100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14045
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16819
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14365
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14815
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15005
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 14750
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16873
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16790
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23591
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026090900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 34907
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27401
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22603
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19229
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20500
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 20222
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18518
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18417
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17495
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17776
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026091900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16080
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15760
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16006
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15837
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15235
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16060
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15524
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 15753
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 16251
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17544
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026092900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17305
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026093000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19006
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 17755
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24686
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 32138
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22318
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19757
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 19141
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 18640
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22995
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026100900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 28646
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 30352
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25572
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25883
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 25336
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22335
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 24668
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 56360
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101700",
+      "access": "all-access",
+      "agent": "user",
+      "views": 57624
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101800",
+      "access": "all-access",
+      "agent": "user",
+      "views": 43680
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026101900",
+      "access": "all-access",
+      "agent": "user",
+      "views": 35003
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102000",
+      "access": "all-access",
+      "agent": "user",
+      "views": 31284
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102100",
+      "access": "all-access",
+      "agent": "user",
+      "views": 34345
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102200",
+      "access": "all-access",
+      "agent": "user",
+      "views": 28397
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102300",
+      "access": "all-access",
+      "agent": "user",
+      "views": 27281
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102400",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23707
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102500",
+      "access": "all-access",
+      "agent": "user",
+      "views": 23669
+    },
+    {
+      "project": "en.wikipedia",
+      "article": "Elon_Musk",
+      "granularity": "daily",
+      "timestamp": "2026102600",
+      "access": "all-access",
+      "agent": "user",
+      "views": 22904
+    }
+  ]
+}
