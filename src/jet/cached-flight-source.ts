@@ -1,5 +1,6 @@
+import type { Clock, Logger } from '../ports';
 import type { Attribution, Flight } from './domain';
-import type { Clock, FlightSource, Logger } from './ports';
+import type { FlightSource } from './ports';
 
 const silent: Logger = { warn: () => {} };
 

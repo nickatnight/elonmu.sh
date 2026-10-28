@@ -1,11 +1,6 @@
+import type { Clock, HttpGet, Logger } from '../../../ports';
 import type { Attribution, Flight, Fuel } from '../../domain';
-import type {
-  Clock,
-  FlightSource,
-  HttpGet,
-  Logger,
-  PlaceResolver
-} from '../../ports';
+import type { FlightSource, PlaceResolver } from '../../ports';
 import { BlueskyFeedClient, recordKey } from './feed-client';
 import { pairFlights } from './pair';
 import { type JetEvent, parseElonJetPost, parseFuelReply } from './parse';

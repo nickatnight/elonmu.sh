@@ -1,10 +1,11 @@
+import type { Clock } from '../ports';
 import {
   type Flight,
   flightTime,
   type JetSnapshot,
   type Totals
 } from './domain';
-import type { Clock, FlightSource, JetQuery } from './ports';
+import type { FlightSource, JetQuery } from './ports';
 
 const sumTotals = (flights: Flight[]): Totals => {
   const t = { flights: 0, minutes: 0, gallons: 0, usd: 0, co2Tons: 0 };

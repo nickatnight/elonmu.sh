@@ -4,9 +4,8 @@ import type { Attribution, Flight } from '../../src/jet/domain';
 import { warmUp } from '../../src/jet/index';
 import { JetService } from '../../src/jet/jet.service';
 import type { FlightSource } from '../../src/jet/ports';
+import { FakeClock, FakeLogger } from '../fakes';
 import {
-  FakeClock,
-  FakeLogger,
   failingJet,
   flight,
   InMemoryFlightSource,

@@ -1,5 +1,6 @@
+import type { Logger } from '../../../ports';
 import { type Flight, type Fuel, type Place, UNKNOWN_TAIL } from '../../domain';
-import type { Logger, PlaceResolver } from '../../ports';
+import type { PlaceResolver } from '../../ports';
 import { recordKey } from './feed-client';
 import type { JetEvent } from './parse';
 

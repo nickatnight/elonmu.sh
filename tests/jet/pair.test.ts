@@ -6,7 +6,8 @@ import {
   pairFlights
 } from '../../src/jet/sources/bluesky/pair';
 import type { JetEvent } from '../../src/jet/sources/bluesky/parse';
-import { FakeLogger, places } from './fakes';
+import { FakeLogger } from '../fakes';
+import { places } from './fakes';
 import { assertFlightShape } from './flight-source.contract';
 
 const AUSTIN = places.austin.name;

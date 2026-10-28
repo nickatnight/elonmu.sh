@@ -5,8 +5,9 @@ import { createApp } from '../../src/app';
 import type { Flight, Place } from '../../src/jet/domain';
 import { JetService } from '../../src/jet/jet.service';
 import placesJson from '../../src/jet/places/places.json';
+import { FakeClock } from '../fakes';
 import { startTestServer, type TestServer } from '../helpers';
-import { FakeClock, flight, InMemoryFlightSource } from './fakes';
+import { flight, InMemoryFlightSource } from './fakes';
 
 const root = path.join(import.meta.dir, '../..');
 const publicDir = path.join(root, 'src/public');
