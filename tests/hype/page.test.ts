@@ -214,3 +214,15 @@ describe('hype stylesheets', () => {
     );
   });
 });
+
+describe('hype topbar', () => {
+  it('marks Hype, and only Hype, as the current page', () => {
+    expect(html.full).toMatch(/<a href="\/hype" aria-current="page">Hype<\/a>/);
+    expect(html.full.match(/aria-current="page"/g)).toHaveLength(1);
+  });
+
+  it('links to /hype from the home page', async () => {
+    const home = await (await fetch(`${servers.full.url}/`)).text();
+    expect(home).toMatch(/<a href="\/hype"[^>]*>Hype<\/a>/);
+  });
+});

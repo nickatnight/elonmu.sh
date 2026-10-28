@@ -24,5 +24,14 @@ export const SERVICES: readonly Service[] = [
       'Every private-jet flight this year, on a globe, with the fuel bill.',
     href: '/jet',
     cta: 'Open the globe'
+  },
+  {
+    id: 'hype-meter',
+    name: 'Hype meter',
+    nav: 'Hype',
+    summary:
+      'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
+    href: '/hype',
+    cta: 'Read the tremors'
   }
 ];

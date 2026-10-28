@@ -214,7 +214,8 @@ describe('the live globe', () => {
       .map(([, url]) => url)
       .filter(
         (url) =>
-          !['/', '/jet', '/api/news'].includes(url) && !url.startsWith('/#')
+          !['/', '/jet', '/hype', '/api/news'].includes(url) &&
+          !url.startsWith('/#')
       );
     for (const want of [
       'globe.gl.min.js',

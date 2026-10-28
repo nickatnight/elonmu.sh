@@ -2,10 +2,11 @@ import { describe, expect, it } from 'bun:test';
 import { SERVICES } from '../src/catalog';
 
 describe('SERVICES', () => {
-  it('lists the News API, then the jet tracker', () => {
+  it('lists the News API, then the jet tracker, then the hype meter', () => {
     expect(SERVICES.map((service) => service.id)).toEqual([
       'news-api',
-      'jet-tracker'
+      'jet-tracker',
+      'hype-meter'
     ]);
   });
 
