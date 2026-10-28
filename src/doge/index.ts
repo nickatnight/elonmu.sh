@@ -17,7 +17,7 @@ type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const systemClock: Clock = { now: () => new Date() };
 
-const logger: Logger = {
+const consoleLogger: Logger = {
   warn: (msg, meta) => console.warn(`⚠️ ${msg}`, meta ?? '')
 };
 
@@ -32,10 +32,12 @@ const COINGECKO_CONFIG: HttpConfig = {
 
 export const createDogeModule = ({
   get = axios.get,
-  clock = systemClock
+  clock = systemClock,
+  logger = consoleLogger
 }: {
   get?: GetJson;
   clock?: Clock;
+  logger?: Logger;
 } = {}): DogeQuery => {
   const http: HttpGet = async <T>(url: string) =>
     (await get(url, COINGECKO_CONFIG)).data as T;
