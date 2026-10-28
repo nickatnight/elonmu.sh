@@ -384,6 +384,25 @@ describe('topbar', () => {
     );
   });
 
+  it('hides the GitHub link, and only it, below 424 px', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const [, maxWidth, rules] =
+      css.match(
+        /@media \(max-width: ([\d.]+)rem\) \{\s*([^{}]*\{[^}]*display: none;[^}]*\})\s*\}/
+      ) ?? [];
+    expect(rules).toMatch(/^\.topbar__actions \.topbar__extra \{/);
+    const hiddenUpToPx = Number(maxWidth) * 16;
+    expect(hiddenUpToPx).toBeGreaterThanOrEqual(423);
+    expect(hiddenUpToPx).toBeLessThan(424);
+    const extras = [
+      ...topbarNav(html).matchAll(/<a [^>]*class="topbar__extra"[^>]*>/g)
+    ];
+    expect(extras.length).toBe(1);
+    expect(extras[0]?.[0]).toContain('href="https://github.com/');
+  });
+
   it('opens only GitHub in a new tab; service links stay in this one', () => {
     const newTab = [
       ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)

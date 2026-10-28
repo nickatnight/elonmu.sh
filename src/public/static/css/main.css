@@ -1077,7 +1077,7 @@ a.card__link[href]:focus-visible {
   }
 }
 
-@media (max-width: 22.49rem) {
+@media (max-width: 26.49rem) {
   .topbar__actions .topbar__extra {
     display: none;
   }
