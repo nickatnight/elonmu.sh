@@ -68,8 +68,8 @@ it returns a 200 with `{ "error": "..." }`, like the News API.
 
 ## Hype meter
 
-Daily views of the English Wikipedia article "Elon Musk" for the last 365
-days, drawn as a seismograph with the biggest spikes named:
+Daily views of the English Wikipedia article "Elon Musk" for the last year,
+drawn as a seismograph with the biggest spikes named:
 [elonmu.sh/hype](https://elonmu.sh/hype). The views come from
 [Wikimedia's pageview API](https://wikimedia.org/api/rest_v1/) (users only,
 known bots excluded).
