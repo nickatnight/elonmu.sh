@@ -29,7 +29,7 @@ export class CachedValue<T> {
     if (this.inFlight?.key === key) return this.inFlight.promise;
 
     const fallback = staleAcrossKeys ? this.last : sameKey;
-    const failure = this.backingOff(now);
+    const failure = this.recentFailure(now);
     if (failure)
       return fallback
         ? Promise.resolve(fallback.value)
@@ -41,7 +41,10 @@ export class CachedValue<T> {
         this.failure = null;
         return value;
       },
-      (err: unknown) => this.recover(err, fallback)
+      (err: unknown) => {
+        this.failure = { at: clock.now().getTime(), error: err };
+        return this.recover(err, fallback);
+      }
     );
     this.inFlight = { key, promise };
     // Not .finally(): that returns a second promise which would reject,
@@ -53,15 +56,14 @@ export class CachedValue<T> {
     return promise;
   }
 
-  private backingOff(now: number): Failure | null {
+  private recentFailure(now: number): Failure | null {
     const { retryAfterMs } = this.options;
     if (retryAfterMs === undefined || !this.failure) return null;
     return now - this.failure.at < retryAfterMs ? this.failure : null;
   }
 
   private recover(err: unknown, fallback: Entry<T> | null): T {
-    const { clock, logger, messages } = this.options;
-    this.failure = { at: clock.now().getTime(), error: err };
+    const { logger, messages } = this.options;
     const error = err instanceof Error ? err.message : String(err);
     if (fallback) {
       logger.warn(messages.stale, {
