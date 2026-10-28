@@ -31,3 +31,5 @@ export const HYPE_ATTRIBUTION: Attribution = {
   label: 'Wikimedia pageviews (en.wikipedia, users only)',
   url: 'https://pageviews.wmcloud.org/?project=en.wikipedia.org&pages=Elon_Musk'
 };
+
+export const isoDate = (at: Date): IsoDate => at.toISOString().slice(0, 10);
