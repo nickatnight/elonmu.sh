@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<% const title = 'Hype meter | elonmu.sh'; -%>
+<% const description = 'Daily Wikipedia views of the Elon Musk article over the last year. Each spike is a tremor; the biggest are named.'; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <link rel="canonical" href="https://elonmu.sh/hype" />
+<%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/hype', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/hype.css') %>" />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+<%- include('partials/topbar', { current: 'hype-meter' }) %>
+
+    <main id="main" class="hype">
+      <header class="hype__head">
+        <h1 id="hype-title">Hype meter</h1>
+        <p class="hype__lead"><%= description %></p>
+      </header>
+
+<% if (page.state === 'unavailable') { -%>
+      <p class="hype__note">Pageview data is unavailable right now. Please try again in a few minutes.</p>
+<% } else if (page.state === 'empty') { -%>
+      <p class="hype__note">No pageviews in the last 365 days.</p>
+<% } else { -%>
+      <figure class="hype__chart">
+<% for (const c of [page.charts.wide, page.charts.narrow]) { -%>
+        <svg class="hype__svg hype__svg--<%= c.frame %>" viewBox="0 0 <%= c.width %> <%= c.height %>" role="img" aria-label="<%= page.summary %>">
+<% for (const g of c.gridlines) { -%>
+          <line class="hype__gridline<%= g.y === c.baselineY ? ' hype__gridline--base' : '' %>" x1="<%= c.plot.left %>" x2="<%= c.plot.right %>" y1="<%= g.y %>" y2="<%= g.y %>" />
+          <text class="hype__axis" x="<%= c.plot.left - 6 %>" y="<%= g.y + 4 %>" text-anchor="end"><%= g.label %></text>
+<% } -%>
+          <path class="hype__needles" d="<%= c.normalPath %>" />
+          <path class="hype__needles hype__needles--hot" d="<%= c.hotPath %>" />
+<% for (const m of c.months) { -%>
+          <text class="hype__axis" x="<%= m.x %>" y="<%= c.plot.bottom + 17 %>" text-anchor="middle"><%= m.label %></text>
+<% } -%>
+<% for (const s of c.spikes) { -%>
+<% if (s.label.leader) { -%>
+          <line class="hype__leader" x1="<%= s.x %>" x2="<%= s.x %>" y1="<%= s.label.leader.y1 %>" y2="<%= s.label.leader.y2 %>" />
+<% } -%>
+          <circle class="hype__dot" cx="<%= s.x %>" cy="<%= s.y %>" r="3" />
+          <text class="hype__label" x="<%= s.label.x %>" y="<%= s.label.y %>" text-anchor="<%= s.label.anchor %>"><%= s.label.text %></text>
+<% } -%>
+        </svg>
+<% } -%>
+      </figure>
+
+      <ul class="hype__stats">
+<% for (const stat of page.stats) { -%>
+        <li><span class="hype__value"><%= stat.value %></span> <span class="hype__unit"><%= stat.label %></span></li>
+<% } -%>
+      </ul>
+
+      <section class="hype__tremors" aria-labelledby="hype-spikes-title">
+        <h2 id="hype-spikes-title">Top spikes</h2>
+        <ol class="hype__spikes">
+<% for (const s of page.spikes) { -%>
+          <li class="hype__spike"><time datetime="<%= s.datetime %>"><%= s.date %></time> <span class="hype__spike-views"><%= s.views %></span> <span class="hype__spike-size"><%= s.size %></span></li>
+<% } -%>
+        </ol>
+      </section>
+
+      <p class="hype__credit">Data: <a href="<%= page.attribution.url %>" rel="noopener noreferrer"><%= page.attribution.label %></a></p>
+<% } -%>
+    </main>
+  </body>
+</html>

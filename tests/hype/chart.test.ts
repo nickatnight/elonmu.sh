@@ -214,6 +214,39 @@ describe('seismograph labels', () => {
     expect(chart.spikes[1].y - chart.spikes[1].label.y).toBe(
       chart.spikes[0].y - chart.spikes[0].label.y
     );
+    for (const s of chart.spikes) expect(s.label.leader).toBeNull();
+  });
+
+  describe('when a label would cover a nearby higher spike’s dot', () => {
+    const views = {
+      '2026-01-12': 900,
+      '2026-06-26': 290,
+      '2026-06-19': 240
+    };
+    const chart = seismograph(
+      seriesOf(flatYear(views), [
+        spike('2026-01-12', 900),
+        spike('2026-06-26', 290),
+        spike('2026-06-19', 240)
+      ]),
+      'wide'
+    );
+    const [, higher, lower] = chart.spikes;
+
+    it('stacks the label upwards, clear of that dot', () => {
+      expect(lower.label.y).toBeLessThan(higher.y - 3);
+    });
+
+    it('draws a leader from the label down to its own dot', () => {
+      expect(lower.label.leader).toEqual({
+        y1: expect.any(Number),
+        y2: expect.any(Number)
+      });
+      const { y1, y2 } = lower.label.leader ?? { y1: 0, y2: 0 };
+      expect(y1).toBeGreaterThan(lower.label.y);
+      expect(y1).toBeLessThan(lower.y);
+      expect(y2).toBeLessThan(y1);
+    });
   });
 });
 

@@ -13,7 +13,13 @@ export type SpikeMark = {
   date: IsoDate;
   x: number;
   y: number;
-  label: { x: number; y: number; text: string; anchor: LabelAnchor };
+  label: {
+    x: number;
+    y: number;
+    text: string;
+    anchor: LabelAnchor;
+    leader: { y1: number; y2: number } | null;
+  };
 };
 
 export type ChartGeometry = {
@@ -74,8 +80,9 @@ const MONTHS = [
 const DAY_MS = 86_400_000;
 const FONT_SIZE = 11;
 const CHAR_WIDTH = FONT_SIZE * 0.6;
-const LINE_HEIGHT = FONT_SIZE + 2;
+const LINE_HEIGHT = FONT_SIZE + 4;
 const LABEL_GAP = 6;
+const DOT_CLEARANCE = 3;
 const LOW_EXP = -1;
 const MIN_TOP_EXP = 2;
 const HOT_RATIO = 2;
@@ -84,19 +91,58 @@ const round1 = (n: number): number => Math.round(n * 10) / 10;
 
 const utc = (date: IsoDate): number => Date.parse(`${date}T00:00:00.000Z`);
 
-export const spikeLabel = (spike: Spike): string => {
-  const at = new Date(utc(spike.date));
-  return `${at.getUTCDate()} ${MONTHS[at.getUTCMonth()]} · ${spike.timesMedian}×`;
+export const dayMonth = (date: IsoDate): string => {
+  const at = new Date(utc(date));
+  return `${at.getUTCDate()} ${MONTHS[at.getUTCMonth()]}`;
 };
+
+const spikeLabel = (spike: Spike): string =>
+  `${dayMonth(spike.date)} · ${spike.timesMedian}×`;
 
 const gridLabel = (exp: number): string => (exp === -1 ? '½×' : `${2 ** exp}×`);
 
-type Box = { left: number; right: number; y: number };
+type Dot = { date: IsoDate; x: number; y: number; text: string };
 
-const overlaps = (a: Box, b: Box): boolean =>
+type Label = { left: number; right: number; y: number; anchor: LabelAnchor };
+
+const overlaps = (a: Label, b: Label): boolean =>
   a.left < b.right + 2 &&
   b.left < a.right + 2 &&
   Math.abs(a.y - b.y) < LINE_HEIGHT;
+
+const covers = (label: Label, dot: Dot): boolean =>
+  dot.x >= label.left - DOT_CLEARANCE &&
+  dot.x <= label.right + DOT_CLEARANCE &&
+  dot.y >= label.y - FONT_SIZE - DOT_CLEARANCE &&
+  dot.y <= label.y + DOT_CLEARANCE;
+
+const placeLabels = (
+  dots: Dot[],
+  bounds: { left: number; right: number }
+): Label[] => {
+  const placed: Label[] = [];
+  for (const dot of dots) {
+    const w = dot.text.length * CHAR_WIDTH;
+    const anchor: LabelAnchor =
+      dot.x - w / 2 < bounds.left
+        ? 'start'
+        : dot.x + w / 2 > bounds.right
+          ? 'end'
+          : 'middle';
+    const left =
+      anchor === 'start' ? dot.x : anchor === 'end' ? dot.x - w : dot.x - w / 2;
+    const label = { left, right: left + w, y: dot.y - LABEL_GAP, anchor };
+    const clearOf = (): number | null => {
+      const hit = placed.find((p) => overlaps(p, label));
+      if (hit) return hit.y - LINE_HEIGHT;
+      const other = dots.find((d) => d !== dot && covers(label, d));
+      return other ? other.y - DOT_CLEARANCE - 1 : null;
+    };
+    for (let y = clearOf(); y !== null; y = clearOf()) label.y = y;
+    placed.push(label);
+  }
+  return placed;
+};
 
 const monthStarts = (from: IsoDate, to: IsoDate): Date[] => {
   const first = new Date(utc(from));
@@ -140,31 +186,18 @@ export const seismograph = (
       pad.left + (((utc(date) - start) / DAY_MS + 0.5) * plotWidth) / spanDays
     );
 
-  const placed: (Box & { anchor: LabelAnchor; x: number; text: string })[] = [];
-  const marks = series.spikes.slice(0, spec.spikeCount).map((spike) => {
-    const x = xAt(spike.date);
-    const dotY = yIn(ratio(spike.views));
-    const text = spikeLabel(spike);
-    const w = text.length * CHAR_WIDTH;
-    const anchor: LabelAnchor =
-      x - w / 2 < pad.left
-        ? 'start'
-        : x + w / 2 > width - pad.right
-          ? 'end'
-          : 'middle';
-    const left = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
-    const box = { left, right: left + w, y: dotY - LABEL_GAP, anchor, x, text };
-    for (
-      let hit = placed.find((p) => overlaps(p, box));
-      hit;
-      hit = placed.find((p) => overlaps(p, box))
-    )
-      box.y = hit.y - LINE_HEIGHT;
-    placed.push(box);
-    return { date: spike.date, x, dotY, box };
+  const dots: Dot[] = series.spikes.slice(0, spec.spikeCount).map((spike) => ({
+    date: spike.date,
+    x: xAt(spike.date),
+    y: yIn(ratio(spike.views)),
+    text: spikeLabel(spike)
+  }));
+  const labels = placeLabels(dots, {
+    left: pad.left,
+    right: width - pad.right
   });
 
-  const highestLabel = Math.min(Infinity, ...placed.map((p) => p.y));
+  const highestLabel = Math.min(Infinity, ...labels.map((l) => l.y));
   const shift = Math.max(0, Math.ceil(LINE_HEIGHT - highestLabel));
   const yAt = (r: number): number => round1(shift + yIn(r));
   const baselineY = yAt(1);
@@ -206,16 +239,26 @@ export const seismograph = (
     normalPath: normal.join(''),
     hotPath: hot.join(''),
     months,
-    spikes: marks.map(({ date, x, dotY, box }) => ({
-      date,
-      x,
-      y: round1(shift + dotY),
-      label: {
-        x,
-        y: round1(shift + box.y),
-        text: box.text,
-        anchor: box.anchor
-      }
-    }))
+    spikes: dots.map((dot, i) => {
+      const label = labels[i];
+      const moved = label.y < dot.y - LABEL_GAP;
+      return {
+        date: dot.date,
+        x: dot.x,
+        y: round1(shift + dot.y),
+        label: {
+          x: dot.x,
+          y: round1(shift + label.y),
+          text: dot.text,
+          anchor: label.anchor,
+          leader: moved
+            ? {
+                y1: round1(shift + dot.y - DOT_CLEARANCE - 1),
+                y2: round1(shift + label.y + DOT_CLEARANCE)
+              }
+            : null
+        }
+      };
+    })
   };
 };
