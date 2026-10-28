@@ -1,4 +1,4 @@
-import type { PriceQuote } from './domain';
+import type { DogeComparison, PriceQuote } from './domain';
 
 export interface PriceSource {
   /**
@@ -9,4 +9,8 @@ export interface PriceSource {
    * 4. throws on upstream failure or a malformed response
    */
   fetchPrice(): Promise<PriceQuote>;
+}
+
+export interface DogeQuery {
+  comparison(): Promise<DogeComparison>;
 }
