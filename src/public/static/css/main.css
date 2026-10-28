@@ -1083,6 +1083,17 @@ a.card__link[href]:focus-visible {
   }
 }
 
+@media (max-width: 20.99rem) {
+  .topbar {
+    gap: 0.5rem;
+  }
+
+  .topbar__actions {
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .teaser__pulse,
   .teaser__origin-ring {

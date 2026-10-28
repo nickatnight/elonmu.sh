@@ -403,6 +403,42 @@ describe('topbar', () => {
     expect(extras[0]?.[0]).toContain('href="https://github.com/');
   });
 
+  it('tightens the topbar gaps and nav text below 336 px', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const declaration = (scope: string, selector: string, prop: string) =>
+      scope.match(
+        new RegExp(`(?:^|\\n)\\s*${selector} \\{[^}]*\\s${prop}: ([^;]+);`)
+      )?.[1] ?? '';
+    const smallestPx = (value: string): number => {
+      const token = value.match(/^var\((--[\w-]+)\)$/)?.[1];
+      if (token) return smallestPx(declaration(css, ':root', token));
+      const rem = value.match(/^(?:clamp\()?([\d.]+)rem/)?.[1];
+      return rem ? Number(rem) * 16 : Number.NaN;
+    };
+    const narrow = [
+      ...css.matchAll(/@media \(max-width: ([\d.]+)rem\) \{([\s\S]*?)\n\}/g)
+    ].find(([, maxWidth]) => {
+      const upToPx = Number(maxWidth) * 16;
+      return upToPx >= 335 && upToPx < 336;
+    })?.[2];
+    expect(narrow).toBeDefined();
+    for (const [selector, prop] of [
+      ['\\.topbar', 'gap'],
+      ['\\.topbar__actions', 'gap'],
+      ['\\.topbar__actions', 'font-size']
+    ] as const) {
+      const tight = smallestPx(declaration(narrow ?? '', selector, prop));
+      const base = smallestPx(declaration(css, selector, prop));
+      expect({ selector, prop, tighter: tight < base }).toEqual({
+        selector,
+        prop,
+        tighter: true
+      });
+    }
+  });
+
   it('opens only GitHub in a new tab; service links stay in this one', () => {
     const newTab = [
       ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)
