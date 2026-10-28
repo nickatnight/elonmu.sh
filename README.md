@@ -10,6 +10,9 @@
 Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
 No key, no signup. /s
 
+The tools: the [News API](#news-api), the [Jet tracker](#jet-tracker) and the
+[Hype meter](#hype-meter).
+
 ## News API
 
 One random news article about Elon Musk, as JSON.
@@ -66,8 +69,12 @@ it returns a 200 with `{ "error": "..." }`, like the News API.
 ## Hype meter
 
 Daily views of the English Wikipedia article "Elon Musk" for the last 365
-days, from [Wikimedia's pageview API](https://wikimedia.org/api/rest_v1/)
-(users only, known bots excluded), as JSON:
+days, drawn as a seismograph with the biggest spikes named:
+[elonmu.sh/hype](https://elonmu.sh/hype). The views come from
+[Wikimedia's pageview API](https://wikimedia.org/api/rest_v1/) (users only,
+known bots excluded).
+
+The same data is available as JSON:
 
 ```shell
 $ curl --request GET \
