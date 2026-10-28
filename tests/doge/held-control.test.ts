@@ -31,14 +31,40 @@ class FakeInput extends EventTarget {
   }
 }
 
+const LINE_BREAK = { tagName: 'WBR' };
+
+const asMarkup = (node: unknown): string => {
+  if (node === LINE_BREAK) return '<wbr>';
+  if (typeof node === 'string') {
+    return node.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
+  }
+  return '<?>';
+};
+
 class FakeOutput {
-  readonly dataset: { out: string };
+  readonly ownerDocument = {
+    createElement: (tagName: string) =>
+      tagName === 'wbr' ? LINE_BREAK : { tagName: tagName.toUpperCase() }
+  };
+  private nodes: unknown[];
 
   constructor(
-    out: string,
-    public textContent: string
+    readonly dataset: { out: string; wrap?: string },
+    text: string
   ) {
-    this.dataset = { out };
+    this.nodes = [text];
+  }
+
+  replaceChildren(...nodes: unknown[]): void {
+    this.nodes = nodes;
+  }
+
+  get markup(): string {
+    return this.nodes.map(asMarkup).join('');
+  }
+
+  get textContent(): string {
+    return this.nodes.filter((node) => typeof node === 'string').join('');
   }
 }
 
@@ -52,11 +78,11 @@ const setup = (
   const field = new FakeInput('1484.94');
   const range = new FakeInput('362');
   const outputs = [
-    new FakeOutput('doge', '1,484.94'),
-    new FakeOutput('atShowtime', '$1,000.00'),
-    new FakeOutput('today', '$118.03'),
-    new FakeOutput('atShowtime', '$1,000.00'),
-    new FakeOutput('today', '$118.03')
+    new FakeOutput({ out: 'doge' }, '1,484.94'),
+    new FakeOutput({ out: 'atShowtime' }, '$1,000.00'),
+    new FakeOutput({ out: 'today' }, '$118.03'),
+    new FakeOutput({ out: 'atShowtime', wrap: 'commas' }, '$1,000.00'),
+    new FakeOutput({ out: 'today', wrap: 'commas' }, '$118.03')
   ];
   startHeldControl({ held, field, range, outputs });
   return { held, field, range, outputs };
@@ -130,6 +156,18 @@ describe('the DOGE-held control in the page', () => {
     expect(field.value).toBe('50000000');
     expect(shown(outputs)[0]).toBe('doge=50,000,000');
     expect(range.attributes.get('aria-valuetext')).toBe('50,000,000 DOGE');
+  });
+
+  it('lets a long amount break after its commas only where the markup allows it', () => {
+    const { field, outputs } = setup();
+    field.input('1000000000000');
+    expect(outputs.map((output) => output.markup)).toEqual([
+      '1,000,000,000,000',
+      '$673,430,000,000.00',
+      '$79,484,000,000.00',
+      '$673,<wbr>430,<wbr>000,<wbr>000.00',
+      '$79,<wbr>484,<wbr>000,<wbr>000.00'
+    ]);
   });
 
   it('typing an empty, negative or non-numeric amount leaves the last good output and slider position', () => {

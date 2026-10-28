@@ -5,7 +5,11 @@
  *   value: string, valueAsNumber: number,
  *   setAttribute(name: string, value: string): void
  * }} Control
- * @typedef {{ dataset: DOMStringMap, textContent: string | null }} Output
+ * @typedef {{
+ *   dataset: DOMStringMap,
+ *   ownerDocument: { createElement(tagName: 'wbr'): unknown },
+ *   replaceChildren(...nodes: unknown[]): void
+ * }} Output
  */
 
 export const MIN_DOGE = 10;
@@ -78,7 +82,19 @@ export const startHeldControl = ({ held, field, range, outputs }) => {
     const values = holding(amount, snlUsd, nowUsd);
     for (const el of outputs) {
       const key = /** @type {keyof Holding} */ (el.dataset.out);
-      el.textContent = values[key];
+      if (el.dataset.wrap !== 'commas') {
+        el.replaceChildren(values[key]);
+        continue;
+      }
+      const [first, ...rest] = values[key].split(',');
+      el.replaceChildren(
+        first,
+        ...rest.flatMap((group) => [
+          ',',
+          el.ownerDocument.createElement('wbr'),
+          group
+        ])
+      );
     }
     range.setAttribute('aria-valuetext', `${values.doge} DOGE`);
   };

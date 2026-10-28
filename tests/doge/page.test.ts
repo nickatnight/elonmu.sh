@@ -122,12 +122,37 @@ describe('GET /doge', () => {
   it('keeps only the dates in the pair at 360 px', () => {
     const pair = element(html.down, 'doge__pair');
     const withoutDetail = pair.replace(
-      /<span class="doge__detail">[^<]*<\/span>/g,
+      /<span class="doge__detail">(?:[^<]|<span class="doge__unit">[^<]*<\/span>)*<\/span>/g,
       ''
     );
     expect(text(withoutDetail)).toBe(
       'SNL night $1,000.00 8 May 2021 Now $118.03 28 Oct 2026'
     );
+  });
+
+  it('builds the then and now lines from whole price, date and time units', () => {
+    const lines = [
+      ...element(html.down, 'doge__pair').matchAll(
+        /<dd class="doge__when">([\s\S]*?)<\/dd>/g
+      )
+    ].map(([, line]) => line ?? '');
+    const unit =
+      /<span class="doge__unit">((?:[^<]|<span class="doge__detail">,<\/span>)*)<\/span>/g;
+    const units = lines.map((line) =>
+      [...line.matchAll(unit)].map(([, inner]) => text(inner ?? ''))
+    );
+    expect(units).toEqual([
+      ['$0.6734 ·', '8 May 2021,', '11:30 pm ET'],
+      ['$0.0795 ·', '04:30 UTC,', '28 Oct 2026']
+    ]);
+    for (const line of lines) expect(text(line.replace(unit, ''))).toBe('');
+  });
+
+  it('lets only the figures in the narrow pair cells wrap at their commas', () => {
+    const wrapping = [
+      ...html.down.matchAll(/<(\w+) class="([^"]*)" data-wrap="commas"/g)
+    ].map(([, tag, className]) => `${tag}.${className}`);
+    expect(wrapping).toEqual(['dd.doge__worth', 'dd.doge__worth']);
   });
 
   it('credits CoinGecko and Binance with safe external links', () => {
@@ -359,6 +384,12 @@ describe('doge stylesheets', () => {
       scripting.match(/\.doge__held\[hidden\]\s*\{([^}]*)\}/)?.[1] ?? '';
     expect(held).toMatch(/display:\s*grid;/);
     expect(held).toMatch(/visibility:\s*hidden;/);
+  });
+
+  it('never wraps inside a price, date or time in the pair', () => {
+    expect(css('doge.css')).toMatch(
+      /\.doge__unit\s*\{\s*white-space:\s*nowrap;\s*\}/
+    );
   });
 
   it('keeps a visible focus style, no underlines and no !important', () => {

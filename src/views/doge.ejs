@@ -47,13 +47,13 @@
       <dl class="doge__pair">
         <div class="doge__cell">
           <dt>SNL night</dt>
-          <dd class="doge__worth" data-out="atShowtime"><%= page.holding.atShowtime %></dd>
-          <dd class="doge__when"><span class="doge__detail"><%= page.snl.price %> · </span><time datetime="<%= page.snl.datetime %>"><%= page.snl.date %><span class="doge__detail">, <%= page.snl.time %></span></time></dd>
+          <dd class="doge__worth" data-wrap="commas" data-out="atShowtime"><%= page.holding.atShowtime %></dd>
+          <dd class="doge__when"><span class="doge__detail"><span class="doge__unit"><%= page.snl.price %> ·</span> </span><time datetime="<%= page.snl.datetime %>"><span class="doge__unit"><%= page.snl.date %><span class="doge__detail">,</span></span><span class="doge__detail"> <span class="doge__unit"><%= page.snl.time %></span></span></time></dd>
         </div>
         <div class="doge__cell">
           <dt>Now</dt>
-          <dd class="doge__worth" data-out="today"><%= page.holding.today %></dd>
-          <dd class="doge__when"><span class="doge__detail"><%= page.now.price %> · </span><time datetime="<%= page.now.datetime %>"><span class="doge__detail"><%= page.now.time %>, </span><%= page.now.date %></time></dd>
+          <dd class="doge__worth" data-wrap="commas" data-out="today"><%= page.holding.today %></dd>
+          <dd class="doge__when"><span class="doge__detail"><span class="doge__unit"><%= page.now.price %> ·</span> </span><time datetime="<%= page.now.datetime %>"><span class="doge__detail"><span class="doge__unit"><%= page.now.time %>,</span> </span><span class="doge__unit"><%= page.now.date %></span></time></dd>
         </div>
       </dl>
 
