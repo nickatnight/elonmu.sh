@@ -221,6 +221,26 @@ describe('hype stylesheets', () => {
     expect(css('main.css').match(hypeOnly)).toBeNull();
   });
 
+  it('swaps to the narrow chart at 48rem but stacks spike rows only below 30rem', () => {
+    const blocks = new Map(
+      [
+        ...css('hype.css').matchAll(
+          /@media \(max-width: ([\d.]+rem)\) \{([\s\S]*?)\n\}/g
+        )
+      ].map(([, width, body]) => [width, body])
+    );
+    const selectors = (width: string) =>
+      [...(blocks.get(width) ?? '').matchAll(/([.\w-]+)\s*\{/g)].map(
+        ([, selector]) => selector
+      );
+    expect(selectors('48rem')).toEqual([
+      '.hype__svg--wide',
+      '.hype__svg--narrow',
+      '.hype__stats'
+    ]);
+    expect(selectors('30rem')).toEqual(['.hype__spikes', '.hype__spike-size']);
+  });
+
   it('leaves the chart text size to the SVG, not hype.css', () => {
     const svgText = css('hype.css').match(
       /\.hype__(?:axis|label)\s*\{[^}]*\}/g

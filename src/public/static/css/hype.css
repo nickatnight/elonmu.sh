@@ -173,7 +173,9 @@
   .hype__stats {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
+@media (max-width: 30rem) {
   .hype__spikes {
     grid-template-columns: minmax(0, 1fr) auto;
   }
