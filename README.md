@@ -116,7 +116,8 @@ Example 200 response (`days` shortened):
   decimal.
 - It is cached for an hour. If Wikimedia is unavailable and nothing has loaded
   yet, it returns a 200 with `{ "error": "..." }`, like the News API. After one
-  good load, a failure serves the last good series instead.
+  good load, a failure serves the last good series instead. After a failure,
+  the server waits a minute before asking Wikimedia again.
 
 ## Development
 

@@ -141,6 +141,21 @@ describe('CachedPageviewSource', () => {
     );
   });
 
+  it('waits a minute after a failed refresh before asking Wikimedia again', async () => {
+    const { inner, clock, logger, cached } = setup();
+    const good = await cached.fetchDays(FROM, TO);
+    clock.advance(TTL);
+    inner.failing = true;
+    for (let i = 0; i < 6; i++) {
+      expect(await cached.fetchDays(FROM, TO)).toEqual(good);
+      clock.advance(10_000);
+    }
+    expect(inner.calls).toBe(2);
+    expect(logger.warnings).toHaveLength(1);
+    await cached.fetchDays(FROM, TO);
+    expect(inner.calls).toBe(3);
+  });
+
   it('keeps steady page loads over 4 hours to one Wikimedia call', async () => {
     const { inner, clock, cached } = setup();
     const hype = new HypeService(cached, clock);

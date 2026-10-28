@@ -6,13 +6,17 @@ export type CachedValueOptions = {
   logger: Logger;
   messages: { stale: string; empty: string };
   staleAcrossKeys?: boolean;
+  retryAfterMs?: number;
 };
 
 type Entry<T> = { key: string; at: number; value: T };
 
+type Failure = { at: number; error: unknown };
+
 export class CachedValue<T> {
   private last: Entry<T> | null = null;
   private inFlight: { key: string; promise: Promise<T> } | null = null;
+  private failure: Failure | null = null;
 
   constructor(private readonly options: CachedValueOptions) {}
 
@@ -25,9 +29,16 @@ export class CachedValue<T> {
     if (this.inFlight?.key === key) return this.inFlight.promise;
 
     const fallback = staleAcrossKeys ? this.last : sameKey;
+    const failure = this.backingOff(now);
+    if (failure)
+      return fallback
+        ? Promise.resolve(fallback.value)
+        : Promise.reject(failure.error);
+
     const promise = load().then(
       (value) => {
         this.last = { key, at: now, value };
+        this.failure = null;
         return value;
       },
       (err: unknown) => this.recover(err, fallback)
@@ -42,8 +53,15 @@ export class CachedValue<T> {
     return promise;
   }
 
+  private backingOff(now: number): Failure | null {
+    const { retryAfterMs } = this.options;
+    if (retryAfterMs === undefined || !this.failure) return null;
+    return now - this.failure.at < retryAfterMs ? this.failure : null;
+  }
+
   private recover(err: unknown, fallback: Entry<T> | null): T {
-    const { logger, messages } = this.options;
+    const { clock, logger, messages } = this.options;
+    this.failure = { at: clock.now().getTime(), error: err };
     const error = err instanceof Error ? err.message : String(err);
     if (fallback) {
       logger.warn(messages.stale, {

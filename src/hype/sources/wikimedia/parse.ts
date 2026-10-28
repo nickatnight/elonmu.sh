@@ -14,7 +14,7 @@ const toDate = (timestamp: unknown): IsoDate => {
 };
 
 const toViews = (views: unknown): number => {
-  if (typeof views !== 'number' || !Number.isInteger(views) || views < 0)
+  if (typeof views !== 'number' || !Number.isSafeInteger(views) || views < 0)
     throw new Error(`wikimedia: bad view count ${String(views)}`);
   return views;
 };

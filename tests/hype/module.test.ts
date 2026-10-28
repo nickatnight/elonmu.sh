@@ -5,7 +5,7 @@ import { FakeClock } from '../fakes';
 import capture from '../fixtures/wikimedia-pageviews.json';
 
 describe('createHypeModule', () => {
-  it('calls Wikimedia with a descriptive User-Agent and a 10 s timeout', async () => {
+  it('calls Wikimedia with a descriptive User-Agent, a 10 s timeout, a 1 MB cap and no redirects', async () => {
     const requests: { url: string; config: HttpConfig }[] = [];
     const get = async (url: string, config: HttpConfig) => {
       requests.push({ url, config });
@@ -23,6 +23,8 @@ describe('createHypeModule', () => {
         url: 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Elon_Musk/daily/20251027/20261026',
         config: {
           timeout: 10_000,
+          maxContentLength: 1_000_000,
+          maxRedirects: 0,
           headers: {
             'User-Agent': `elonmu.sh/${pkg.version} (https://github.com/nickatnight/elonmu.sh)`
           }

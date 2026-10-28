@@ -4,6 +4,7 @@ import { type DayViews, isoDate } from './domain';
 import type { PageviewSource } from './ports';
 
 const TTL_MS = 4 * 60 * 60_000;
+const RETRY_AFTER_MS = 60_000;
 
 export class CachedPageviewSource implements PageviewSource {
   private readonly cache: CachedValue<DayViews[]>;
@@ -21,7 +22,8 @@ export class CachedPageviewSource implements PageviewSource {
         stale: 'hype: refresh failed, serving stale pageviews',
         empty: 'hype: refresh failed, no data to serve'
       },
-      staleAcrossKeys: true
+      staleAcrossKeys: true,
+      retryAfterMs: RETRY_AFTER_MS
     });
   }
 

@@ -38,8 +38,10 @@ changed, which shows the move kept its behaviour.
   `staleAcrossKeys` lets a new key fall back to the previous key's value.
   Jet leaves it off, so last year's flights are never served for a new year.
   Hype turns it on, because its key is a day that changes at midnight UTC.
-  The cache does not back off after a failure: every miss while the upstream
-  is down tries again.
+  `retryAfterMs` is opt-in: after a failed load, no new load starts for that
+  long, whatever the key, and callers get the fallback (or the same error)
+  without a new warning. Jet leaves it unset, so every miss while Bluesky is
+  down tries again. Hype sets it to a minute.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
 
 ## Jet tracker (`src/jet/`)
@@ -86,25 +88,30 @@ pageview API. Same layout as the jet tracker: `ports.ts` defines
 the only place that wires real adapters:
 
 ```
-WikimediaPageviewSource → CachedPageviewSource (4 h TTL, stale across keys) → HypeService → HypeQuery
+WikimediaPageviewSource → CachedPageviewSource (4 h TTL, stale across keys, 1 min retry) → HypeService → HypeQuery
 ```
 
 - `createHypeModule()` builds its own `HttpGet` from `axios.get` with a 10 s
-  timeout and the `User-Agent` Wikimedia's API policy asks for
+  timeout, a 1 MB response cap, no redirects, and the `User-Agent`
+  Wikimedia's API policy asks for
   (`elonmu.sh/<version> (https://github.com/nickatnight/elonmu.sh)`). A 404
   for the range is an upstream failure like any other.
 - `sources/wikimedia/parse.ts` turns the API's `items` into `DayViews`
   (`{ date: 'YYYY-MM-DD', views }`), ascending and de-duplicated. Days
-  Wikimedia leaves out stay missing; nothing is zero-filled. No Wikimedia
-  field reaches `domain.ts` or the JSON.
+  Wikimedia leaves out stay missing; nothing is zero-filled. A view count
+  that is not a non-negative safe integer rejects the whole response. No
+  Wikimedia field reaches `domain.ts` or the JSON.
 - `CachedPageviewSource` keys its `CachedValue` by the window's last day,
   which changes at midnight UTC. `staleAcrossKeys` is on, so if Wikimedia
   fails just after midnight, yesterday's series is served instead of an
-  error.
+  error. After a failure it waits a minute (`retryAfterMs`) before asking
+  Wikimedia again, so a client looping on `/hype` during an outage makes
+  one upstream call a minute.
 - `HypeService` asks for the 365 days ending yesterday (UTC) and computes the
   stats (total, median, peak) and the top 5 spikes, each at least 7 days from
   any bigger one. The median is rounded to whole views, and `timesMedian` is
-  measured against that rounded value. `from` and `to` come from the days actually returned.
+  measured against that rounded value. `from` and `to` come from the days
+  actually returned.
 - Every `PageviewSource` must satisfy the contract documented in `ports.ts`.
   `tests/hype/pageview-source.contract.ts` (`describePageviewSource`) enforces
   it for each source, the Wikimedia one through `fakeHttpGet` and the real

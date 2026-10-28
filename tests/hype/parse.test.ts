@@ -88,6 +88,7 @@ describe('parseItems on small responses', () => {
   it.each([
     ['negative views', [item('2026090100', -1)]],
     ['fractional views', [item('2026090100', 1.5)]],
+    ['views beyond the safe integer range', [item('2026090100', 2 ** 53)]],
     ['views as a string', [item('2026090100', '10')]],
     ['missing views', [{ timestamp: '2026090100' }]],
     ['a timestamp that is not YYYYMMDDHH', [item('2026-09-01', 10)]],

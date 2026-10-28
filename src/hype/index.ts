@@ -8,6 +8,8 @@ import { WikimediaPageviewSource } from './sources/wikimedia/wikimedia-pageview-
 
 export type HttpConfig = {
   timeout: number;
+  maxContentLength: number;
+  maxRedirects: number;
   headers: Record<string, string>;
 };
 
@@ -23,6 +25,8 @@ const logger: Logger = {
 // with contact details, and may block clients that send none.
 const WIKIMEDIA_CONFIG: HttpConfig = {
   timeout: 10_000,
+  maxContentLength: 1_000_000,
+  maxRedirects: 0,
   headers: {
     'User-Agent': `elonmu.sh/${version} (https://github.com/nickatnight/elonmu.sh)`
   }

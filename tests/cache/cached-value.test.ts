@@ -34,7 +34,7 @@ class ScriptedLoad {
   };
 }
 
-const setup = (staleAcrossKeys?: boolean) => {
+const setup = (staleAcrossKeys?: boolean, retryAfterMs?: number) => {
   const clock = new FakeClock('2026-07-01T00:00:00.000Z');
   const logger = new FakeLogger();
   const cache = new CachedValue<string>({
@@ -42,10 +42,13 @@ const setup = (staleAcrossKeys?: boolean) => {
     ttlMs: TTL,
     logger,
     messages: MESSAGES,
-    staleAcrossKeys
+    staleAcrossKeys,
+    retryAfterMs
   });
   return { clock, logger, cache, source: new ScriptedLoad() };
 };
+
+const RETRY = 30_000;
 
 describe('CachedValue', () => {
   it('serves a second call within the TTL without loading again', async () => {
@@ -157,5 +160,66 @@ describe('CachedValue', () => {
     source.value = 'second';
     expect(await cache.get('2026-10-26', source.load)).toBe('second');
     expect(source.calls).toBe(2);
+  });
+
+  describe('with retryAfterMs', () => {
+    it('serves the last good value without loading or warning again until retryAfterMs has passed', async () => {
+      const { clock, logger, cache, source } = setup(false, RETRY);
+      await cache.get('k', source.load);
+      clock.advance(TTL);
+      source.failing = true;
+      await cache.get('k', source.load);
+      clock.advance(RETRY - 1);
+      expect(await cache.get('k', source.load)).toBe('first');
+      expect(source.calls).toBe(2);
+      expect(logger.warnings).toHaveLength(1);
+    });
+
+    it('rethrows the failure without loading again when nothing was loaded', async () => {
+      const { clock, logger, cache, source } = setup(false, RETRY);
+      source.failing = true;
+      await expect(cache.get('k', source.load)).rejects.toThrow(
+        'upstream down'
+      );
+      clock.advance(RETRY - 1);
+      await expect(cache.get('k', source.load)).rejects.toThrow(
+        'upstream down'
+      );
+      expect(source.calls).toBe(1);
+      expect(logger.warnings).toHaveLength(1);
+    });
+
+    it('loads again once retryAfterMs has passed since the failure', async () => {
+      const { clock, cache, source } = setup(false, RETRY);
+      source.failing = true;
+      await expect(cache.get('k', source.load)).rejects.toThrow();
+      clock.advance(RETRY);
+      source.failing = false;
+      expect(await cache.get('k', source.load)).toBe('first');
+      expect(source.calls).toBe(2);
+    });
+
+    it('backs off for a new key too, serving the previous key when staleAcrossKeys is on', async () => {
+      const { clock, cache, source } = setup(true, RETRY);
+      await cache.get('2026-10-25', source.load);
+      clock.advance(TTL);
+      source.failing = true;
+      await cache.get('2026-10-25', source.load);
+      expect(await cache.get('2026-10-26', source.load)).toBe('first');
+      expect(source.calls).toBe(2);
+    });
+
+    it('counts the wait from when the load failed, not when it started', async () => {
+      const { clock, cache, source } = setup(false, RETRY);
+      source.failing = true;
+      source.hold();
+      const first = cache.get('k', source.load);
+      clock.advance(10_000);
+      source.release();
+      await expect(first).rejects.toThrow();
+      clock.advance(RETRY - 1);
+      await expect(cache.get('k', source.load)).rejects.toThrow();
+      expect(source.calls).toBe(1);
+    });
   });
 });
