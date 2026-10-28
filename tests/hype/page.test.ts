@@ -247,6 +247,15 @@ describe('hype stylesheets', () => {
     expect(selectors('30rem')).toEqual(['.hype__spikes', '.hype__spike-size']);
   });
 
+  it('caps the stats row at the spike list width', () => {
+    const maxWidth = (block: string) =>
+      css('hype.css').match(
+        new RegExp(`\\.${block}\\s*\\{[^}]*max-width:\\s*([^;]+);`)
+      )?.[1];
+    expect(maxWidth('hype__spikes')).toBe('50rem');
+    expect(maxWidth('hype__stats')).toBe('50rem');
+  });
+
   it('leaves the chart text size to the SVG, not hype.css', () => {
     const svgText = css('hype.css').match(
       /\.hype__(?:axis|label)\s*\{[^}]*\}/g

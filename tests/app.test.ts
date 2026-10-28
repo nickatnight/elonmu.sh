@@ -563,6 +563,19 @@ describe('services section', () => {
     }
   });
 
+  it('lays the cards out two by two on desktop, with no card alone on a row', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const columns = Number(
+      css.match(
+        /@media \(min-width: 56\.25rem\) \{\s*\.services__grid \{\s*grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\);/
+      )?.[1]
+    );
+    expect(columns).toBe(2);
+    expect(serviceCards(html).length % columns).toBe(0);
+  });
+
   it('renders one card per entry for any catalog, escaping its text', async () => {
     const three = await startTestServer(
       createApp({

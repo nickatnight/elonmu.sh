@@ -135,4 +135,5 @@ WikimediaPageviewSource → CachedPageviewSource (4 h TTL, stale across keys, 1 
 - Below 48rem the page swaps to the narrow chart and stacks the stats. The
   spike rows (date, views, multiplier) share columns through `subgrid`, and
   only stack below 30rem. A page test checks which rules sit in each media
-  query.
+  query. The stats row and the spike list share a 50rem cap; the chart
+  keeps the page's full width.
