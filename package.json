@@ -1,7 +1,7 @@
 {
   "name": "elonmu.sh",
   "version": "0.2.1",
-  "description": "Musk as a Service: satirical public tools about Elon Musk (news API, private-jet tracker)",
+  "description": "Musk as a Service: satirical public tools about Elon Musk (news API, private-jet tracker, hype meter)",
   "main": "src/index.ts",
   "packageManager": "bun@1.4.4",
   "engines": {
@@ -26,7 +26,9 @@
     "elon-musk",
     "news",
     "private-jet",
-    "flight-tracker"
+    "flight-tracker",
+    "wikipedia",
+    "hype-meter"
   ],
   "author": {
     "email": "nickkelly.858@gmail.com",

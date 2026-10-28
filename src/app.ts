@@ -3,6 +3,8 @@ import path from 'node:path';
 import compression from 'compression';
 import express from 'express';
 import { SERVICES, type Service } from './catalog';
+import { createHypeModule } from './hype';
+import type { HypeQuery } from './hype/ports';
 import { createJetModule } from './jet';
 import type { JetQuery } from './jet/ports';
 import { TEASER_SIZE } from './jet/projection';
@@ -27,10 +29,15 @@ const assetUrl = (file: string): string => {
   return url;
 };
 
-export type AppDeps = { jet?: JetQuery; services?: readonly Service[] };
+export type AppDeps = {
+  jet?: JetQuery;
+  hype?: HypeQuery;
+  services?: readonly Service[];
+};
 
 export const createApp = ({
   jet = createJetModule(),
+  hype = createHypeModule(),
   services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
@@ -59,7 +66,7 @@ export const createApp = ({
     })
   );
 
-  routes.register(app, jet);
+  routes.register(app, { jet, hype });
 
   app.use((_req, res) => {
     res.status(404).send('does not compute...');

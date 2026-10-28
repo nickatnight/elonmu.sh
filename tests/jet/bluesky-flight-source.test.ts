@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'bun:test';
 import { GazetteerPlaceResolver } from '../../src/jet/places/gazetteer-place-resolver';
 import places from '../../src/jet/places/places.json';
-import type { HttpGet } from '../../src/jet/ports';
 import { BlueskyFlightSource } from '../../src/jet/sources/bluesky/bluesky-flight-source';
 import type { FeedPage } from '../../src/jet/sources/bluesky/feed-client';
+import type { HttpGet } from '../../src/ports';
+import { FakeClock, FakeLogger, fakeHttpGet } from '../fakes';
 import feedPages from '../fixtures/elonjet-feed.json';
-import { FakeClock, FakeLogger, fakeHttpGet } from './fakes';
 import { describeFlightSource } from './flight-source.contract';
 
 const FEED =

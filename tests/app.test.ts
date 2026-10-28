@@ -7,13 +7,16 @@ import {
   type TestServer,
   webmDuration
 } from './helpers';
+import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
 
 let server: TestServer;
 let html: string;
 
 beforeAll(async () => {
-  server = await startTestServer(createApp({ jet: sampleJet() }));
+  server = await startTestServer(
+    createApp({ jet: sampleJet(), hype: sampleHype() })
+  );
   html = await (await fetch(`${server.url}/`)).text();
 });
 
@@ -354,8 +357,8 @@ const githubLink = (page: string): string =>
   )?.[0] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · GitHub', () => {
-    expect(navLinks(html)).toEqual(['News API', 'Jet', 'GitHub']);
+  it('reads News API · Jet · Hype · GitHub', () => {
+    expect(navLinks(html)).toEqual(['News API', 'Jet', 'Hype', 'GitHub']);
   });
 
   it('has no GET /api button', () => {
@@ -388,9 +391,14 @@ describe('topbar', () => {
     expect(newTab[0]?.[0]).toContain('href="https://github.com/');
   });
 
-  it('renders the same nav on / and /jet', async () => {
-    const jet = await (await fetch(`${server.url}/jet`)).text();
-    expect(navLinks(jet)).toEqual(navLinks(html));
+  it('renders the same nav on /, /jet and /hype', async () => {
+    for (const path of ['/jet', '/hype']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+      expect({ path, nav: navLinks(page) }).toEqual({
+        path,
+        nav: navLinks(html)
+      });
+    }
   });
 
   it('points every nav link and card at a page that exists', async () => {
@@ -398,7 +406,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(4);
+    expect(hrefs.length).toBe(6);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -447,8 +455,8 @@ describe('catalog copy', () => {
 
   it('describes the catalog to search engines', () => {
     expect(metaContent(html, 'name="description"')).toBe(
-      'Free, satirical tools about Elon Musk: a random-news JSON API and a ' +
-        'year-to-date private-jet tracker.'
+      'Free, satirical tools about Elon Musk: a random-news JSON API, a ' +
+        'year-to-date private-jet tracker and a Wikipedia hype meter.'
     );
   });
 
@@ -535,6 +543,7 @@ describe('services section', () => {
     expect(serviceCards(html)).toEqual([
       { tag: 'a', cls: 'service', href: '/#get-api' },
       { tag: 'a', cls: 'service', href: '/jet' },
+      { tag: 'a', cls: 'service', href: '/hype' },
       { tag: 'div', cls: 'service service--soon', href: undefined }
     ]);
     const section = servicesSection(html);
@@ -544,11 +553,35 @@ describe('services section', () => {
       'GET /api/news',
       'Jet tracker',
       'Open the globe',
+      'Hype meter',
+      'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
+      'Read the tremors',
       'More soon',
       'Shipping next quarter. Which quarter is unspecified.'
     ]) {
       expect(section).toContain(text);
     }
+  });
+
+  it('lays the cards out two by two on desktop, with no card alone on a row', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const desktop =
+      css.match(
+        /@media \(min-width: 56\.25rem\) \{\s*\.services__grid \{([^}]*)\}/
+      )?.[1] ?? '';
+    const columns = Number(
+      desktop.match(
+        /grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\);/
+      )?.[1]
+    );
+    expect(columns).toBe(2);
+    expect(serviceCards(html).length % columns).toBe(0);
+    expect(desktop).toContain('grid-auto-rows: 1fr;');
+    const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
+    expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
+    expect(base).not.toContain('grid-auto-rows');
   });
 
   it('renders one card per entry for any catalog, escaping its text', async () => {

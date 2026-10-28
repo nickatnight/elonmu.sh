@@ -1,4 +1,4 @@
-import type { HttpGet } from '../../ports';
+import type { HttpGet } from '../../../ports';
 
 export type FeedItem = {
   post: {

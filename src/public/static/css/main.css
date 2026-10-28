@@ -152,6 +152,7 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   height: var(--topbar);
   padding: 0 var(--margin);
   background: var(--bg);
@@ -167,7 +168,7 @@ pre {
 .topbar__actions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(0.5rem, 6.5vw - 1rem, 1.5rem);
   font-size: var(--step-small);
 }
 
@@ -178,6 +179,7 @@ pre {
   gap: 0.3em;
   padding-block: 0.375rem;
   color: var(--muted);
+  white-space: nowrap;
   transition: color 150ms var(--ease-out);
 }
 
@@ -412,7 +414,8 @@ a.service:focus-visible .service__arrow {
 
 @media (min-width: 56.25rem) {
   .services__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
   }
 }
 
@@ -1066,12 +1069,6 @@ a.card__link[href]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .copy {
     transition: none;
-  }
-}
-
-@media (max-width: 30rem) {
-  .topbar__actions {
-    gap: 1rem;
   }
 }
 

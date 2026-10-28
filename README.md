@@ -10,6 +10,9 @@
 Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
 No key, no signup. /s
 
+The tools: the [News API](#news-api), the [Jet tracker](#jet-tracker) and the
+[Hype meter](#hype-meter).
+
 ## News API
 
 One random news article about Elon Musk, as JSON.
@@ -62,6 +65,59 @@ $ curl --request GET \
 The response has `year`, `updatedAt`, `attribution`, `flights` (newest first)
 and `totals`. It is cached for 60 seconds. If the flight data is unavailable,
 it returns a 200 with `{ "error": "..." }`, like the News API.
+
+## Hype meter
+
+Daily views of the English Wikipedia article "Elon Musk" for the last year,
+drawn as a seismograph with the biggest spikes named:
+[elonmu.sh/hype](https://elonmu.sh/hype). The views come from
+[Wikimedia's pageview API](https://wikimedia.org/api/rest_v1/) (users only,
+known bots excluded).
+
+The same data is available as JSON:
+
+```shell
+$ curl --request GET \
+       --url 'https://elonmu.sh/api/hype' \
+       --header 'accept: application/json'
+```
+
+Example 200 response (`days` shortened):
+
+```json
+{
+  "article": "Elon Musk",
+  "from": "2025-10-27",
+  "to": "2026-10-26",
+  "updatedAt": "2026-10-27T09:12:44.000Z",
+  "attribution": {
+    "label": "Wikimedia pageviews (en.wikipedia, users only)",
+    "url": "https://pageviews.wmcloud.org/?project=en.wikipedia.org&pages=Elon_Musk"
+  },
+  "days": [{ "date": "2025-10-27", "views": 19194 }],
+  "stats": {
+    "total": 8678483,
+    "median": 20803,
+    "peak": { "date": "2026-06-12", "views": 194434 }
+  },
+  "spikes": [{ "date": "2026-06-12", "views": 194434, "timesMedian": 9.3 }]
+}
+```
+
+- `days` is **oldest first**, in chart order. The jet tracker's `flights` is
+  newest first.
+- The window ends yesterday (UTC). `from` and `to` are the first and last days
+  Wikimedia actually returned, so `to` can be the day before yesterday early in
+  the UTC day. Days Wikimedia has no data for are left out, not zero-filled.
+- `stats.median` is the middle day's views, a whole number. With an even
+  number of days it is the mean of the two middle days, rounded.
+- `spikes` is the five busiest days, highest first, each at least 7 days from
+  any busier one. `timesMedian` is that day's views over the median, to one
+  decimal.
+- It is cached for an hour. If Wikimedia is unavailable and nothing has loaded
+  yet, it returns a 200 with `{ "error": "..." }`, like the News API. After one
+  good load, a failure serves the last good series instead. After a failure,
+  the server waits a minute before asking Wikimedia again.
 
 ## Development
 

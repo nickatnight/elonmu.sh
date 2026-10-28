@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { JetService } from '../../src/jet/jet.service';
 import type { FlightSource } from '../../src/jet/ports';
-import {
-  FakeClock,
-  flight,
-  InMemoryFlightSource,
-  sampleFlights
-} from './fakes';
+import { FakeClock } from '../fakes';
+import { flight, InMemoryFlightSource, sampleFlights } from './fakes';
 
 const serviceAt = (now: string, flights = sampleFlights) =>
   new JetService(new InMemoryFlightSource(flights), new FakeClock(now));

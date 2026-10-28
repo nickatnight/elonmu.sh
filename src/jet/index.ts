@@ -1,9 +1,10 @@
 import axios from 'axios';
+import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedFlightSource } from './cached-flight-source';
 import { JetService } from './jet.service';
 import { GazetteerPlaceResolver } from './places/gazetteer-place-resolver';
 import places from './places/places.json';
-import type { Clock, HttpGet, JetQuery, Logger } from './ports';
+import type { JetQuery } from './ports';
 import { BlueskyFlightSource } from './sources/bluesky/bluesky-flight-source';
 
 const systemClock: Clock = { now: () => new Date() };
