@@ -103,7 +103,8 @@ WikimediaPageviewSource â†’ CachedPageviewSource (4 h TTL, stale across keys) â†
   error.
 - `HypeService` asks for the 365 days ending yesterday (UTC) and computes the
   stats (total, median, peak) and the top 5 spikes, each at least 7 days from
-  any bigger one. `from` and `to` come from the days actually returned.
+  any bigger one. The median is rounded to whole views, and `timesMedian` is
+  measured against that rounded value. `from` and `to` come from the days actually returned.
 - Every `PageviewSource` must satisfy the contract documented in `ports.ts`.
   `tests/hype/pageview-source.contract.ts` (`describePageviewSource`) enforces
   it for each source, the Wikimedia one through `fakeHttpGet` and the real

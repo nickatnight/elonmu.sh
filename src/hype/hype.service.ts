@@ -19,7 +19,9 @@ const median = (days: readonly DayViews[]): number => {
   const views = days.map((d) => d.views).sort((a, b) => a - b);
   if (views.length === 0) return 0;
   const mid = Math.floor(views.length / 2);
-  return views.length % 2 ? views[mid] : (views[mid - 1] + views[mid]) / 2;
+  return views.length % 2
+    ? views[mid]
+    : Math.round((views[mid - 1] + views[mid]) / 2);
 };
 
 const statsOf = (days: readonly DayViews[]): HypeStats => {

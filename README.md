@@ -109,6 +109,8 @@ Example 200 response (`days` shortened):
 - The window ends yesterday (UTC). `from` and `to` are the first and last days
   Wikimedia actually returned, so `to` can be the day before yesterday early in
   the UTC day. Days Wikimedia has no data for are left out, not zero-filled.
+- `stats.median` is the middle day's views, a whole number. With an even
+  number of days it is the mean of the two middle days, rounded.
 - `spikes` is the five busiest days, highest first, each at least 7 days from
   any busier one. `timesMedian` is that day's views over the median, to one
   decimal.

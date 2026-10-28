@@ -92,14 +92,19 @@ describe('HypeService stats', () => {
     expect((await seriesOf(days)).stats.median).toBe(3);
   });
 
-  it('averages the two middle days for an even count', async () => {
+  it('rounds the mean of the two middle days for an even count', async () => {
     const days = [
       day('2026-10-01', 1),
       day('2026-10-02', 2),
       day('2026-10-03', 3),
       day('2026-10-04', 10)
     ];
-    expect((await seriesOf(days)).stats.median).toBe(2.5);
+    expect((await seriesOf(days)).stats.median).toBe(3);
+  });
+
+  it('reports a whole median when Wikimedia returns 364 days', async () => {
+    const { stats } = await seriesOf(capturedDays().slice(1));
+    expect(stats.median).toBe(20804);
   });
 
   it('sums the total and names the peak day', async () => {
@@ -163,6 +168,20 @@ describe('HypeService spikes', () => {
     });
     const dates = (await seriesOf(days)).spikes.map((s) => s.date);
     expect(dates.slice(0, 2)).toEqual(['2026-06-10', '2026-06-17']);
+  });
+
+  it('measures spikes against the rounded median', async () => {
+    const days = [
+      day('2026-10-01', 1),
+      day('2026-10-02', 2),
+      day('2026-10-03', 3),
+      day('2026-10-04', 10)
+    ];
+    expect((await seriesOf(days)).spikes[0]).toEqual({
+      date: '2026-10-04',
+      views: 10,
+      timesMedian: 3.3
+    });
   });
 
   it('rounds timesMedian to one decimal', async () => {
