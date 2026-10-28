@@ -62,9 +62,11 @@ describe('HypeService window', () => {
   );
 
   it('reports the first and last days it actually got', async () => {
-    const days = capturedDays().filter((d) => d.date !== '2026-10-26');
+    const days = capturedDays().filter(
+      (d) => d.date !== '2025-10-27' && d.date !== '2026-10-26'
+    );
     const series = await seriesOf(days);
-    expect(series.from).toBe('2025-10-27');
+    expect(series.from).toBe('2025-10-28');
     expect(series.to).toBe('2026-10-25');
   });
 

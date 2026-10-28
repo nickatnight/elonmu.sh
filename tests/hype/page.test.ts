@@ -21,6 +21,7 @@ type Name = 'full' | 'empty' | 'down' | 'nasty';
 const servers = {} as Record<Name, TestServer>;
 const html = {} as Record<Name, string>;
 const headers = {} as Record<Name, Headers>;
+const status = {} as Record<Name, number>;
 
 beforeAll(async () => {
   const hypes: Record<Name, HypeQuery> = {
@@ -34,6 +35,7 @@ beforeAll(async () => {
       createApp({ jet: sampleJet(), hype: hypes[name] })
     );
     const res = await fetch(`${servers[name].url}/hype`);
+    status[name] = res.status;
     headers[name] = res.headers;
     html[name] = await res.text();
   }
@@ -54,6 +56,7 @@ const text = (fragment: string): string =>
 
 describe('GET /hype', () => {
   it('renders an HTML page with the approved title, heading and description', () => {
+    expect(status.full).toBe(200);
     expect(headers.full.get('content-type')).toContain('text/html');
     expect(html.full).toContain('<title>Hype meter | elonmu.sh</title>');
     expect(html.full).toMatch(/<h1[^>]*>Hype meter<\/h1>/);
@@ -142,12 +145,14 @@ describe('GET /hype', () => {
   });
 
   it('says so when there are no days to draw', () => {
+    expect(status.empty).toBe(200);
     expect(html.empty).toContain('No pageviews in the last 365 days.');
     expect(svgs(html.empty)).toEqual([]);
     expect(html.empty).not.toContain('hype__spikes');
   });
 
   it('still renders, uncached, with a short note when Wikimedia has never answered', () => {
+    expect(status.down).toBe(200);
     expect(headers.down.get('cache-control')).toBe('no-store');
     expect(html.down).toContain(
       'Pageview data is unavailable right now. Please try again in a few minutes.'

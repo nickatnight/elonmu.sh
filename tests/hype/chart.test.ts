@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import {
   type ChartGeometry,
   type ChartSeries,
+  type SpikeMark,
   seismograph
 } from '../../src/hype/chart';
 import type { DayViews, Spike } from '../../src/hype/domain';
@@ -248,6 +249,66 @@ describe('seismograph labels', () => {
       expect(y2).toBeLessThan(y1);
     });
   });
+});
+
+type Box = { left: number; right: number; top: number; bottom: number };
+
+const labelBox = (chart: ChartGeometry, mark: SpikeMark): Box => {
+  const { x, y, text, anchor } = mark.label;
+  const w = text.length * chart.fontSize * 0.6;
+  const left = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+  return { left, right: left + w, top: y - chart.fontSize, bottom: y };
+};
+
+describe('seismograph labels on the captured year', () => {
+  const CLEARANCE = 3;
+
+  it.each(['wide', 'narrow'] as const)(
+    'keeps every %s label off the other spikes’ dots',
+    async (frame) => {
+      const chart = seismograph(
+        await sampleHype(capturedDays()).series(),
+        frame
+      );
+      for (const mark of chart.spikes) {
+        const box = labelBox(chart, mark);
+        for (const other of chart.spikes) {
+          if (other === mark) continue;
+          const covered =
+            other.x >= box.left - CLEARANCE &&
+            other.x <= box.right + CLEARANCE &&
+            other.y >= box.top - CLEARANCE &&
+            other.y <= box.bottom + CLEARANCE;
+          expect({ label: mark.label.text, dot: other.date, covered }).toEqual({
+            label: mark.label.text,
+            dot: other.date,
+            covered: false
+          });
+        }
+      }
+    }
+  );
+
+  it.each(['wide', 'narrow'] as const)(
+    'never lets two %s labels overlap',
+    async (frame) => {
+      const chart = seismograph(
+        await sampleHype(capturedDays()).series(),
+        frame
+      );
+      const boxes = chart.spikes.map((mark) => labelBox(chart, mark));
+      for (let i = 0; i < boxes.length; i++)
+        for (let j = i + 1; j < boxes.length; j++) {
+          const [a, b] = [boxes[i], boxes[j]];
+          const overlap =
+            a.left < b.right &&
+            b.left < a.right &&
+            a.top < b.bottom &&
+            b.top < a.bottom;
+          expect(overlap).toBe(false);
+        }
+    }
+  );
 });
 
 describe('seismograph bounds', () => {
