@@ -398,3 +398,20 @@ describe('doge stylesheets', () => {
     );
   });
 });
+
+describe('doge topbar', () => {
+  it('marks DOGE, and only DOGE, as the current page', () => {
+    expect(html.down).toMatch(/<a href="\/doge" aria-current="page">DOGE<\/a>/);
+    expect(html.down.match(/aria-current="page"/g)).toHaveLength(1);
+  });
+
+  it('links to /doge from the home page nav and a service card', async () => {
+    const home = await (await fetch(`${servers.down.url}/`)).text();
+    expect(home).toMatch(/<a href="\/doge"[^>]*>DOGE<\/a>/);
+    expect(home).toContain('<a class="service" href="/doge">');
+    expect(home).toContain(
+      '<p class="service__summary">What your Dogecoin from the night he hosted SNL is worth today.</p>'
+    );
+    expect(home).toMatch(/Check the damage <span class="service__arrow"/);
+  });
+});

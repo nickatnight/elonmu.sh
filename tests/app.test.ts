@@ -358,8 +358,14 @@ const githubLink = (page: string): string =>
   )?.[0] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · Hype · GitHub', () => {
-    expect(navLinks(html)).toEqual(['News API', 'Jet', 'Hype', 'GitHub']);
+  it('reads News API · Jet · Hype · DOGE · GitHub', () => {
+    expect(navLinks(html)).toEqual([
+      'News API',
+      'Jet',
+      'Hype',
+      'DOGE',
+      'GitHub'
+    ]);
   });
 
   it('has no GET /api button', () => {
@@ -447,8 +453,8 @@ describe('topbar', () => {
     expect(newTab[0]?.[0]).toContain('href="https://github.com/');
   });
 
-  it('renders the same nav on /, /jet and /hype', async () => {
-    for (const path of ['/jet', '/hype']) {
+  it('renders the same nav on /, /jet, /hype and /doge', async () => {
+    for (const path of ['/jet', '/hype', '/doge']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
@@ -462,7 +468,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(6);
+    expect(hrefs.length).toBe(8);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -601,6 +607,7 @@ describe('services section', () => {
       { tag: 'a', cls: 'service', href: '/#get-api' },
       { tag: 'a', cls: 'service', href: '/jet' },
       { tag: 'a', cls: 'service', href: '/hype' },
+      { tag: 'a', cls: 'service', href: '/doge' },
       { tag: 'div', cls: 'service service--soon', href: undefined }
     ]);
     const section = servicesSection(html);
@@ -613,6 +620,9 @@ describe('services section', () => {
       'Hype meter',
       'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
       'Read the tremors',
+      'DOGE since SNL',
+      'What your Dogecoin from the night he hosted SNL is worth today.',
+      'Check the damage',
       'More soon',
       'Shipping next quarter. Which quarter is unspecified.'
     ]) {
