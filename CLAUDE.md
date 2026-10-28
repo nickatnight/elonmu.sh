@@ -6,6 +6,8 @@ Commands (dev server, tests, `bun run check`) are in the README's
 Development section. How the code fits together is in
 [ARCHITECTURE.md](ARCHITECTURE.md). Read it before changing `src/jet/`.
 
+Read CONSTRAINTS.md before writing code. Do not weaken it to make a change pass.
+
 Project hooks in `.claude/settings.json` run Biome on every file you edit
 (formatting plus safe fixes; anything left comes back as an error) and block
 `git commit` unless the subject is a Conventional Commit (see below). The
