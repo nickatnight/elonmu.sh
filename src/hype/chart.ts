@@ -116,22 +116,25 @@ const covers = (label: Label, dot: Dot): boolean =>
   dot.y >= label.y - FONT_SIZE - DOT_CLEARANCE &&
   dot.y <= label.y + DOT_CLEARANCE;
 
-const placeLabels = (
-  dots: Dot[],
-  bounds: { left: number; right: number }
-): Label[] => {
+type Bounds = { left: number; right: number };
+
+const anchorFor = (x: number, w: number, bounds: Bounds): LabelAnchor => {
+  if (x - w / 2 < bounds.left) return 'start';
+  if (x + w / 2 > bounds.right) return 'end';
+  return 'middle';
+};
+
+const labelAbove = (dot: Dot, bounds: Bounds): Label => {
+  const w = dot.text.length * CHAR_WIDTH;
+  const anchor = anchorFor(dot.x, w, bounds);
+  const left = { start: dot.x, middle: dot.x - w / 2, end: dot.x - w }[anchor];
+  return { left, right: left + w, y: dot.y - LABEL_GAP, anchor };
+};
+
+const placeLabels = (dots: Dot[], bounds: Bounds): Label[] => {
   const placed: Label[] = [];
   for (const dot of dots) {
-    const w = dot.text.length * CHAR_WIDTH;
-    const anchor: LabelAnchor =
-      dot.x - w / 2 < bounds.left
-        ? 'start'
-        : dot.x + w / 2 > bounds.right
-          ? 'end'
-          : 'middle';
-    const left =
-      anchor === 'start' ? dot.x : anchor === 'end' ? dot.x - w : dot.x - w / 2;
-    const label = { left, right: left + w, y: dot.y - LABEL_GAP, anchor };
+    const label = labelAbove(dot, bounds);
     const clearOf = (): number | null => {
       const hit = placed.find((p) => overlaps(p, label));
       if (hit) return hit.y - LINE_HEIGHT;
