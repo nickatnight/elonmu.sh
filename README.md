@@ -63,6 +63,52 @@ The response has `year`, `updatedAt`, `attribution`, `flights` (newest first)
 and `totals`. It is cached for 60 seconds. If the flight data is unavailable,
 it returns a 200 with `{ "error": "..." }`, like the News API.
 
+## Hype meter
+
+Daily views of the English Wikipedia article "Elon Musk" for the last 365
+days, from [Wikimedia's pageview API](https://wikimedia.org/api/rest_v1/)
+(users only, known bots excluded), as JSON:
+
+```shell
+$ curl --request GET \
+       --url 'https://elonmu.sh/api/hype' \
+       --header 'accept: application/json'
+```
+
+Example 200 response (`days` shortened):
+
+```json
+{
+  "article": "Elon Musk",
+  "from": "2025-10-27",
+  "to": "2026-10-26",
+  "updatedAt": "2026-10-27T09:12:44.000Z",
+  "attribution": {
+    "label": "Wikimedia pageviews (en.wikipedia, users only)",
+    "url": "https://pageviews.wmcloud.org/?project=en.wikipedia.org&pages=Elon_Musk"
+  },
+  "days": [{ "date": "2025-10-27", "views": 19194 }],
+  "stats": {
+    "total": 8678483,
+    "median": 20803,
+    "peak": { "date": "2026-06-12", "views": 194434 }
+  },
+  "spikes": [{ "date": "2026-06-12", "views": 194434, "timesMedian": 9.3 }]
+}
+```
+
+- `days` is **oldest first**, in chart order. The jet tracker's `flights` is
+  newest first.
+- The window ends yesterday (UTC). `from` and `to` are the first and last days
+  Wikimedia actually returned, so `to` can be the day before yesterday early in
+  the UTC day. Days Wikimedia has no data for are left out, not zero-filled.
+- `spikes` is the five busiest days, highest first, each at least 7 days from
+  any busier one. `timesMedian` is that day's views over the median, to one
+  decimal.
+- It is cached for an hour. If Wikimedia is unavailable and nothing has loaded
+  yet, it returns a 200 with `{ "error": "..." }`, like the News API. After one
+  good load, a failure serves the last good series instead.
+
 ## Development
 
 Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key.
