@@ -1,4 +1,4 @@
-import type { HypeSeries, IsoDate, Spike } from './domain';
+import { type HypeSeries, type IsoDate, isoDate, type Spike } from './domain';
 
 export type Frame = 'wide' | 'narrow';
 
@@ -221,7 +221,7 @@ export const seismograph = (
   const months = monthStarts(series.from, series.to)
     .filter((d) => !spec.quarterMonthsOnly || d.getUTCMonth() % 3 === 0)
     .map((d) => ({
-      x: xAt(d.toISOString().slice(0, 10)),
+      x: xAt(isoDate(d)),
       label: MONTHS[d.getUTCMonth()]
     }));
 
