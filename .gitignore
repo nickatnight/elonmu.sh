@@ -5,3 +5,4 @@ node_modules
 files/
 docs/
 .claude/worktrees/
+.playwright-mcp/
