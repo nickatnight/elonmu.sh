@@ -119,6 +119,12 @@ describe('GET /hype', () => {
     expect(wide).toContain('12 Jun · 9.3×');
   });
 
+  it('heads the spike list "Biggest spikes"', () => {
+    expect(html.full).toContain(
+      '<h2 id="hype-spikes-title">Biggest spikes</h2>'
+    );
+  });
+
   it('lists the spikes as an ordered list, readable without hovering', () => {
     const list =
       html.full.match(/<ol class="hype__spikes"[\s\S]*?<\/ol>/)?.[0] ?? '';
@@ -134,7 +140,7 @@ describe('GET /hype', () => {
     const stats =
       html.full.match(/<ul class="hype__stats"[\s\S]*?<\/ul>/)?.[0] ?? '';
     expect(text(stats)).toBe(
-      '20,803 views on a normal day 194,434 views at the peak, 12 Jun 2026 8,678,483 views in 365 days'
+      '20,803 views on a normal day 194,434 peak, 12 Jun 2026 8.7M views in the last year'
     );
   });
 
@@ -158,7 +164,7 @@ describe('GET /hype', () => {
 
   it('says so when there are no days to draw', () => {
     expect(status.empty).toBe(200);
-    expect(html.empty).toContain('No pageviews in the last 365 days.');
+    expect(html.empty).toContain('No pageviews in the last year.');
     expect(svgs(html.empty)).toEqual([]);
     expect(html.empty).not.toContain('hype__spikes');
   });

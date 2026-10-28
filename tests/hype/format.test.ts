@@ -12,11 +12,11 @@ describe('hypePage on the captured year', async () => {
     );
   });
 
-  it('states a normal day, the peak and the 365-day total', () => {
+  it("states a normal day, the peak and the year's total in millions", () => {
     expect(page.stats).toEqual([
       { value: '20,803', label: 'views on a normal day' },
-      { value: '194,434', label: 'views at the peak, 12 Jun 2026' },
-      { value: '8,678,483', label: 'views in 365 days' }
+      { value: '194,434', label: 'peak, 12 Jun 2026' },
+      { value: '8.7M', label: 'views in the last year' }
     ]);
   });
 
@@ -61,6 +61,14 @@ describe('hypePage edge cases', () => {
     );
     if (page.state !== 'loaded') throw new Error('expected a loaded page');
     expect(page.stats[0].value).toBe('2');
+  });
+
+  it('keeps one decimal on a total of whole millions', async () => {
+    const page = hypePage(
+      await sampleHype([day('2026-10-26', 9_000_000)]).series()
+    );
+    if (page.state !== 'loaded') throw new Error('expected a loaded page');
+    expect(page.stats[2].value).toBe('9.0M');
   });
 
   it('says "view" for a single view', async () => {

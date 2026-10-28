@@ -27,7 +27,7 @@
 <% if (page.state === 'unavailable') { -%>
       <p class="hype__note">Pageview data is unavailable right now. Please try again in a few minutes.</p>
 <% } else if (page.state === 'empty') { -%>
-      <p class="hype__note">No pageviews in the last 365 days.</p>
+      <p class="hype__note">No pageviews in the last year.</p>
 <% } else { -%>
       <figure class="hype__chart">
 <% for (const c of [page.charts.wide, page.charts.narrow]) { -%>
@@ -59,7 +59,7 @@
       </ul>
 
       <section class="hype__tremors" aria-labelledby="hype-spikes-title">
-        <h2 id="hype-spikes-title">Top spikes</h2>
+        <h2 id="hype-spikes-title">Biggest spikes</h2>
         <ol class="hype__spikes">
 <% for (const s of page.spikes) { -%>
           <li class="hype__spike"><time datetime="<%= s.datetime %>"><%= s.date %></time> <span class="hype__spike-views"><%= s.views %></span> <span class="hype__spike-size"><%= s.size %></span></li>

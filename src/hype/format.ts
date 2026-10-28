@@ -3,6 +3,14 @@ import type { Attribution, HypeSeries, IsoDate } from './domain';
 
 const whole = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 
+const oneDecimal = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1
+});
+
+const millions = (views: number): string =>
+  `${oneDecimal.format(views / 1_000_000)}M`;
+
 const longDate = (date: IsoDate): string =>
   `${dayMonth(date)} ${date.slice(0, 4)}`;
 
@@ -42,9 +50,9 @@ export const hypePage = (series: HypeSeries): HypePage => {
       { value: whole.format(median), label: 'views on a normal day' },
       {
         value: whole.format(peak.views),
-        label: `views at the peak, ${longDate(peak.date)}`
+        label: `peak, ${longDate(peak.date)}`
       },
-      { value: whole.format(total), label: 'views in 365 days' }
+      { value: millions(total), label: 'views in the last year' }
     ],
     spikes: series.spikes.map((s) => ({
       datetime: s.date,
