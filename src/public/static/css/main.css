@@ -417,6 +417,11 @@ a.service:focus-visible .service__arrow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: 1fr;
   }
+
+  .services__grid > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    align-self: start;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

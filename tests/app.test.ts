@@ -565,7 +565,7 @@ describe('services section', () => {
     }
   });
 
-  it('lays the cards out two by two on desktop, with no card alone on a row', async () => {
+  it('lays the cards out two by two on desktop, an odd last card spanning the row at its own height', async () => {
     const css = await Bun.file(
       `${import.meta.dir}/../src/public/static/css/main.css`
     ).text();
@@ -579,7 +579,15 @@ describe('services section', () => {
       )?.[1]
     );
     expect(columns).toBe(2);
-    expect(serviceCards(html).length % columns).toBe(0);
+    const desktopBlock =
+      css.match(/@media \(min-width: 56\.25rem\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const oddLast =
+      desktopBlock.match(
+        /\.services__grid > li:last-child:nth-child\(odd\) \{([^}]*)\}/
+      )?.[1] ?? '';
+    expect(oddLast).toContain('grid-column: 1 / -1;');
+    expect(oddLast).toContain('align-self: start;');
+    expect(oddLast).not.toContain('min-height');
     expect(desktop).toContain('grid-auto-rows: 1fr;');
     const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
     expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
