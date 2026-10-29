@@ -30,14 +30,6 @@
   margin-top: 1.5rem;
 }
 
-.news__docs {
-  display: inline-flex;
-  gap: 1rem;
-  color: var(--muted);
-  font-size: var(--step-small);
-}
-
-.news__docs:hover,
-.news__docs:focus-visible {
-  color: var(--ink);
+.news__actions .endpoint-link {
+  margin-top: 0;
 }

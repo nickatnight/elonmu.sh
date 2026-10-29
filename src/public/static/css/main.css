@@ -795,6 +795,22 @@ a.card__link[href]:focus-visible {
   color: var(--accent);
 }
 
+.endpoint-link {
+  margin-top: 2rem;
+  font-size: var(--step-small);
+}
+
+.endpoint-link a {
+  display: inline-flex;
+  gap: 1rem;
+  color: var(--muted);
+}
+
+.endpoint-link a:hover,
+.endpoint-link a:focus-visible {
+  color: var(--ink);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

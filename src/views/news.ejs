@@ -16,7 +16,7 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-<%- include('partials/topbar') %>
+<%- include('partials/topbar', { current: 'news-api' }) %>
 
     <main id="main" class="news">
       <header class="news__head">
@@ -45,7 +45,7 @@
 
       <div class="news__actions">
         <a class="button news__again" href="/news">Another one</a>
-        <a class="news__docs" href="/docs#news-api"><code>GET /api/news</code> <span>docs</span></a>
+<%- include('partials/endpoint-link', { id: 'news-api' }) -%>
       </div>
     </main>
   </body>

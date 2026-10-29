@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
+import { SERVICES } from '../src/catalog';
 import { sampleDoge } from './doge/fakes';
 import {
   metaContent,
@@ -10,13 +11,19 @@ import {
 } from './helpers';
 import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
+import { sampleNews } from './news/fakes';
 
 let server: TestServer;
 let html: string;
 
 beforeAll(async () => {
   server = await startTestServer(
-    createApp({ jet: sampleJet(), hype: sampleHype(), doge: sampleDoge() })
+    createApp({
+      jet: sampleJet(),
+      hype: sampleHype(),
+      doge: sampleDoge(),
+      news: sampleNews()
+    })
   );
   html = await (await fetch(`${server.url}/`)).text();
 });
@@ -373,8 +380,8 @@ const ruleBody = (css: string, selector: string): string =>
   )?.[1] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · Hype · DOGE · Docs', () => {
-    expect(navLinks(html)).toEqual(['News API', 'Jet', 'Hype', 'DOGE', 'Docs']);
+  it('reads News · Jet · Hype · DOGE · Docs', () => {
+    expect(navLinks(html)).toEqual(['News', 'Jet', 'Hype', 'DOGE', 'Docs']);
   });
 
   it('links Docs to /docs, after the services, marking it current only there', async () => {
@@ -537,8 +544,25 @@ describe('topbar', () => {
     }
   });
 
-  it('points News API at the docs section', () => {
-    expect(html).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
+  it('points News at its own page, current only there', async () => {
+    expect(topbarNav(html)).toMatch(/<a href="\/news">News<\/a>/);
+    const news = await (await fetch(`${server.url}/news`)).text();
+    expect(topbarNav(news)).toMatch(
+      /<a href="\/news" aria-current="page">News<\/a>/
+    );
+    expect(news.match(/aria-current="page"/g)).toHaveLength(1);
+  });
+
+  it('links each service page to its block on /docs', async () => {
+    for (const { id, href, api } of SERVICES) {
+      const page = await (await fetch(`${server.url}${href}`)).text();
+      const link =
+        page.match(/<a href="\/docs#[^"]*"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+      expect({ href, link }).toEqual({
+        href,
+        link: `<a href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
+      });
+    }
   });
 
   it('renders one link per catalog entry, with no template change', async () => {
@@ -663,7 +687,7 @@ describe('services section', () => {
 
   it('links one card per catalog entry, in order, then More soon', () => {
     expect(serviceCards(html)).toEqual([
-      { tag: 'a', cls: 'service', href: '/#get-api' },
+      { tag: 'a', cls: 'service', href: '/news' },
       { tag: 'a', cls: 'service', href: '/jet' },
       { tag: 'a', cls: 'service', href: '/hype' },
       { tag: 'a', cls: 'service', href: '/doge' },
@@ -671,9 +695,9 @@ describe('services section', () => {
     ]);
     const section = servicesSection(html);
     for (const text of [
-      'News API',
-      'One random news article about Elon Musk, as JSON.',
-      'GET /api/news',
+      'News roulette',
+      'One random news article about Elon Musk. Spin again for another.',
+      'Spin the wheel',
       'Jet tracker',
       'Open the globe',
       'Hype meter',

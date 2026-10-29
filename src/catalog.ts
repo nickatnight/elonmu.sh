@@ -11,11 +11,11 @@ export type Service = {
 export const SERVICES: readonly Service[] = [
   {
     id: 'news-api',
-    name: 'News API',
-    nav: 'News API',
-    summary: 'One random news article about Elon Musk, as JSON.',
-    href: '/#get-api',
-    cta: 'GET /api/news',
+    name: 'News roulette',
+    nav: 'News',
+    summary: 'One random news article about Elon Musk. Spin again for another.',
+    href: '/news',
+    cta: 'Spin the wheel',
     api: '/api/news'
   },
   {

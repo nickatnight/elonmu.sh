@@ -59,6 +59,8 @@
 
       <p class="doge__credit">Live price: <a href="<%= page.attribution.url %>" rel="noopener noreferrer"><%= page.attribution.label %></a>. SNL price: <a href="<%= page.snl.source.url %>" rel="noopener noreferrer"><%= page.snl.source.label %></a>.</p>
 <% } -%>
+
+<%- include('partials/endpoint-link', { id: 'doge-since-snl' }) -%>
     </main>
   </body>
 </html>
