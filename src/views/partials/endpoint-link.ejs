@@ -1,0 +1,4 @@
+<% const service = services.find((s) => s.id === id); -%>
+<% if (service) { -%>
+      <p class="endpoint-link"><a href="/docs#<%= service.id %>"><code>GET <%= service.api %></code> <span>docs</span></a></p>
+<% } -%>

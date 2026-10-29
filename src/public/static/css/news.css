@@ -1,0 +1,35 @@
+.news {
+  width: min(100%, 52rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 1rem + 4vw, 4rem) var(--margin)
+    clamp(3rem, 2rem + 5vw, 6rem);
+}
+
+.news__head h1 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.news__note {
+  margin-top: 1.5rem;
+  color: var(--muted);
+}
+
+.news__card {
+  margin-top: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  background: var(--code-bg);
+  color: var(--code-ink);
+}
+
+.news__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 1.5rem;
+}
+
+.news__actions .endpoint-link {
+  margin-top: 0;
+}

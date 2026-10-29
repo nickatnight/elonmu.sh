@@ -10,13 +10,18 @@
 Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
 No key, no signup. /s
 
-The tools: the [News API](#news-api), the [Jet tracker](#jet-tracker), the
-[Hype meter](#hype-meter) and [DOGE since SNL](#doge-since-snl). Every
+The tools: [News roulette](#news-roulette), the [Jet tracker](#jet-tracker),
+the [Hype meter](#hype-meter) and [DOGE since SNL](#doge-since-snl). Every
 endpoint is documented at [elonmu.sh/docs](https://elonmu.sh/docs).
 
-## News API
+## News roulette
 
-One random news article about Elon Musk, as JSON.
+One random news article about Elon Musk:
+[elonmu.sh/news](https://elonmu.sh/news). The page is rendered on the server,
+so it works without JavaScript, and "Another one" spins again. The articles
+come from [NewsAPI](https://newsapi.org/).
+
+The same data is available as JSON:
 
 ```shell
 # Retrieve a random article
@@ -56,6 +61,8 @@ Any other failure returns a 500 with the same `{ "error": "..." }` shape.
   again. NewsAPI gets 10 seconds to answer. If it never answers, the body is
   `{ "error": "There was an error with request. Please try again later." }`,
   still with a 200.
+- `/news` sends `Cache-Control: no-store`, because each load picks a new
+  article. When NewsAPI is down it still answers 200, with a short note.
 
 ## Jet tracker
 

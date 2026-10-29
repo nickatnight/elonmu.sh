@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createApp } from '../../src/app';
 import { TEASER_SIZE } from '../../src/jet/projection';
 import { startTestServer, type TestServer } from '../helpers';
+import { sampleNews } from '../news/fakes';
 import { failingJet, flight, sampleJet } from './fakes';
 
 const servers: Record<'full' | 'empty' | 'down' | 'nasty', TestServer> =
@@ -15,7 +16,7 @@ beforeAll(async () => {
     from: { name: '<img src=x onerror=alert(1)>, Evil, Place', lat: 1, lon: 1 }
   });
   const apps = {
-    full: createApp({ jet: sampleJet() }),
+    full: createApp({ jet: sampleJet(), news: sampleNews() }),
     empty: createApp({ jet: sampleJet([]) }),
     down: createApp({ jet: failingJet() }),
     nasty: createApp({ jet: sampleJet([nasty]) })
@@ -259,8 +260,8 @@ describe('topbar', () => {
     expect(html.full).toMatch(/<a href="\/jet" aria-current="page">Jet<\/a>/);
   });
 
-  it('points News API at the home page section from /jet', () => {
-    expect(html.full).toMatch(/<a href="\/#get-api"[^>]*>News API<\/a>/);
+  it('points News at the news page from /jet', () => {
+    expect(html.full).toMatch(/<a href="\/news"[^>]*>News<\/a>/);
   });
 
   it('marks only Jet as the current page', () => {

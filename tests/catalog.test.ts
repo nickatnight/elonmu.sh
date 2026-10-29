@@ -23,6 +23,23 @@ describe('SERVICES', () => {
     for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
   });
 
+  it('links every service to a page of its own, never a fragment', () => {
+    for (const { href } of SERVICES) expect(href).not.toContain('#');
+  });
+
+  it('names the news service News roulette, News in the nav', () => {
+    expect(SERVICES[0]).toEqual({
+      id: 'news-api',
+      name: 'News roulette',
+      nav: 'News',
+      summary:
+        'One random news article about Elon Musk. Spin again for another.',
+      href: '/news',
+      cta: 'Spin the wheel',
+      api: '/api/news'
+    });
+  });
+
   it('links every service to a same-origin path', () => {
     // A leading "//" would be protocol-relative, i.e. another origin.
     for (const { href } of SERVICES) expect(href).toMatch(/^\/(?!\/)/);
