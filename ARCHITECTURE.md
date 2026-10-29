@@ -162,8 +162,8 @@ CoinGeckoPriceSource → CachedPriceSource (5 min TTL, one key, 1 min retry) →
 - The SNL price is a constant, `SNL_SHOWTIME` in `snl.ts`, because CoinGecko's
   public history stops at 365 days. It is the open of Binance's DOGE/USDT
   1-minute candle at 03:30 UTC on 9 May 2021 (11:30 pm EDT on the 8th), and
-  its `source.url` returns that candle. Every number in the API is measured
-  against it.
+  its `source.url` returns that candle. Every number on the page and in the
+  API is measured against it.
 - `CachedPriceSource` keeps a `CachedValue` under one fixed key, with a
   5-minute TTL and `retryAfterMs` of a minute. A failure after one good load
   serves the last good price. While CoinGecko is healthy that is at most 12
@@ -172,9 +172,65 @@ CoinGeckoPriceSource → CachedPriceSource (5 min TTL, one key, 1 min retry) →
   now ÷ SNL. `changePercent` is rounded to one decimal and
   `thousandDollarsNow` to cents, both from the unrounded ratio.
   `src/routes/doge.ts` serves `/api/doge` with `public, max-age=300`, or
-  `200 { error }` with `no-store` through `upstreamFailure()`.
+  `200 { error }` with `no-store` through `upstreamFailure()`. `/doge` renders
+  its unavailable state, also with `no-store`.
 - Every `PriceSource` must satisfy the contract documented in `ports.ts`.
   `tests/doge/price-source.contract.ts` (`describePriceSource`) runs it on the
   CoinGecko source (through `fakeHttpGet` and the real capture in
   `tests/fixtures/coingecko-simple-price.json`), on `InMemoryPriceSource` and
   on `CachedPriceSource`.
+- `format.ts` builds the `/doge` page model:
+  - the change, with a U+2212 minus for display and words for screen
+    readers ("Down 88.2%")
+  - the SNL time in Eastern time ("11:30 pm ET") and the live time on a
+    24-hour UTC clock
+  - prices to four decimals
+  - the default holding, the DOGE that $1,000 bought at showtime
+
+### One formulas module for the server and the browser
+
+The slider's maths (`amountAt`, `positionOf`, `parseAmount`, `holding`) lives
+in `src/public/static/js/doge.js`. `format.ts` imports `holding` and
+`positionOf` from that file on the server. The no-JS default and the numbers
+the script shows then come from the same code, and a page test checks that
+they match. Two copies would have needed a test to keep them in step.
+
+The cost: the server imports `doge.js`, so the file must not touch the DOM or
+any other browser global at module top level. Its only top-level browser call
+is `start()`, behind `typeof document !== 'undefined'`. Module-level
+`Intl.NumberFormat` instances are fine on both sides.
+
+### Client and page
+
+- `doge.js` is a vanilla ES module with JSDoc types.
+  - `startHeldControl({ held, field, range, outputs })` holds the DOM wiring.
+    `tests/doge/held-control.test.ts` tests it with `EventTarget` fakes, as
+    `tests/hero.test.ts` does for `hero.js`.
+  - `start()` only looks the elements up, and has no test of its own.
+  - The script reads both prices from `data-` attributes and never fetches.
+  - It writes with `replaceChildren`, never `innerHTML`.
+  - The control is rendered `hidden` and the script reveals it.
+- The pair figures size to their cell with `clamp(0.875rem, 12.5cqi, 1.5rem)`,
+  so the slider's largest value (`$6,734,300.00` at 10M DOGE) fits on one line
+  from 320 px.
+  - For typed amounts too long to fit, the script adds `<wbr>` after each
+    comma. It does this only in elements marked `data-wrap="commas"`, which
+    are the two pair figures.
+  - The sentence's figures get none, because Chrome honours `<wbr>` even
+    inside `white-space: nowrap`.
+  - The then/now lines are built from `.doge__unit` spans with
+    `white-space: nowrap`, so they break only after " · " or ", ". At
+    22.5rem (360 px) and below, only the dates show.
+- `@media (scripting: enabled)` keeps the hidden control's box but makes it
+  invisible, so revealing it shifts nothing below. Without scripting the
+  control is `display: none`.
+  - Trade-off: if scripting is on but `doge.js` never runs (a failed
+    download, a blocked script), an empty gap of the control's height
+    (about 141 px on a phone) stays above the then/now pair.
+- `/doge`-only rules live in `doge.css` (`.doge*`). The home page loads
+  neither `doge.css` nor `doge.js`, and `doge.js` is only emitted in the
+  loaded state. `tests/doge/page.test.ts` enforces this and two budgets:
+  20 KB of HTML and 4 KB for `doge.js`.
+  - `doge.js` is 3,719 bytes, which leaves about 377 bytes. Trim the
+    script rather than raise the budget; CONSTRAINTS.md does not allow
+    raising a budget to make a change pass.

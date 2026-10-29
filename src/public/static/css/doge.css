@@ -1,0 +1,179 @@
+.doge {
+  display: grid;
+  gap: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 1rem + 4vw, 4rem) var(--margin)
+    clamp(3rem, 2rem + 5vw, 6rem);
+}
+
+.doge__head h1 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.doge__lead {
+  max-width: 40rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: var(--step-lead);
+}
+
+.doge__note {
+  color: var(--muted);
+}
+
+.doge__change {
+  color: var(--accent);
+  font-size: clamp(4rem, 2rem + 14vw, 9rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__line {
+  max-width: 34ch;
+  margin-top: 0.75rem;
+  font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.375rem);
+  line-height: 1.45;
+}
+
+.doge__line b {
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__held {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 34rem;
+}
+
+.doge__held[hidden] {
+  display: none;
+}
+
+@media (scripting: enabled) {
+  .doge__held[hidden] {
+    display: grid;
+    visibility: hidden;
+  }
+}
+
+.doge__held-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+}
+
+.doge__held label,
+.doge__field {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.doge__field {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.doge__field input {
+  width: 9.5rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.doge__ends {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  max-width: 34rem;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--raised);
+  border-radius: 8px;
+  background: var(--raised);
+}
+
+.doge__cell {
+  display: grid;
+  align-content: start;
+  gap: 0.125rem;
+  min-width: 0;
+  padding: 0.875rem 1rem;
+  background: var(--surface);
+  container-type: inline-size;
+}
+
+.doge__cell dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.doge__cell dd {
+  margin: 0;
+}
+
+.doge__worth {
+  font-size: clamp(0.875rem, 12.5cqi, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.doge__when {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.doge__unit {
+  white-space: nowrap;
+}
+
+.doge__credit {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.doge__credit a {
+  color: inherit;
+}
+
+.doge__credit a:hover,
+.doge__credit a:focus-visible {
+  color: var(--ink);
+}
+
+@media (max-width: 22.5rem) {
+  .doge__detail {
+    display: none;
+  }
+}
