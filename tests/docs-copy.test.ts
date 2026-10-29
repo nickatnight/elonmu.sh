@@ -8,6 +8,8 @@ class FakeElement extends EventTarget {
   disabled = false;
   textContent = '';
   readonly dataset: Record<string, string | undefined> = {};
+  readonly style = { minHeight: '' };
+  height = 0;
   children: Child[] = [];
   figure: FakeElement | null = null;
   readonly parts: Record<string, FakeElement> = {};
@@ -22,6 +24,10 @@ class FakeElement extends EventTarget {
 
   querySelector(selector: string): FakeElement | null {
     return this.parts[selector] ?? null;
+  }
+
+  getBoundingClientRect(): { height: number } {
+    return { height: this.height };
   }
 
   replaceChildren(...nodes: Child[]): void {
@@ -185,5 +191,27 @@ describe('Send on /docs', () => {
       'Preview · No response'
     );
     expect(code.textContent).toContain('Could not reach elonmu.sh');
+  });
+
+  it('keeps the response box as tall as the example when an error comes back', async () => {
+    const { pre, send } = responseFigure();
+    pre.height = 844;
+    const body = { error: 'Price data is unavailable right now.' };
+    await startSend(send, { fetch: respondWith(body) })?.();
+    expect(pre.style.minHeight).toBe('844px');
+  });
+
+  it('never lowers the response box height over several Sends', async () => {
+    const { pre, send } = responseFigure();
+    const body = { error: 'Price data is unavailable right now.' };
+    const run = startSend(send, { fetch: respondWith(body) });
+    pre.height = 844;
+    await run?.();
+    pre.height = 244;
+    await run?.();
+    expect(pre.style.minHeight).toBe('844px');
+    pre.height = 900;
+    await run?.();
+    expect(pre.style.minHeight).toBe('900px');
   });
 });
