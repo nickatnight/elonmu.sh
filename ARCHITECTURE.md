@@ -16,8 +16,8 @@ bundler. Bun runs the TypeScript directly.
 - `src/catalog.ts` (`SERVICES`) lists the public tools. Each entry has a page
   (`href`) and an endpoint (`api`); its id is also its block's anchor on
   `/docs`. The nav, the home page's service cards, and the endpoint links on
-  each service page are rendered from it. The nav's Docs link is hard-coded
-  after the services, because `/docs` is not a service.
+  `/docs` and each service page are rendered from it. The nav's Docs link is
+  hard-coded after the services, because `/docs` is not a service.
 - The topbar (`partials/topbar.ejs`) carries the GitHub "fork me" ribbon on
   every page: pure CSS, sized by the `--ribbon` `clamp()` token. Only the
   band takes clicks. The nav has `padding-inline-end` derived from
@@ -105,10 +105,37 @@ catalog order, then `#errors` with the status rules and a cache table.
   `src/public/static/js/console.js` and printed through
   `partials/json.ejs` with `<%= %>`. That is the same one-module-for-both
   pattern as `doge.js`, so `console.js` must not touch the DOM at module
-  top level.
-- `/docs`-only rules (`.doc*`, `.code*`, `.fields`, `.illus`) live in
-  `docs.css`. Until the API reference leaves the home page, the home page
-  loads it too.
+  top level; its only top-level browser call is `start()`, behind
+  `typeof document !== 'undefined'`.
+- `console.js` is the only script on `/docs`. It holds `tokenize`, `trim`
+  (arrays to their first 3 items plus `… N more`), and two starters with
+  injected dependencies:
+  - `startSend` fetches the block's `data-api` (from `SERVICES`, through
+    `partials/docs-response.ejs`), swaps the static example for the
+    trimmed live response, and shows "Full response ↗".
+  - `startCopy` copies the static example, or after Send the full live
+    response (`JSON.stringify(body, null, 2)`, kept on the `<pre>` as
+    `data-full-response`), never the trimmed preview.
+- `tests/docs-copy.test.ts` tests both starters with `EventTarget` fakes.
+  Send and Copy are rendered `hidden` and shown by the script, so without
+  JS the static examples stand alone.
+- `/docs`-only rules (`.doc*`, `.code*`, `.fields`, `.illus`, `.tok-*`) live
+  in `docs.css`, which the home page never loads.
+
+## Home page
+
+Hero, services, jet teaser, testimonials, footer. It loads `main.js` (the
+scroll reveal), `hero.js` and `legacy-anchors.js`, and never `console.js`,
+`docs.css`, globe.gl or `jet.js`.
+- Each service card is an `<article>`. The name links to the service page,
+  and that link is stretched over the card with `::after`. The footer row is
+  a second link, to the service's `/docs` block, sitting above the stretched
+  link.
+- The API reference used to live on the home page. Fragments never reach
+  the server, so `legacy-anchors.js` exports a pure `docsTarget(hash)` and
+  sends `/#get-api` to `/docs#news-api` and `/#errors` to `/docs#errors`
+  with `location.replace()`, so Back skips the dead URL. It is a file, not
+  an inline script, so the CSP is unchanged.
 
 ## Jet tracker (`src/jet/`)
 

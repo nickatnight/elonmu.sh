@@ -12,7 +12,8 @@ No key, no signup. /s
 
 The tools: [News roulette](#news-roulette), the [Jet tracker](#jet-tracker),
 the [Hype meter](#hype-meter) and [DOGE since SNL](#doge-since-snl). Every
-endpoint is documented at [elonmu.sh/docs](https://elonmu.sh/docs).
+endpoint is documented at [elonmu.sh/docs](https://elonmu.sh/docs), where each
+one has a Send button that calls it live and shows the response.
 
 ## News roulette
 
@@ -215,10 +216,13 @@ $ bun scripts/render-teaser-earth.ts # after changing TEASER_VIEW or TEASER_SIZE
 See [ARCHITECTURE.md](ARCHITECTURE.md) for how the code fits together.
 
 The landing page at `/` is plain server-rendered HTML with no build step:
-`src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and two
-small vanilla scripts: `src/public/static/js/main.js` powers the live console
-and copy buttons, and `src/public/static/js/hero.js` (an ES module) plays the
-launch clip, crossfades into the cruise loop and runs the pause toggle. Static
+`src/views/index.ejs`, one stylesheet (`src/public/static/css/main.css`) and
+three small vanilla scripts. `src/public/static/js/main.js` runs the scroll
+reveal, `src/public/static/js/hero.js` (an ES module) plays the launch clip,
+crossfades into the cruise loop and runs the pause toggle, and
+`src/public/static/js/legacy-anchors.js` sends old `/#get-api` and `/#errors`
+links on to `/docs`. The API docs at `/docs` load
+`src/public/static/js/console.js` for their Send and Copy buttons. Static
 files are cached for a year, so templates
 reference them through `asset('static/...')`, which appends a hash of the file's
 contents to the URL.
