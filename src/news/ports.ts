@@ -15,3 +15,15 @@ export interface ArticleSource {
 export interface NewsQuery {
   random(): Promise<Article>;
 }
+
+export type NewsFailure = 'error-response' | 'no-response' | 'not-sent';
+
+export class NewsUpstreamError extends Error {
+  constructor(
+    readonly failure: NewsFailure,
+    options?: { cause?: unknown }
+  ) {
+    super(`newsapi: ${failure}`, options);
+    this.name = 'NewsUpstreamError';
+  }
+}

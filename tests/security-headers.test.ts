@@ -1,28 +1,18 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  it,
-  mock,
-  spyOn
-} from 'bun:test';
-import axios from 'axios';
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
-import { newsApiArticle } from './fixtures';
 import { startTestServer, type TestServer } from './helpers';
 import { sampleJet } from './jet/fakes';
+import { sampleNews } from './news/fakes';
 
 let server: TestServer;
 let html: string;
 
 beforeAll(async () => {
-  server = await startTestServer(createApp({ jet: sampleJet() }));
+  server = await startTestServer(
+    createApp({ jet: sampleJet(), news: sampleNews() })
+  );
   html = await (await fetch(`${server.url}/`)).text();
 });
-
-afterEach(() => mock.restore());
 
 afterAll(() => server.close());
 
@@ -77,9 +67,6 @@ describe('security headers', () => {
   });
 
   it('are set on the JSON API', async () => {
-    spyOn(axios, 'get').mockResolvedValue({
-      data: { articles: [newsApiArticle] }
-    });
     const res = await fetch(`${server.url}/api/news`);
     expect(res.status).toBe(200);
     expectSecurityHeaders(res);
