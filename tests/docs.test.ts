@@ -253,6 +253,13 @@ describe('GET /docs', () => {
     );
   });
 
+  it('keeps console.js at or under 7 KB', () => {
+    const file = Bun.file(
+      `${import.meta.dir}/../src/public/static/js/console.js`
+    );
+    expect(file.size).toBeLessThanOrEqual(7 * 1024);
+  });
+
   it('serves every local asset the page references', async () => {
     const urls = [...html.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)
