@@ -4,6 +4,7 @@ import type { HypeQuery } from '../hype/ports';
 import type { JetQuery } from '../jet/ports';
 import { type Teaser, toTeaser } from '../jet/teaser';
 import type { NewsQuery } from '../news/ports';
+import * as docsRoutes from './docs';
 import * as dogeRoutes from './doge';
 import * as health from './health';
 import * as hypeRoutes from './hype';
@@ -50,4 +51,5 @@ export const register = (
   jetRoutes.register(app, jet);
   hypeRoutes.register(app, hype);
   dogeRoutes.register(app, doge);
+  docsRoutes.register(app);
 };

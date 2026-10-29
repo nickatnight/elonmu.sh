@@ -190,13 +190,14 @@ describe('the live globe', () => {
     expect(home).not.toContain('three');
   });
 
-  it('links only main.css on the home page, never jet.css', async () => {
+  it('links main.css and, while home keeps the api docs, docs.css; never jet.css', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
     const sheets = [
       ...home.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
-    expect(sheets).toHaveLength(1);
+    expect(sheets).toHaveLength(2);
     expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
+    expect(sheets[1]).toMatch(/^\/static\/css\/docs\.css\?v=\w+$/);
   });
 
   it('fetches the still Earth (the page’s LCP) ahead of the globe library', () => {

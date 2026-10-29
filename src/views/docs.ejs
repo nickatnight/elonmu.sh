@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<% const title = 'API docs | elonmu.sh'; -%>
+<% const description = 'Reference for the elonmu.sh JSON APIs: random Elon Musk news, his private-jet flights this year, a year of Wikipedia views, and what your SNL-night Dogecoin is worth now.'; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <link rel="canonical" href="https://elonmu.sh/docs" />
+<%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/docs', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/docs.css') %>" />
+    <script src="<%= asset('static/js/main.js') %>" defer></script>
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+<%- include('partials/topbar', { current: 'docs' }) %>
+
+    <main id="main" class="docs">
+      <header class="docs__head">
+        <h1>API docs</h1>
+        <p class="docs__lead">Four endpoints. No key, no signup, no SDK, no parameters, no point. All <code>GET</code>, all JSON. /s</p>
+      </header>
+
+      <section class="doc" id="news-api" aria-labelledby="news-api-title">
+        <div class="doc__prose">
+          <h2 id="news-api-title"><code>GET /api/news</code></h2>
+          <p>
+            Returns one random English-language news article about Elon Musk,
+            picked from the latest page of NewsAPI results. No parameters, no
+            headers, no API key.
+          </p>
+          <h3>Response fields</h3>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>source</code></td><td>string</td><td>Publication name</td></tr>
+              <tr><td><code>title</code></td><td>string</td><td>Headline</td></tr>
+              <tr><td><code>description</code></td><td>string | null</td><td>Summary from the publisher</td></tr>
+              <tr><td><code>url</code></td><td>string</td><td>Link to the full article</td></tr>
+              <tr><td><code>urlImage</code></td><td>string | null</td><td>Lead image URL</td></tr>
+              <tr><td><code>publishDate</code></td><td>string</td><td>ISO 8601 timestamp</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code>curl https://elonmu.sh/api/news</code></pre>
+          </figure>
+          <figure class="code" data-ui>
+            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['news-api'] }) %></code></pre>
+          </figure>
+        </div>
+      </section>
+
+      <section class="doc" id="jet-tracker" aria-labelledby="jet-tracker-title">
+        <div class="doc__prose">
+          <h2 id="jet-tracker-title"><code>GET /api/jet/flights</code></h2>
+          <p>
+            Every private-jet flight this year, with the fuel bill. The flights
+            come from the public posts of
+            <a href="https://bsky.app/profile/elonjet.net" rel="noopener noreferrer">@elonjet.net</a>
+            by Jack Sweeney on Bluesky.
+          </p>
+          <h3>Response fields</h3>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>year</code></td><td>number</td><td>The year the flights are from (UTC)</td></tr>
+              <tr><td><code>updatedAt</code></td><td>string</td><td>When the flights were read, ISO 8601</td></tr>
+              <tr><td><code>attribution</code></td><td>object</td><td><code>label</code> and <code>url</code> of the source</td></tr>
+              <tr><td><code>flights</code></td><td>array</td><td>This year's flights, newest first</td></tr>
+              <tr><td><code>flights[].<wbr>id</code></td><td>string</td><td>The post the flight was read from</td></tr>
+              <tr><td><code>flights[].<wbr>tail</code></td><td>string</td><td>Tail number, or <code>"Unknown"</code></td></tr>
+              <tr><td><code>flights[].<wbr>from</code>, <code>.to</code></td><td>object | null</td><td>Place <code>name</code>, <code>lat</code> and <code>lon</code></td></tr>
+              <tr><td><code>flights[].<wbr>departedAt</code>, <code>.landedAt</code></td><td>string | null</td><td>ISO 8601 timestamps</td></tr>
+              <tr><td><code>flights[].<wbr>durationMin</code></td><td>number | null</td><td>Minutes in the air</td></tr>
+              <tr><td><code>flights[].<wbr>fuel</code></td><td>object | null</td><td><code>gallons</code>, <code>usd</code> and <code>co2Tons</code> burned</td></tr>
+              <tr><td><code>flights[].<wbr>status</code></td><td>string</td><td><code>"landed"</code> or <code>"airborne"</code></td></tr>
+              <tr><td><code>flights[].<wbr>sourceUrl</code></td><td>string | null</td><td>Link to the post</td></tr>
+              <tr><td><code>totals</code></td><td>object</td><td>The year's <code>flights</code>, <code>gallons</code>, <code>usd</code>, <code>co2Tons</code> and <code>hours</code></td></tr>
+            </tbody>
+          </table>
+          <ul class="doc__notes">
+            <li><code>flights</code> is newest first. The example is trimmed to one flight.</li>
+            <li>A field is <code>null</code> when the posts don't say: a flight still in the air has no <code>to</code> or <code>landedAt</code>, and <code>fuel</code> waits for the fuel reply.</li>
+          </ul>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code>curl https://elonmu.sh/api/jet/flights</code></pre>
+          </figure>
+          <figure class="code" data-ui>
+            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['jet-tracker'] }) %></code></pre>
+          </figure>
+        </div>
+      </section>
+
+      <section class="doc" id="hype-meter" aria-labelledby="hype-meter-title">
+        <div class="doc__prose">
+          <h2 id="hype-meter-title"><code>GET /api/hype</code></h2>
+          <p>
+            Daily views of the English Wikipedia article "Elon Musk" for the
+            last year, with the biggest spikes named. The views come from
+            <a href="https://wikimedia.org/api/rest_v1/" rel="noopener noreferrer">Wikimedia's pageview API</a>
+            (users only, known bots excluded).
+          </p>
+          <h3>Response fields</h3>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>article</code></td><td>string</td><td>The article, <code>"Elon Musk"</code></td></tr>
+              <tr><td><code>from</code></td><td>string</td><td>First day returned, <code>YYYY-MM-DD</code></td></tr>
+              <tr><td><code>to</code></td><td>string</td><td>Last day returned, <code>YYYY-MM-DD</code></td></tr>
+              <tr><td><code>updatedAt</code></td><td>string</td><td>When the views were read, ISO 8601</td></tr>
+              <tr><td><code>attribution</code></td><td>object</td><td><code>label</code> and <code>url</code> of the source</td></tr>
+              <tr><td><code>days</code></td><td>array</td><td><code>date</code> and <code>views</code> for each day, oldest first</td></tr>
+              <tr><td><code>stats</code></td><td>object</td><td><code>total</code>, <code>median</code> and the <code>peak</code> day</td></tr>
+              <tr><td><code>spikes</code></td><td>array</td><td>The five busiest days, with <code>timesMedian</code></td></tr>
+            </tbody>
+          </table>
+          <ul class="doc__notes">
+            <li><code>days</code> is oldest first, in chart order. The example is trimmed to one day and one spike.</li>
+            <li>The window ends yesterday (UTC). Days Wikimedia has no data for are left out, not zero-filled.</li>
+            <li><code>stats.median</code> is the middle day's views, a whole number. With an even number of days it is the mean of the two middle days, rounded.</li>
+            <li><code>spikes</code> is highest first, each at least 7 days from any busier one. <code>timesMedian</code> is that day's views over the median, to one decimal.</li>
+          </ul>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code>curl https://elonmu.sh/api/hype</code></pre>
+          </figure>
+          <figure class="code" data-ui>
+            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['hype-meter'] }) %></code></pre>
+          </figure>
+        </div>
+      </section>
+
+      <section class="doc" id="doge-since-snl" aria-labelledby="doge-since-snl-title">
+        <div class="doc__prose">
+          <h2 id="doge-since-snl-title"><code>GET /api/doge</code></h2>
+          <p>
+            Dogecoin's price now against the minute he went on air hosting
+            Saturday Night Live, 8 May 2021. The live price comes from
+            <a href="https://www.coingecko.com/en/coins/dogecoin" rel="noopener noreferrer">CoinGecko</a>.
+          </p>
+          <h3>Response fields</h3>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>coin</code></td><td>string</td><td><code>"Dogecoin"</code></td></tr>
+              <tr><td><code>snl</code></td><td>object</td><td><code>at</code>, <code>usd</code> and <code>source</code> of the price at showtime</td></tr>
+              <tr><td><code>now</code></td><td>object</td><td><code>at</code> and <code>usd</code> of the live price</td></tr>
+              <tr><td><code>changePercent</code></td><td>number</td><td>(now ÷ SNL − 1) × 100, to one decimal</td></tr>
+              <tr><td><code>thousand<wbr>Dollars<wbr>Now</code></td><td>number</td><td>What $1,000 of DOGE bought at showtime is worth now, to the cent</td></tr>
+              <tr><td><code>attribution</code></td><td>object</td><td><code>label</code> and <code>url</code> of the live price</td></tr>
+            </tbody>
+          </table>
+          <ul class="doc__notes">
+            <li><code>snl</code> never changes. CoinGecko's free history only goes back 365 days, so the SNL price is a constant: the open of Binance's DOGE/USDT 1-minute candle at 11:30 pm EDT on 8 May 2021. <code>snl.source.url</code> returns that candle. USDT is taken as USD.</li>
+            <li><code>now.at</code> is when CoinGecko last updated its price, not when you asked.</li>
+            <li>Both figures are computed from the unrounded prices.</li>
+          </ul>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code>curl https://elonmu.sh/api/doge</code></pre>
+          </figure>
+          <figure class="code" data-ui>
+            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['doge-since-snl'] }) %></code></pre>
+          </figure>
+        </div>
+      </section>
+
+      <section class="doc" id="errors" aria-labelledby="errors-title">
+        <div class="doc__prose">
+          <h2 id="errors-title">Errors</h2>
+          <p>
+            Errors come back as JSON with a single <code>error</code> message.
+            When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko) is down,
+            the status is still 200: we are fine, it is the world that failed.
+            Our own mistakes are a 500.
+          </p>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Status</th><th scope="col">When</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>200</code></td><td>An upstream returned an error or never answered</td></tr>
+              <tr><td><code>500</code></td><td>Something broke on our side</td></tr>
+              <tr><td><code>404</code></td><td>Any other path. The body is plain text: <code>does not compute...</code></td></tr>
+            </tbody>
+          </table>
+          <h3>Caching</h3>
+          <p>
+            Each endpoint keeps its last good answer. When the upstream fails
+            after one good load, you get that answer instead of an error.
+          </p>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Endpoint</th><th scope="col">Refreshed every</th><th scope="col">When the upstream fails</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>/api/news</code></td><td>15 min</td><td>Picks from the last good articles, asks again after a minute</td></tr>
+              <tr><td><code>/api/jet/<wbr>flights</code></td><td>5 min</td><td>Serves this year's last good flights</td></tr>
+              <tr><td><code>/api/hype</code></td><td>4 h</td><td>Serves the last good year, asks again after a minute</td></tr>
+              <tr><td><code>/api/doge</code></td><td>5 min</td><td>Serves the last good price, asks again after a minute</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code><%- include('partials/json', { tokens: examples.errors }) %></code></pre>
+          </figure>
+          <figure class="illus">
+            <img
+              src="<%= asset('static/img/rud.jpg') %>"
+              width="960"
+              height="536"
+              alt="A rocket breaking apart mid-flight"
+              loading="lazy"
+            />
+            <figcaption>Fig. 1: a 500, in production.</figcaption>
+          </figure>
+        </div>
+      </section>
+      <p class="sr-only announce" aria-live="polite"></p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,1 @@
+<% for (const t of tokens) { %><% if (t.kind) { %><span class="tok-<%= t.kind %>"><%= t.text %></span><% } else { %><%= t.text %><% } %><% } %>
