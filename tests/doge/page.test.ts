@@ -408,7 +408,9 @@ describe('doge topbar', () => {
   it('links to /doge from the home page nav and a service card', async () => {
     const home = await (await fetch(`${servers.down.url}/`)).text();
     expect(home).toMatch(/<a href="\/doge"[^>]*>DOGE<\/a>/);
-    expect(home).toContain('<a class="service" href="/doge">');
+    expect(home).toContain(
+      '<a class="service__link" href="/doge">DOGE since SNL</a>'
+    );
     expect(home).toContain(
       '<p class="service__summary">What your Dogecoin from the night he hosted SNL is worth today.</p>'
     );

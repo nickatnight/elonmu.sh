@@ -547,7 +547,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(9);
+    expect(hrefs.length).toBe(13);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -672,13 +672,12 @@ const servicesSection = (page: string): string =>
 const serviceCards = (page: string) =>
   [
     ...servicesSection(page).matchAll(
-      /<(a|div) class="(service(?: [^"]*)?)"(?: href="([^"]*)")?/g
+      /<(article|div) class="(service(?: [^"]*)?)">([\s\S]*?)<\/\1>/g
     )
-  ].map(([, tag, cls, href]) => ({
+  ].map(([, tag, cls, body]) => ({
     tag,
     cls,
-    // An unmatched optional group is undefined at runtime
-    href: href as string | undefined
+    links: [...body.matchAll(/<a [^>]*href="([^"]*)"/g)].map(([, href]) => href)
   }));
 
 describe('services section', () => {
@@ -700,11 +699,15 @@ describe('services section', () => {
 
   it('links one card per catalog entry, in order, then More soon', () => {
     expect(serviceCards(html)).toEqual([
-      { tag: 'a', cls: 'service', href: '/news' },
-      { tag: 'a', cls: 'service', href: '/jet' },
-      { tag: 'a', cls: 'service', href: '/hype' },
-      { tag: 'a', cls: 'service', href: '/doge' },
-      { tag: 'div', cls: 'service service--soon', href: undefined }
+      { tag: 'article', cls: 'service', links: ['/news', '/docs#news-api'] },
+      { tag: 'article', cls: 'service', links: ['/jet', '/docs#jet-tracker'] },
+      { tag: 'article', cls: 'service', links: ['/hype', '/docs#hype-meter'] },
+      {
+        tag: 'article',
+        cls: 'service',
+        links: ['/doge', '/docs#doge-since-snl']
+      },
+      { tag: 'div', cls: 'service service--soon', links: [] }
     ]);
     const section = servicesSection(html);
     for (const text of [
@@ -724,6 +727,50 @@ describe('services section', () => {
     ]) {
       expect(section).toContain(text);
     }
+  });
+
+  it('links the name to the page and stretches that link over the card', async () => {
+    const section = servicesSection(html);
+    for (const { name, href } of SERVICES)
+      expect(section).toContain(
+        `<h3 class="service__name"><a class="service__link" href="${href}">${name}</a></h3>`
+      );
+    const css = await mainCss();
+    const stretch = ruleBody(css, '.service__link::after');
+    expect(stretch).toContain('position: absolute;');
+    expect(stretch).toContain('inset: 0;');
+    expect(ruleBody(css, '.service')).toContain('position: relative;');
+  });
+
+  it('ends each card with one endpoint link to its docs block, above the stretched link', async () => {
+    const section = servicesSection(html);
+    for (const { id, api } of SERVICES)
+      expect(section).toContain(
+        `<a class="service__endpoint" href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
+      );
+    const css = await mainCss();
+    const row = ruleBody(css, '.service__endpoint');
+    expect(row).toContain('position: relative;');
+    expect(row).toMatch(/z-index: [1-9]/);
+    expect(row).toMatch(/border-top: 1px solid /);
+    expect(row).toContain('font-family: var(--font-code);');
+  });
+
+  it('puts the name link before the endpoint link, and never nests links', () => {
+    const section = servicesSection(html);
+    for (const link of section.match(/<a [^>]*>[\s\S]*?<\/a>/g) ?? [])
+      expect(link.slice(2)).not.toContain('<a ');
+    for (const { id, href } of SERVICES)
+      expect(section.indexOf(`href="${href}"`)).toBeLessThan(
+        section.indexOf(`href="/docs#${id}"`)
+      );
+  });
+
+  it('shows a focus ring around the whole card for the name link', async () => {
+    const css = await mainCss();
+    expect(css).toMatch(
+      /\.service__link:focus-visible::after \{[^}]*outline: 2px solid var\(--accent\);/
+    );
   });
 
   it('lays the cards out two by two on desktop, an odd last card spanning the row at its own height', async () => {
@@ -749,7 +796,7 @@ describe('services section', () => {
     expect(oddLast).toContain('grid-column: 1 / -1;');
     expect(oddLast).toContain('align-self: start;');
     expect(oddLast).not.toContain('min-height');
-    expect(desktop).toContain('grid-auto-rows: 1fr;');
+    expect(desktop).not.toContain('grid-auto-rows');
     const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
     expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
     expect(base).not.toContain('grid-auto-rows');
@@ -768,11 +815,11 @@ describe('services section', () => {
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();
-      expect(serviceCards(page).map(({ href }) => href)).toEqual([
-        '/s1',
-        '/s2',
-        '/s3',
-        undefined
+      expect(serviceCards(page).map(({ links }) => links)).toEqual([
+        ['/s1', '/docs#service-1'],
+        ['/s2', '/docs#service-2'],
+        ['/s3', '/docs#service-3'],
+        []
       ]);
       expect(servicesSection(page)).toContain(
         'Uses &lt;b&gt;bold&lt;/b&gt; &amp; more.'

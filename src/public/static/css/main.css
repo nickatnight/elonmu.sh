@@ -402,6 +402,7 @@ pre {
 }
 
 .service {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -415,6 +416,21 @@ pre {
   font-size: 1.25rem;
   line-height: 1.25;
   letter-spacing: -0.01em;
+}
+
+.service__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.service__link:focus-visible {
+  outline: none;
+}
+
+.service__link:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .service__summary {
@@ -433,13 +449,37 @@ pre {
   transition: transform 150ms var(--ease-out);
 }
 
-a.service:hover,
-a.service:focus-visible {
+.service__endpoint {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  color: var(--muted);
+  font-family: var(--font-code);
+  font-size: var(--step-small);
+  transition: color 150ms var(--ease-out);
+}
+
+.service__endpoint code {
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+
+.service__endpoint:hover,
+.service__endpoint:focus-visible {
+  color: var(--ink);
+}
+
+.service:has(.service__link:hover, .service__link:focus-visible) {
   background: var(--raised);
 }
 
-a.service:hover .service__arrow,
-a.service:focus-visible .service__arrow {
+.service:has(.service__link:hover, .service__link:focus-visible)
+  .service__arrow {
   transform: translateX(3px);
 }
 
@@ -456,7 +496,6 @@ a.service:focus-visible .service__arrow {
 @media (min-width: 56.25rem) {
   .services__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 1fr;
   }
 
   .services__grid > li:last-child:nth-child(odd) {
@@ -470,8 +509,12 @@ a.service:focus-visible .service__arrow {
     transition: none;
   }
 
-  a.service:hover .service__arrow,
-  a.service:focus-visible .service__arrow {
+  .service__endpoint {
+    transition: none;
+  }
+
+  .service:has(.service__link:hover, .service__link:focus-visible)
+    .service__arrow {
     transform: none;
   }
 }
