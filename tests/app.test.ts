@@ -130,26 +130,9 @@ describe('GET /', () => {
     );
   });
 
-  it('renders the console send button hidden until the script runs', () => {
-    expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
-  });
-
-  it('opens the console article in a new tab, safely, and says so to screen readers', () => {
-    const link = html.match(
-      /<a [^>]*class="card__link"[^>]*>[\s\S]*?<\/a>/
-    )?.[0];
-    const tag = link?.match(/^<a [^>]*>/)?.[0] ?? '';
-    expect(tag).toContain('target="_blank"');
-    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
-    expect(link).toContain(
-      '<span class="sr-only"> (opens in a new tab)</span>'
-    );
-  });
-
-  it('names GET /api/news in the console, and leaves the reference to /docs', () => {
-    expect(html).toContain(
-      '<code class="console__url">https://elonmu.sh/api/news</code>'
-    );
+  it('leaves the reference and the live requests to /docs', () => {
+    expect(html).not.toContain('id="try"');
+    expect(html).not.toContain('class="console');
     expect(html).not.toContain('id="get-api"');
     expect(html).not.toContain('id="errors"');
     expect(html).not.toContain('curl https://elonmu.sh/api/news');
@@ -171,29 +154,12 @@ describe('GET /', () => {
     expect(html).not.toContain('jet.js');
   });
 
-  it('sends the console request to /api/news', async () => {
-    const js = await Bun.file(
+  it('does not load console.js, and main.js makes no requests', async () => {
+    expect(html).not.toContain('console.js');
+    const main = await Bun.file(
       `${import.meta.dir}/../src/public/static/js/main.js`
     ).text();
-    expect(js).toContain("fetch('/api/news'");
-    expect(js).not.toContain("fetch('/api'");
-  });
-
-  it('shows a console example with the real /api/news keys', () => {
-    const block = html.match(/<pre class="json"[^>]*>([\s\S]*?)<\/pre>/);
-    expect(block).not.toBeNull();
-    const text = (block?.[1] ?? '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&quot;/g, '"')
-      .replace(/&amp;/g, '&');
-    expect(Object.keys(JSON.parse(text))).toEqual([
-      'source',
-      'title',
-      'description',
-      'url',
-      'urlImage',
-      'publishDate'
-    ]);
+    expect(main).not.toContain('fetch(');
   });
 
   it('has no copy buttons, which moved to /docs with the examples', () => {
@@ -206,13 +172,24 @@ describe('GET /', () => {
     expect(html).toContain('AI-generated');
   });
 
-  it('keeps the console out of the hero, in its own section below it', () => {
-    const hero =
-      html.match(/<section\s+class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
-    expect(hero).toContain('id="hero-title"');
-    expect(hero).not.toContain('class="console"');
-    expect(html).toMatch(
-      /<section class="try" id="try"[^>]*>\s*<figure class="console"/
+  it('runs hero, services, jet teaser, testimonials, then the footer', () => {
+    const at = (marker: string) => html.indexOf(marker);
+    const order = [
+      'class="hero"',
+      '<section class="services"',
+      '<section class="teaser"',
+      '<section class="praise"',
+      '<footer class="footer"'
+    ].map(at);
+    expect(order.every((i) => i > -1)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it("quotes Priya's approved four-curl testimonial", () => {
+    const lead =
+      html.match(/<figure class="praise__lead">[\s\S]*?<\/figure>/)?.[0] ?? '';
+    expect(lead).toContain(
+      '<p>We replaced our news desk, our travel desk, our sentiment analyst and our financial adviser with four curls. Morale is down, but uptime is divine.</p>'
     );
   });
 
@@ -330,10 +307,6 @@ describe('GET /', () => {
         types[ext as keyof typeof types]
       );
     }
-  });
-
-  it('announces console results politely', () => {
-    expect(html).toContain('aria-live="polite"');
   });
 
   it('serves every local asset the page references', async () => {
@@ -652,12 +625,6 @@ describe('catalog copy', () => {
     );
   });
 
-  it('labels the console as the News API', () => {
-    expect(html).toContain(
-      '<section class="try" id="try" aria-label="Try the News API">'
-    );
-  });
-
   it('drops the single-endpoint copy', () => {
     expect(html).not.toContain('One endpoint');
     expect(html).not.toContain('Stay Informed');
@@ -681,13 +648,13 @@ const serviceCards = (page: string) =>
   }));
 
 describe('services section', () => {
-  it('sits between the hero and the console', () => {
+  it('sits between the hero and the jet teaser', () => {
     const hero = html.search(/<section\s+class="hero"/);
     const services = html.indexOf('<section class="services" id="services"');
-    const tryIt = html.indexOf('<section class="try" id="try"');
+    const teaser = html.indexOf('<section class="teaser"');
     expect(hero).toBeGreaterThan(-1);
     expect(services).toBeGreaterThan(hero);
-    expect(tryIt).toBeGreaterThan(services);
+    expect(teaser).toBeGreaterThan(services);
   });
 
   it('has the Services heading and its subline', () => {

@@ -74,8 +74,10 @@
 
 .code figcaption {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem 1rem;
   padding: 0.5rem 0.5rem 0.5rem 1.25rem;
   background: var(--code-raised);
   color: var(--code-muted);
@@ -91,6 +93,51 @@
 
 .code :focus-visible {
   outline-color: var(--code-ink);
+}
+
+.code__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-left: auto;
+}
+
+.code__full {
+  white-space: nowrap;
+}
+
+.code__full:hover,
+.code__full:focus-visible {
+  color: var(--code-ink);
+}
+
+.code__send {
+  padding: 0.3rem 0.9rem;
+  border: 0;
+  background: var(--code-ink);
+  color: var(--code-bg);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.code__send:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.tok-key {
+  color: var(--tok-key);
+}
+
+.tok-str {
+  color: var(--tok-str);
+}
+
+.tok-more {
+  color: var(--code-muted);
 }
 
 .copy {

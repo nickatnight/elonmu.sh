@@ -13,7 +13,6 @@
   --muted: #a1a8b3;
   --accent: #e31937;
   --accent-ink: #ffffff;
-  --ok: #7ed492;
   --tok-key: #8cc4ff;
   --tok-str: #a8d9a1;
 
@@ -519,44 +518,6 @@ pre {
   }
 }
 
-.try {
-  margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);
-}
-
-.console {
-  background: var(--code-bg);
-  color: var(--code-ink);
-  animation: fade 900ms var(--ease-out) 650ms both;
-}
-
-.console__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.85rem 1.25rem;
-  background: var(--code-bar);
-  font-family: var(--font);
-  font-size: var(--step-small);
-}
-
-.console__method {
-  color: var(--ok);
-  font-weight: 700;
-}
-
-.console__status {
-  margin-left: auto;
-  font-variant-numeric: tabular-nums;
-  margin-right: 0.5rem;
-  color: var(--code-muted);
-}
-
-.console__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-}
-
 .card {
   padding: clamp(1.5rem, 3vw, 2.75rem);
 }
@@ -583,22 +544,6 @@ pre {
   display: inline-block;
   margin-top: 1.5rem;
   font-weight: 600;
-}
-
-.json {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  padding: clamp(1.5rem, 3vw, 2.75rem);
-  background: var(--code-bar);
-  line-height: 1.8;
-}
-
-.tok-key {
-  color: var(--tok-key);
-}
-
-.tok-str {
-  color: var(--tok-str);
 }
 
 .footer {
@@ -751,20 +696,6 @@ pre {
       rgb(5 7 10 / 0) 72%
     );
   }
-
-  .console__body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .console__send {
-    margin-left: auto;
-  }
-
-  .console__status {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-  }
 }
 
 @media (max-width: 48rem) {
@@ -781,8 +712,7 @@ pre {
 @media (prefers-reduced-motion: reduce) {
   .line > span,
   .hero__lead,
-  .hero__cue,
-  .console {
+  .hero__cue {
     animation: none;
   }
 
@@ -798,21 +728,6 @@ pre {
     opacity: 1;
     transition: none;
   }
-}
-
-.console__send {
-  white-space: nowrap;
-  border: 0;
-  background: var(--code-ink);
-  color: var(--code-bg);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.console__send:disabled {
-  cursor: progress;
-  opacity: 0.7;
 }
 
 .card__media {
