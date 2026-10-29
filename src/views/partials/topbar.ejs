@@ -1,13 +1,13 @@
     <header class="topbar">
       <a class="brand" href="/" translate="no">
         <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
-        elonmu.sh
+        <span class="brand__name">elonmu.sh</span>
       </a>
       <nav class="topbar__actions" aria-label="Primary">
 <% for (const service of services) { -%>
         <a href="<%= service.href %>"<%- service.id === locals.current ? ' aria-current="page"' : '' %>><%= service.nav %></a>
 <% } -%>
         <a href="/docs"<%- locals.current === 'docs' ? ' aria-current="page"' : '' %>>Docs</a>
-        <a class="topbar__extra" href="https://github.com/nickatnight/elonmu.sh" target="_blank" rel="noopener noreferrer">GitHub<span class="sr-only"> (opens in a new tab)</span><svg class="topbar__out" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true" focusable="false"><path d="M4 2h6v6M10 2 2 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
       </nav>
+      <a class="ribbon" href="https://github.com/nickatnight/elonmu.sh" target="_blank" rel="noopener noreferrer"><span class="ribbon__band">Fork me, Daddy /s<span class="sr-only"> (source on GitHub, opens in a new tab)</span></span></a>
     </header>

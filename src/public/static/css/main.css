@@ -29,6 +29,7 @@
 
   --margin: clamp(1rem, 0.5rem + 2vw, 2rem);
   --topbar: 3.75rem;
+  --ribbon: clamp(7rem, 5rem + 5vw, 9.25rem);
   --hero-handoff: 400ms;
   --hero-bg: #05070a;
   --hero-ink: #f4f5f7;
@@ -170,6 +171,7 @@ pre {
   display: flex;
   align-items: center;
   gap: clamp(0.5rem, 6.5vw - 1rem, 1.5rem);
+  padding-inline-end: calc(var(--ribbon) * 0.8 - 0.625rem - var(--margin));
   font-size: var(--step-small);
 }
 
@@ -199,10 +201,48 @@ pre {
   background: var(--accent);
 }
 
-.topbar__out {
-  display: inline-block;
-  width: 0.65em;
-  height: 0.65em;
+.ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--ribbon);
+  height: var(--ribbon);
+  overflow: hidden;
+  pointer-events: none;
+  font-size: calc(var(--ribbon) * 0.0875);
+}
+
+.ribbon__band {
+  position: absolute;
+  top: calc(var(--ribbon) * 0.34);
+  left: calc(var(--ribbon) * 0.66);
+  width: calc(var(--ribbon) * 1.5);
+  padding: 0.4em 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: auto;
+}
+
+.ribbon__band::before {
+  content: "";
+  position: absolute;
+  inset: 0.2em 0;
+  border-block: 1px dashed
+    color-mix(in srgb, var(--accent-ink) 70%, transparent);
+}
+
+.ribbon:focus-visible {
+  outline: none;
+}
+
+.ribbon:focus-visible .ribbon__band {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .hero {
@@ -939,9 +979,14 @@ a.card__link[href]:focus-visible {
   }
 }
 
-@media (max-width: 26.49rem) {
-  .topbar__actions .topbar__extra {
-    display: none;
+@media (max-width: 28.74rem) {
+  .brand__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 
