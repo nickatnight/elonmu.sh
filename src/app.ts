@@ -3,6 +3,8 @@ import path from 'node:path';
 import compression from 'compression';
 import express from 'express';
 import { SERVICES, type Service } from './catalog';
+import { createDogeModule } from './doge';
+import type { DogeQuery } from './doge/ports';
 import { createHypeModule } from './hype';
 import type { HypeQuery } from './hype/ports';
 import { createJetModule } from './jet';
@@ -32,12 +34,14 @@ const assetUrl = (file: string): string => {
 export type AppDeps = {
   jet?: JetQuery;
   hype?: HypeQuery;
+  doge?: DogeQuery;
   services?: readonly Service[];
 };
 
 export const createApp = ({
   jet = createJetModule(),
   hype = createHypeModule(),
+  doge = createDogeModule(),
   services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
@@ -66,7 +70,7 @@ export const createApp = ({
     })
   );
 
-  routes.register(app, { jet, hype });
+  routes.register(app, { jet, hype, doge });
 
   app.use((_req, res) => {
     res.status(404).send('does not compute...');

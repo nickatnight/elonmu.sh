@@ -1,8 +1,10 @@
 import type * as express from 'express';
+import type { DogeQuery } from '../doge/ports';
 import type { HypeQuery } from '../hype/ports';
 import type { JetQuery } from '../jet/ports';
 import { type Teaser, toTeaser } from '../jet/teaser';
 import * as api from './api';
+import * as dogeRoutes from './doge';
 import * as health from './health';
 import * as hypeRoutes from './hype';
 import * as jetRoutes from './jet';
@@ -27,11 +29,11 @@ const teaserWithin = async (
   }
 };
 
-export type RouteDeps = { jet: JetQuery; hype: HypeQuery };
+export type RouteDeps = { jet: JetQuery; hype: HypeQuery; doge: DogeQuery };
 
 export const register = (
   app: express.Application,
-  { jet, hype }: RouteDeps
+  { jet, hype, doge }: RouteDeps
 ) => {
   app.get('/', async (_req, res) => {
     res.render('index', { teaser: await teaserWithin(jet, TEASER_WAIT_MS) });
@@ -41,4 +43,5 @@ export const register = (
   health.register(app);
   jetRoutes.register(app, jet);
   hypeRoutes.register(app, hype);
+  dogeRoutes.register(app, doge);
 };
