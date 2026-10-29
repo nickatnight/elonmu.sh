@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<% const title = 'News roulette | elonmu.sh'; -%>
+<% const description = 'One random news article about Elon Musk, picked from the latest headlines. Also available as JSON.'; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <link rel="canonical" href="https://elonmu.sh/news" />
+<%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/news', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/news.css') %>" />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+<%- include('partials/topbar') %>
+
+    <main id="main" class="news">
+      <header class="news__head">
+        <h1>News roulette</h1>
+      </header>
+
+<% if (page.state === 'unavailable') { -%>
+      <p class="news__note">There was an error with NewsAPI. Please try again later.</p>
+<% } else { -%>
+      <article class="card news__card">
+<% if (page.image) { -%>
+        <div class="card__media">
+          <img src="<%= page.image %>" width="640" height="360" alt="" referrerpolicy="no-referrer" />
+        </div>
+<% } -%>
+        <p class="card__meta"><%= page.source %><% if (page.published) { %> · <time datetime="<%= page.published.datetime %>"><%= page.published.text %></time><% } %></p>
+        <h2 class="card__title"><%= page.title %></h2>
+<% if (page.description) { -%>
+        <p class="card__desc"><%= page.description %></p>
+<% } -%>
+<% if (page.link) { -%>
+        <a class="card__link" href="<%= page.link %>" target="_blank" rel="noopener noreferrer">Read article →<span class="sr-only"> (opens in a new tab)</span></a>
+<% } -%>
+      </article>
+<% } -%>
+
+      <div class="news__actions">
+        <a class="button news__again" href="/news">Another one</a>
+        <a class="news__docs" href="/docs#news-api"><code>GET /api/news</code> <span>docs</span></a>
+      </div>
+    </main>
+  </body>
+</html>

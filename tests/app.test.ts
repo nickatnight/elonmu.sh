@@ -422,7 +422,7 @@ describe('topbar', () => {
   });
 
   it('shows the ribbon on every page', async () => {
-    for (const path of ['/jet', '/hype', '/doge', '/docs']) {
+    for (const path of ['/news', '/jet', '/hype', '/doge', '/docs']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, ribbon: ribbon(page) }).toEqual({
         path,
@@ -512,8 +512,8 @@ describe('topbar', () => {
     expect(topbarNav(html)).not.toContain('target="_blank"');
   });
 
-  it('renders the same nav on /, /jet, /hype, /doge and /docs', async () => {
-    for (const path of ['/jet', '/hype', '/doge', '/docs']) {
+  it('renders the same nav on /, /news, /jet, /hype, /doge and /docs', async () => {
+    for (const path of ['/news', '/jet', '/hype', '/doge', '/docs']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,

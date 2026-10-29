@@ -59,6 +59,7 @@ describe('security headers', () => {
   it.each([
     ['the landing page', () => '/'],
     ['the jet tracker', () => '/jet'],
+    ['the news page', () => '/news'],
     ['the api docs', () => '/docs'],
     ['the health check', () => '/healthz'],
     ['a hashed static asset', stylesheet],
@@ -86,7 +87,7 @@ describe('page markup vs the CSP', () => {
     'the pages have no %s, which the CSP would block',
     async (_label, pattern) => {
       expect(html).not.toMatch(pattern);
-      for (const path of ['/jet', '/docs']) {
+      for (const path of ['/jet', '/news', '/docs']) {
         const page = await (await fetch(`${server.url}${path}`)).text();
         expect({ path, matches: pattern.test(page) }).toEqual({
           path,

@@ -1,4 +1,5 @@
 import type * as express from 'express';
+import { type NewsPage, newsPage } from '../news/format';
 import {
   type NewsFailure,
   type NewsQuery,
@@ -23,7 +24,14 @@ const FAILURES: Record<NewsFailure, { upstream: boolean; error: string }> = {
 
 const UNKNOWN_ERROR = 'An unknown error occurred. Please try again later.';
 
+const UNAVAILABLE: NewsPage = { state: 'unavailable' };
+
 export const register = (app: express.Application, news: NewsQuery) => {
+  app.get('/news', async (_req, res) => {
+    const page = await news.random().then(newsPage, () => UNAVAILABLE);
+    res.set('Cache-Control', 'no-store').render('news', { page });
+  });
+
   app.get('/api/news', async (_req, res) => {
     try {
       res.json(await news.random());
