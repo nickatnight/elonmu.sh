@@ -359,14 +359,24 @@ const githubLink = (page: string): string =>
   )?.[0] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · Hype · DOGE · GitHub', () => {
+  it('reads News API · Jet · Hype · DOGE · Docs · GitHub', () => {
     expect(navLinks(html)).toEqual([
       'News API',
       'Jet',
       'Hype',
       'DOGE',
+      'Docs',
       'GitHub'
     ]);
+  });
+
+  it('links Docs to /docs, after the services, marking it current only there', async () => {
+    expect(topbarNav(html)).toMatch(/<a href="\/docs">Docs<\/a>/);
+    const docs = await (await fetch(`${server.url}/docs`)).text();
+    expect(topbarNav(docs)).toMatch(
+      /<a href="\/docs" aria-current="page">Docs<\/a>/
+    );
+    expect(docs.match(/aria-current="page"/g)).toHaveLength(1);
   });
 
   it('has no GET /api button', () => {
@@ -454,8 +464,8 @@ describe('topbar', () => {
     expect(newTab[0]?.[0]).toContain('href="https://github.com/');
   });
 
-  it('renders the same nav on /, /jet, /hype and /doge', async () => {
-    for (const path of ['/jet', '/hype', '/doge']) {
+  it('renders the same nav on /, /jet, /hype, /doge and /docs', async () => {
+    for (const path of ['/jet', '/hype', '/doge', '/docs']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
@@ -469,7 +479,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(8);
+    expect(hrefs.length).toBe(9);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -492,7 +502,7 @@ describe('topbar', () => {
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();
-      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'GitHub']);
+      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'Docs', 'GitHub']);
       expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
     } finally {
       await three.close();
