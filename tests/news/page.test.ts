@@ -204,4 +204,24 @@ describe('news.css', () => {
     const home = await (await fetch(`${servers.ok.url}/`)).text();
     expect(home).not.toContain('news.css');
   });
+
+  it('uses the same 72rem column as /hype and /doge', async () => {
+    const columnWidth = async (page: string) => {
+      const css = await Bun.file(
+        `${import.meta.dir}/../../src/public/static/css/${page}.css`
+      ).text();
+      return css.match(
+        new RegExp(`^\\.${page} \\{[^}]*?width: ([^;]+);`, 'm')
+      )?.[1];
+    };
+    expect({
+      news: await columnWidth('news'),
+      hype: await columnWidth('hype'),
+      doge: await columnWidth('doge')
+    }).toEqual({
+      news: 'min(100%, 72rem)',
+      hype: 'min(100%, 72rem)',
+      doge: 'min(100%, 72rem)'
+    });
+  });
 });
