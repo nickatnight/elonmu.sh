@@ -135,12 +135,15 @@ export const startSend = (send, { fetch }) => {
   );
   const api = send.dataset.api;
   if (!pre || !code || !label || !full || !api) return;
+  let tallest = 0;
 
   /**
    * @param {string} status
    * @param {unknown} body
    */
   const show = (status, body) => {
+    tallest = Math.max(tallest, pre.getBoundingClientRect().height);
+    pre.style.minHeight = `${tallest}px`;
     renderJson(code, body);
     pre.dataset.fullResponse = JSON.stringify(body, null, 2);
     label.textContent = `Preview · ${status}`;

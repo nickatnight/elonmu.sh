@@ -112,13 +112,16 @@ catalog order, then `#errors` with the status rules and a cache table.
   injected dependencies:
   - `startSend` fetches the block's `data-api` (from `SERVICES`, through
     `partials/docs-response.ejs`), swaps the static example for the
-    trimmed live response, and shows "Full response ↗".
+    trimmed live response, and shows "Full response ↗". Before each render
+    it sets the `<pre>`'s `minHeight` to the tallest height it has had, so
+    a short `{ error }` body doesn't shrink the box.
   - `startCopy` copies the static example, or after Send the full live
     response (`JSON.stringify(body, null, 2)`, kept on the `<pre>` as
     `data-full-response`), never the trimmed preview.
 - `tests/docs-copy.test.ts` tests both starters with `EventTarget` fakes.
   Send and Copy are rendered `hidden` and shown by the script, so without
-  JS the static examples stand alone.
+  JS the static examples stand alone. `tests/docs.test.ts` holds
+  `console.js` to 7 KB.
 - `/docs`-only rules (`.doc*`, `.code*`, `.fields`, `.illus`, `.tok-*`) live
   in `docs.css`, which the home page never loads.
 
