@@ -122,10 +122,13 @@ Example 200 response (`days` shortened):
 ## DOGE since SNL
 
 Dogecoin's price now against the minute he went on air hosting Saturday Night
-Live, 8 May 2021. The live price comes from
-[CoinGecko](https://www.coingecko.com/en/coins/dogecoin) (no key needed).
+Live, 8 May 2021: [elonmu.sh/doge](https://elonmu.sh/doge). The live price
+comes from [CoinGecko](https://www.coingecko.com/en/coins/dogecoin) (no key
+needed). The page also has a slider for how much DOGE you held at showtime,
+from 10 to 10 million. It runs in your browser, and the API has no amount
+parameter.
 
-The data is available as JSON:
+The same data is available as JSON:
 
 ```shell
 $ curl --request GET \
