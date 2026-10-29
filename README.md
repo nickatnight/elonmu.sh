@@ -46,6 +46,15 @@ Example 200 response when NewsAPI fails or is unreachable (the service itself is
 ```
 
 Any other failure returns a 500 with the same `{ "error": "..." }` shape.
+- `description` and `urlImage` can be `null`. An article from NewsAPI without
+  a source name, title, URL or publish date is skipped, never served.
+- The latest page of NewsAPI results is cached for 15 minutes, and each request
+  picks one article from it, so an article published in the last 15 minutes may
+  not show up yet. If NewsAPI fails after one good load, the last good articles
+  are used. After a failure, the server waits a minute before asking NewsAPI
+  again. NewsAPI gets 10 seconds to answer. If it never answers, the body is
+  `{ "error": "There was an error with request. Please try again later." }`,
+  still with a 200.
 
 ## Jet tracker
 
