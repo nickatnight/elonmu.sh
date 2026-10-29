@@ -119,6 +119,57 @@ Example 200 response (`days` shortened):
   good load, a failure serves the last good series instead. After a failure,
   the server waits a minute before asking Wikimedia again.
 
+## DOGE since SNL
+
+Dogecoin's price now against the minute he went on air hosting Saturday Night
+Live, 8 May 2021. The live price comes from
+[CoinGecko](https://www.coingecko.com/en/coins/dogecoin) (no key needed).
+
+The data is available as JSON:
+
+```shell
+$ curl --request GET \
+       --url 'https://elonmu.sh/api/doge' \
+       --header 'accept: application/json'
+```
+
+Example 200 response:
+
+```json
+{
+  "coin": "Dogecoin",
+  "snl": {
+    "at": "2021-05-09T03:30:00.000Z",
+    "usd": 0.67343,
+    "source": {
+      "label": "Binance DOGE/USDT, 1-minute open at showtime",
+      "url": "https://data-api.binance.vision/api/v3/klines?symbol=DOGEUSDT&interval=1m&startTime=1620531000000&limit=1"
+    }
+  },
+  "now": { "at": "2026-10-28T04:30:56.000Z", "usd": 0.079484 },
+  "changePercent": -88.2,
+  "thousandDollarsNow": 118.03,
+  "attribution": {
+    "label": "Data provided by CoinGecko",
+    "url": "https://www.coingecko.com/en/coins/dogecoin"
+  }
+}
+```
+
+- `changePercent` is (now ÷ SNL − 1) × 100, rounded to one decimal.
+  `thousandDollarsNow` is what $1,000 of DOGE bought at showtime is worth now,
+  rounded to the cent. Both are computed from the unrounded prices.
+- `snl` never changes. CoinGecko's free history only goes back 365 days, so
+  the SNL price is a constant: the open of Binance's DOGE/USDT 1-minute candle
+  at 11:30 pm EDT on 8 May 2021, when the show went on air. `snl.source.url`
+  returns that candle. USDT is taken as USD.
+- `now.at` is when CoinGecko last updated its price, not when you asked.
+- It is cached for 5 minutes (`Cache-Control: public, max-age=300`). If
+  CoinGecko is unavailable and nothing has loaded yet, it returns a 200 with
+  `{ "error": "..." }`, like the News API, and `Cache-Control: no-store`.
+  After one good load, a failure serves the last good price instead. After a
+  failure, the server waits a minute before asking CoinGecko again.
+
 ## Development
 
 Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key.

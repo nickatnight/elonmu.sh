@@ -6,10 +6,11 @@ bundler. Bun runs the TypeScript directly.
 ## App
 
 - `src/index.ts` starts the server and warms the jet cache. `src/app.ts`
-  exports `createApp({ jet, hype, services })`, so tests can inject fakes and
-  start the app on a random port with `startTestServer` (`tests/helpers.ts`).
+  exports `createApp({ jet, hype, doge, services })`, so tests can inject
+  fakes and start the app on a random port with `startTestServer`
+  (`tests/helpers.ts`).
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
-  (NewsAPI, Bluesky, Wikimedia) fails, the route returns **200 with `{ error }`** through
+  (NewsAPI, Bluesky, Wikimedia, CoinGecko) fails, the route returns **200 with `{ error }`** through
   `upstreamFailure()`. Only our own bugs return 500. The README documents
   this contract.
 - `src/catalog.ts` (`SERVICES`) lists the public tools. The nav and the home
@@ -28,8 +29,8 @@ module that needed them (spec Decision 5). There was no copy per module and
 no re-export shim. The jet cache's tests passed with only their imports
 changed, which shows the move kept its behaviour.
 - `src/ports.ts` defines the ports every module uses: `Clock`, `HttpGet` and
-  `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`)
-  builds the real ones.
+  `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`,
+  `src/doge/index.ts`) builds the real ones.
 - `src/cache/cached-value.ts` is a keyed TTL cache, `CachedValue<T>`. It
   shares one in-flight load between concurrent callers. When a load fails it
   serves the last good value and logs the `stale` message, or logs the
@@ -41,7 +42,7 @@ changed, which shows the move kept its behaviour.
   `retryAfterMs` is opt-in: after a failed load, no new load starts for that
   long, whatever the key, and callers get the fallback (or the same error)
   without a new warning. Jet leaves it unset, so every miss while Bluesky is
-  down tries again. Hype sets it to a minute.
+  down tries again. Hype and DOGE set it to a minute.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
 
 ## Jet tracker (`src/jet/`)
@@ -137,3 +138,43 @@ WikimediaPageviewSource → CachedPageviewSource (4 h TTL, stale across keys, 1 
   only stack below 30rem. A page test checks which rules sit in each media
   query. The stats row and the spike list share a 50rem cap; the chart
   keeps the page's full width.
+
+## DOGE since SNL (`src/doge/`)
+
+Dogecoin's live USD price from CoinGecko against a fixed price for the minute
+SNL went on air, 8 May 2021. Same layout as the hype meter: `ports.ts` defines
+`PriceSource` and `DogeQuery`, and `createDogeModule()` in `index.ts` is the
+only place that wires real adapters:
+
+```
+CoinGeckoPriceSource → CachedPriceSource (5 min TTL, one key, 1 min retry) → DogeService → DogeQuery
+```
+
+- `createDogeModule()` builds its own `HttpGet` from `axios.get` with a 10 s
+  timeout, a 64 KB response cap, no redirects, and the same `User-Agent` as
+  the hype meter. CoinGecko's `/simple/price` needs no key, so there is no
+  env var. Tests pass in `get`, `clock` and `logger`.
+- `sources/coingecko/parse.ts` reads `dogecoin.usd` and
+  `dogecoin.last_updated_at`. It rejects the whole response unless `usd` is a
+  finite number above zero and `last_updated_at` is a positive safe integer
+  of Unix seconds that makes a valid date. It returns a `PriceQuote`
+  (`{ at, usd }`). No CoinGecko field reaches `domain.ts` or the JSON.
+- The SNL price is a constant, `SNL_SHOWTIME` in `snl.ts`, because CoinGecko's
+  public history stops at 365 days. It is the open of Binance's DOGE/USDT
+  1-minute candle at 03:30 UTC on 9 May 2021 (11:30 pm EDT on the 8th), and
+  its `source.url` returns that candle. Every number in the API is measured
+  against it.
+- `CachedPriceSource` keeps a `CachedValue` under one fixed key, with a
+  5-minute TTL and `retryAfterMs` of a minute. A failure after one good load
+  serves the last good price. While CoinGecko is healthy that is at most 12
+  calls an hour per process. During an outage it is one call a minute.
+- `DogeService` fetches the price once per comparison and takes the ratio
+  now ÷ SNL. `changePercent` is rounded to one decimal and
+  `thousandDollarsNow` to cents, both from the unrounded ratio.
+  `src/routes/doge.ts` serves `/api/doge` with `public, max-age=300`, or
+  `200 { error }` with `no-store` through `upstreamFailure()`.
+- Every `PriceSource` must satisfy the contract documented in `ports.ts`.
+  `tests/doge/price-source.contract.ts` (`describePriceSource`) runs it on the
+  CoinGecko source (through `fakeHttpGet` and the real capture in
+  `tests/fixtures/coingecko-simple-price.json`), on `InMemoryPriceSource` and
+  on `CachedPriceSource`.
