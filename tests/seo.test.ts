@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
+import { sampleDoge } from './doge/fakes';
 import { metaContent, startTestServer, type TestServer } from './helpers';
 import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
@@ -9,7 +10,7 @@ let html: string;
 
 beforeAll(async () => {
   server = await startTestServer(
-    createApp({ jet: sampleJet(), hype: sampleHype() })
+    createApp({ jet: sampleJet(), hype: sampleHype(), doge: sampleDoge() })
   );
   html = await (await fetch(`${server.url}/`)).text();
 });
@@ -58,7 +59,7 @@ describe('GET /sitemap.xml', () => {
     const body = await (await fetch(`${server.url}/sitemap.xml`)).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     const canonicals: string[] = [];
-    for (const path of ['/', '/jet', '/hype']) {
+    for (const path of ['/', '/jet', '/hype', '/doge']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
       expect({ path, canonical }).toEqual({
@@ -73,7 +74,7 @@ describe('GET /sitemap.xml', () => {
 
 describe('share tag URLs', () => {
   it('point og:url and twitter:url at each page canonical', async () => {
-    for (const path of ['/', '/jet', '/hype']) {
+    for (const path of ['/', '/jet', '/hype', '/doge']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
       expect({ path, canonical }).toEqual({

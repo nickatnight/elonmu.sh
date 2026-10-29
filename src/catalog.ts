@@ -33,5 +33,13 @@ export const SERVICES: readonly Service[] = [
       'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
     href: '/hype',
     cta: 'Read the tremors'
+  },
+  {
+    id: 'doge-since-snl',
+    name: 'DOGE since SNL',
+    nav: 'DOGE',
+    summary: 'What your Dogecoin from the night he hosted SNL is worth today.',
+    href: '/doge',
+    cta: 'Check the damage'
   }
 ];

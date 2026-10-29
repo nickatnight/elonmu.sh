@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../src/app';
+import { sampleDoge } from './doge/fakes';
 import {
   metaContent,
   mp4Duration,
@@ -15,7 +16,7 @@ let html: string;
 
 beforeAll(async () => {
   server = await startTestServer(
-    createApp({ jet: sampleJet(), hype: sampleHype() })
+    createApp({ jet: sampleJet(), hype: sampleHype(), doge: sampleDoge() })
   );
   html = await (await fetch(`${server.url}/`)).text();
 });
@@ -357,8 +358,14 @@ const githubLink = (page: string): string =>
   )?.[0] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · Hype · GitHub', () => {
-    expect(navLinks(html)).toEqual(['News API', 'Jet', 'Hype', 'GitHub']);
+  it('reads News API · Jet · Hype · DOGE · GitHub', () => {
+    expect(navLinks(html)).toEqual([
+      'News API',
+      'Jet',
+      'Hype',
+      'DOGE',
+      'GitHub'
+    ]);
   });
 
   it('has no GET /api button', () => {
@@ -383,6 +390,61 @@ describe('topbar', () => {
     );
   });
 
+  it('hides the GitHub link, and only it, below 424 px', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const [, maxWidth, rules] =
+      css.match(
+        /@media \(max-width: ([\d.]+)rem\) \{\s*([^{}]*\{[^}]*display: none;[^}]*\})\s*\}/
+      ) ?? [];
+    expect(rules).toMatch(/^\.topbar__actions \.topbar__extra \{/);
+    const hiddenUpToPx = Number(maxWidth) * 16;
+    expect(hiddenUpToPx).toBeGreaterThanOrEqual(423);
+    expect(hiddenUpToPx).toBeLessThan(424);
+    const extras = [
+      ...topbarNav(html).matchAll(/<a [^>]*class="topbar__extra"[^>]*>/g)
+    ];
+    expect(extras.length).toBe(1);
+    expect(extras[0]?.[0]).toContain('href="https://github.com/');
+  });
+
+  it('tightens the topbar gaps and nav text below 336 px', async () => {
+    const css = await Bun.file(
+      `${import.meta.dir}/../src/public/static/css/main.css`
+    ).text();
+    const declaration = (scope: string, selector: string, prop: string) =>
+      scope.match(
+        new RegExp(`(?:^|\\n)\\s*${selector} \\{[^}]*\\s${prop}: ([^;]+);`)
+      )?.[1] ?? '';
+    const smallestPx = (value: string): number => {
+      const token = value.match(/^var\((--[\w-]+)\)$/)?.[1];
+      if (token) return smallestPx(declaration(css, ':root', token));
+      const rem = value.match(/^(?:clamp\()?([\d.]+)rem/)?.[1];
+      return rem ? Number(rem) * 16 : Number.NaN;
+    };
+    const narrow = [
+      ...css.matchAll(/@media \(max-width: ([\d.]+)rem\) \{([\s\S]*?)\n\}/g)
+    ].find(([, maxWidth]) => {
+      const upToPx = Number(maxWidth) * 16;
+      return upToPx >= 335 && upToPx < 336;
+    })?.[2];
+    expect(narrow).toBeDefined();
+    for (const [selector, prop] of [
+      ['\\.topbar', 'gap'],
+      ['\\.topbar__actions', 'gap'],
+      ['\\.topbar__actions', 'font-size']
+    ] as const) {
+      const tight = smallestPx(declaration(narrow ?? '', selector, prop));
+      const base = smallestPx(declaration(css, selector, prop));
+      expect({ selector, prop, tighter: tight < base }).toEqual({
+        selector,
+        prop,
+        tighter: true
+      });
+    }
+  });
+
   it('opens only GitHub in a new tab; service links stay in this one', () => {
     const newTab = [
       ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)
@@ -391,8 +453,8 @@ describe('topbar', () => {
     expect(newTab[0]?.[0]).toContain('href="https://github.com/');
   });
 
-  it('renders the same nav on /, /jet and /hype', async () => {
-    for (const path of ['/jet', '/hype']) {
+  it('renders the same nav on /, /jet, /hype and /doge', async () => {
+    for (const path of ['/jet', '/hype', '/doge']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
@@ -406,7 +468,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(6);
+    expect(hrefs.length).toBe(8);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -456,7 +518,8 @@ describe('catalog copy', () => {
   it('describes the catalog to search engines', () => {
     expect(metaContent(html, 'name="description"')).toBe(
       'Free, satirical tools about Elon Musk: a random-news JSON API, a ' +
-        'year-to-date private-jet tracker and a Wikipedia hype meter.'
+        'year-to-date private-jet tracker, a Wikipedia hype meter and DOGE ' +
+        'since SNL.'
     );
   });
 
@@ -544,6 +607,7 @@ describe('services section', () => {
       { tag: 'a', cls: 'service', href: '/#get-api' },
       { tag: 'a', cls: 'service', href: '/jet' },
       { tag: 'a', cls: 'service', href: '/hype' },
+      { tag: 'a', cls: 'service', href: '/doge' },
       { tag: 'div', cls: 'service service--soon', href: undefined }
     ]);
     const section = servicesSection(html);
@@ -556,6 +620,9 @@ describe('services section', () => {
       'Hype meter',
       'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
       'Read the tremors',
+      'DOGE since SNL',
+      'What your Dogecoin from the night he hosted SNL is worth today.',
+      'Check the damage',
       'More soon',
       'Shipping next quarter. Which quarter is unspecified.'
     ]) {
@@ -563,7 +630,7 @@ describe('services section', () => {
     }
   });
 
-  it('lays the cards out two by two on desktop, with no card alone on a row', async () => {
+  it('lays the cards out two by two on desktop, an odd last card spanning the row at its own height', async () => {
     const css = await Bun.file(
       `${import.meta.dir}/../src/public/static/css/main.css`
     ).text();
@@ -577,7 +644,15 @@ describe('services section', () => {
       )?.[1]
     );
     expect(columns).toBe(2);
-    expect(serviceCards(html).length % columns).toBe(0);
+    const desktopBlock =
+      css.match(/@media \(min-width: 56\.25rem\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const oddLast =
+      desktopBlock.match(
+        /\.services__grid > li:last-child:nth-child\(odd\) \{([^}]*)\}/
+      )?.[1] ?? '';
+    expect(oddLast).toContain('grid-column: 1 / -1;');
+    expect(oddLast).toContain('align-self: start;');
+    expect(oddLast).not.toContain('min-height');
     expect(desktop).toContain('grid-auto-rows: 1fr;');
     const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
     expect(base).toContain('grid-template-columns: minmax(0, 1fr);');

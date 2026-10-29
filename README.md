@@ -10,8 +10,8 @@
 Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
 No key, no signup. /s
 
-The tools: the [News API](#news-api), the [Jet tracker](#jet-tracker) and the
-[Hype meter](#hype-meter).
+The tools: the [News API](#news-api), the [Jet tracker](#jet-tracker), the
+[Hype meter](#hype-meter) and [DOGE since SNL](#doge-since-snl).
 
 ## News API
 
