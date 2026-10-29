@@ -11,6 +11,8 @@ import { createJetModule } from './jet';
 import type { JetQuery } from './jet/ports';
 import { TEASER_SIZE } from './jet/projection';
 import { securityHeaders } from './middleware/security-headers';
+import { createNewsModule } from './news';
+import type { NewsQuery } from './news/ports';
 import * as routes from './routes';
 
 const publicDir = path.join(__dirname, 'public');
@@ -35,6 +37,7 @@ export type AppDeps = {
   jet?: JetQuery;
   hype?: HypeQuery;
   doge?: DogeQuery;
+  news?: NewsQuery;
   services?: readonly Service[];
 };
 
@@ -42,6 +45,7 @@ export const createApp = ({
   jet = createJetModule(),
   hype = createHypeModule(),
   doge = createDogeModule(),
+  news = createNewsModule(),
   services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
@@ -70,7 +74,7 @@ export const createApp = ({
     })
   );
 
-  routes.register(app, { jet, hype, doge });
+  routes.register(app, { jet, hype, doge, news });
 
   app.use((_req, res) => {
     res.status(404).send('does not compute...');

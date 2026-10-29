@@ -43,7 +43,6 @@ understood, rename or extract a function instead.
   (`it('serves plain text with a one-day cache')`).
 - Prefer fakes over mocks: `FakeClock` (never real timers),
   `InMemoryFlightSource`, `flight()`, and `createApp({ jet: fake })` over HTTP.
-  Spy on `axios.get` only for the NewsAPI tests.
 - Parser and pairing tests are table-driven on real post texts
   (`tests/fixtures/elonjet-feed.json`).
 - Never skip or delete a failing test, or loosen a budget, to get green.

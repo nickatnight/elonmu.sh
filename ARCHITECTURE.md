@@ -6,7 +6,7 @@ bundler. Bun runs the TypeScript directly.
 ## App
 
 - `src/index.ts` starts the server and warms the jet cache. `src/app.ts`
-  exports `createApp({ jet, hype, doge, services })`, so tests can inject
+  exports `createApp({ jet, hype, doge, news, services })`, so tests can inject
   fakes and start the app on a random port with `startTestServer`
   (`tests/helpers.ts`).
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
@@ -30,7 +30,7 @@ no re-export shim. The jet cache's tests passed with only their imports
 changed, which shows the move kept its behaviour.
 - `src/ports.ts` defines the ports every module uses: `Clock`, `HttpGet` and
   `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`,
-  `src/doge/index.ts`) builds the real ones.
+  `src/doge/index.ts`, `src/news/index.ts`) builds the real ones.
 - `src/cache/cached-value.ts` is a keyed TTL cache, `CachedValue<T>`. It
   shares one in-flight load between concurrent callers. When a load fails it
   serves the last good value and logs the `stale` message, or logs the
@@ -42,8 +42,41 @@ changed, which shows the move kept its behaviour.
   `retryAfterMs` is opt-in: after a failed load, no new load starts for that
   long, whatever the key, and callers get the fallback (or the same error)
   without a new warning. Jet leaves it unset, so every miss while Bluesky is
-  down tries again. Hype and DOGE set it to a minute.
+  down tries again. Hype, DOGE and news set it to a minute.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
+
+## News API (`src/news/`)
+
+One random news article about Elon Musk from NewsAPI, as JSON
+(`/api/news`). Same layout as the other modules: `ports.ts` defines
+`ArticleSource` and `NewsQuery`, and `createNewsModule()` in `index.ts` is
+the only place that wires axios, `NEWS_API_KEY`, the clock and
+`Math.random`:
+
+```
+NewsApiArticleSource → CachedArticleSource (15 min TTL, one key, 1 min retry) → NewsService → NewsQuery
+```
+
+- `createNewsModule()` gives axios a 10 s timeout. It turns an `AxiosError`
+  into a `NewsUpstreamError` whose `failure` is `error-response`,
+  `no-response` or `not-sent`, so nothing past the composition root sees
+  axios. `src/routes/news.ts` maps each failure to the error body
+  `/api/news` has always sent, through a lookup table. Any other error is a
+  500.
+- `sources/newsapi/parse.ts` turns NewsAPI's `articles` into `Article`s
+  (`source`, `title`, `description`, `url`, `urlImage`, `publishDate`).
+  NewsAPI field names (`urlToImage`, `publishedAt`, `source.name`) stay in
+  the adapter. An article missing a required string is skipped. A body with
+  no usable article throws, so an empty page is never cached.
+- `CachedArticleSource` caches NewsAPI's latest page. `NewsService` picks
+  one article per request with an injected `Math.random`, so responses vary
+  while NewsAPI is called at most once per 15 minutes when healthy and once
+  a minute while it fails.
+- Every `ArticleSource` must satisfy the contract in `ports.ts`.
+  `tests/news/article-source.contract.ts` (`describeArticleSource`) runs it
+  on the NewsAPI source (through `fakeHttpGet`), on `InMemoryArticleSource`
+  and on `CachedArticleSource`. Tests pass `createApp({ news })` a fake;
+  none spies on axios.
 
 ## Jet tracker (`src/jet/`)
 
