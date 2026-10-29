@@ -13,8 +13,17 @@ bundler. Bun runs the TypeScript directly.
   (NewsAPI, Bluesky, Wikimedia, CoinGecko) fails, the route returns **200 with `{ error }`** through
   `upstreamFailure()`. Only our own bugs return 500. The README documents
   this contract.
-- `src/catalog.ts` (`SERVICES`) lists the public tools. The nav and the home
-  page's service cards are rendered from it.
+- `src/catalog.ts` (`SERVICES`) lists the public tools. Each entry has an
+  `href` and an endpoint (`api`); its id is also its block's anchor on
+  `/docs`. The nav and the home page's service cards are rendered from it.
+  The nav's Docs link is hard-coded after the services, because `/docs` is
+  not a service.
+- The topbar (`partials/topbar.ejs`) carries the GitHub "fork me" ribbon on
+  every page: pure CSS, sized by the `--ribbon` `clamp()` token. Only the
+  band takes clicks. The nav has `padding-inline-end` derived from
+  `--ribbon` so no link runs under the band. Below 460 px (28.74rem) the
+  brand shows only its icon, and the name stays for screen readers, because
+  the brand, five links and a readable band don't fit in one bar there.
 - Static files are served with a one-year cache. Templates link them through
   `asset('static/...')`, which appends a hash of the file's contents.
 - `src/middleware/security-headers.ts` sets a strict CSP (`script-src 'self'`,
@@ -77,6 +86,24 @@ NewsApiArticleSource → CachedArticleSource (15 min TTL, one key, 1 min retry) 
   on the NewsAPI source (through `fakeHttpGet`), on `InMemoryArticleSource`
   and on `CachedArticleSource`. Tests pass `createApp({ news })` a fake;
   none spies on axios.
+
+## API docs (`/docs`)
+
+`src/routes/docs.ts` renders `src/views/docs.ejs`: one block per endpoint, in
+catalog order, then `#errors` with the status rules and a cache table.
+- The example responses live in `src/docs/examples.ts`, typed against each
+  module's domain types, so a renamed field fails the typecheck.
+  `tests/docs.test.ts` also compares every documented key path with a real
+  response from the fakes. Long arrays are trimmed in the examples, and
+  the page says so.
+- The examples are tokenized on the server by `tokenize` from
+  `src/public/static/js/console.js` and printed through
+  `partials/json.ejs` with `<%= %>`. That is the same one-module-for-both
+  pattern as `doge.js`, so `console.js` must not touch the DOM at module
+  top level.
+- `/docs`-only rules (`.doc*`, `.code*`, `.fields`, `.illus`) live in
+  `docs.css`. Until the API reference leaves the home page, the home page
+  loads it too.
 
 ## Jet tracker (`src/jet/`)
 

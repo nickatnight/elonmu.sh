@@ -5,6 +5,7 @@ const announce = (text) => {
 (() => {
   const $ = (selector) => document.querySelector(selector);
   const send = $('.console__send');
+  if (!send) return;
   const status = $('.console__status');
   const media = $('.card__media');
   const meta = $('.card__meta');

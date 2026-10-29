@@ -5,6 +5,7 @@ export type Service = {
   summary: string;
   href: string;
   cta: string;
+  api: string;
 };
 
 export const SERVICES: readonly Service[] = [
@@ -14,7 +15,8 @@ export const SERVICES: readonly Service[] = [
     nav: 'News API',
     summary: 'One random news article about Elon Musk, as JSON.',
     href: '/#get-api',
-    cta: 'GET /api/news'
+    cta: 'GET /api/news',
+    api: '/api/news'
   },
   {
     id: 'jet-tracker',
@@ -23,7 +25,8 @@ export const SERVICES: readonly Service[] = [
     summary:
       'Every private-jet flight this year, on a globe, with the fuel bill.',
     href: '/jet',
-    cta: 'Open the globe'
+    cta: 'Open the globe',
+    api: '/api/jet/flights'
   },
   {
     id: 'hype-meter',
@@ -32,7 +35,8 @@ export const SERVICES: readonly Service[] = [
     summary:
       'A year of Wikipedia views for Elon Musk, read like a seismograph. Aftershocks included.',
     href: '/hype',
-    cta: 'Read the tremors'
+    cta: 'Read the tremors',
+    api: '/api/hype'
   },
   {
     id: 'doge-since-snl',
@@ -40,6 +44,7 @@ export const SERVICES: readonly Service[] = [
     nav: 'DOGE',
     summary: 'What your Dogecoin from the night he hosted SNL is worth today.',
     href: '/doge',
-    cta: 'Check the damage'
+    cta: 'Check the damage',
+    api: '/api/doge'
   }
 ];

@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { createApp } from '../src/app';
 import { SERVICES } from '../src/catalog';
+import { sampleDoge } from './doge/fakes';
+import { startTestServer, type TestServer } from './helpers';
+import { sampleHype } from './hype/fakes';
+import { sampleJet } from './jet/fakes';
+import { sampleNews } from './news/fakes';
 
 describe('SERVICES', () => {
   it('lists the News API, the jet tracker, the hype meter, then DOGE since SNL', () => {
@@ -35,5 +41,43 @@ describe('SERVICES', () => {
 
   it('keeps HTML out of the summaries', () => {
     for (const { summary } of SERVICES) expect(summary).not.toMatch(/[<>]/);
+  });
+
+  it('gives every service its endpoint under /api', () => {
+    expect(SERVICES.map(({ id, api }) => ({ id, api }))).toEqual([
+      { id: 'news-api', api: '/api/news' },
+      { id: 'jet-tracker', api: '/api/jet/flights' },
+      { id: 'hype-meter', api: '/api/hype' },
+      { id: 'doge-since-snl', api: '/api/doge' }
+    ]);
+  });
+});
+
+describe('SERVICES over HTTP', () => {
+  let server: TestServer;
+
+  beforeAll(async () => {
+    server = await startTestServer(
+      createApp({
+        jet: sampleJet(),
+        hype: sampleHype(),
+        doge: sampleDoge(),
+        news: sampleNews()
+      })
+    );
+  });
+
+  afterAll(() => server.close());
+
+  it('serves every endpoint in the catalog as JSON with a 200', async () => {
+    for (const { api } of SERVICES) {
+      const res = await fetch(`${server.url}${api}`);
+      const body = (await res.json()) as Record<string, unknown>;
+      expect({ api, status: res.status, error: body.error }).toEqual({
+        api,
+        status: 200,
+        error: undefined
+      });
+    }
   });
 });

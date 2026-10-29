@@ -3,6 +3,6 @@ node_modules
 .env
 .DS_Store
 files/
-docs/
+/docs/
 .claude/worktrees/
 .playwright-mcp/

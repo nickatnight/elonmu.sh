@@ -349,23 +349,41 @@ const testService = (n: number) => ({
   nav: `S${n}`,
   summary: `Does thing ${n}.`,
   href: `/s${n}`,
-  cta: `Open ${n}`
+  cta: `Open ${n}`,
+  api: `/api/s${n}`
 });
 
-const githubLink = (page: string): string =>
-  topbarNav(page).match(
-    /<a [^>]*href="https:\/\/github\.com\/[^"]*"[^>]*>[\s\S]*?<\/a>/
-  )?.[0] ?? '';
+const ribbon = (page: string): string =>
+  page.match(/<a class="ribbon"[\s\S]*?<\/a>/)?.[0] ?? '';
+
+const accessibleName = (link: string): string =>
+  link
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const mainCss = () =>
+  Bun.file(`${import.meta.dir}/../src/public/static/css/main.css`).text();
+
+const ruleBody = (css: string, selector: string): string =>
+  css.match(
+    new RegExp(
+      `(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`
+    )
+  )?.[1] ?? '';
 
 describe('topbar', () => {
-  it('reads News API · Jet · Hype · DOGE · GitHub', () => {
-    expect(navLinks(html)).toEqual([
-      'News API',
-      'Jet',
-      'Hype',
-      'DOGE',
-      'GitHub'
-    ]);
+  it('reads News API · Jet · Hype · DOGE · Docs', () => {
+    expect(navLinks(html)).toEqual(['News API', 'Jet', 'Hype', 'DOGE', 'Docs']);
+  });
+
+  it('links Docs to /docs, after the services, marking it current only there', async () => {
+    expect(topbarNav(html)).toMatch(/<a href="\/docs">Docs<\/a>/);
+    const docs = await (await fetch(`${server.url}/docs`)).text();
+    expect(topbarNav(docs)).toMatch(
+      /<a href="\/docs" aria-current="page">Docs<\/a>/
+    );
+    expect(docs.match(/aria-current="page"/g)).toHaveLength(1);
   });
 
   it('has no GET /api button', () => {
@@ -374,39 +392,84 @@ describe('topbar', () => {
     expect(topbar).not.toContain('class="button"');
   });
 
-  it('marks GitHub as external with a mark screen readers skip', () => {
-    const github = githubLink(html);
-    expect(github).toMatch(/<svg\b[^>]*aria-hidden="true"/);
-    expect(github).not.toContain('<title');
+  it('carries the fork-me ribbon in the topbar, outside the nav', () => {
+    const topbar =
+      html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0] ?? '';
+    expect(topbar).toContain('<a class="ribbon"');
+    expect(topbarNav(html)).not.toContain('ribbon');
+    expect(topbarNav(html)).not.toContain('github.com');
   });
 
-  it('opens GitHub in a new tab, safely, and says so to screen readers', () => {
-    const github = githubLink(html);
-    const tag = github.match(/^<a [^>]*>/)?.[0] ?? '';
+  it('opens the repo in a new tab, safely', () => {
+    const tag = ribbon(html).match(/^<a [^>]*>/)?.[0] ?? '';
+    expect(tag).toContain('href="https://github.com/nickatnight/elonmu.sh"');
     expect(tag).toContain('target="_blank"');
-    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
-    expect(github).toContain(
-      '<span class="sr-only"> (opens in a new tab)</span>'
+    expect(tag).toMatch(/rel="noopener noreferrer"/);
+  });
+
+  it('starts its accessible name with the visible band text, with no aria-label', () => {
+    const link = ribbon(html);
+    expect(link).not.toContain('aria-label');
+    expect(accessibleName(link)).toBe(
+      'Fork me, Daddy /s (source on GitHub, opens in a new tab)'
+    );
+    expect(link).toContain(
+      '<span class="sr-only"> (source on GitHub, opens in a new tab)</span>'
+    );
+    expect(link).toMatch(
+      /<span class="ribbon__band">Fork me, Daddy \/s<span class="sr-only">/
     );
   });
 
-  it('hides the GitHub link, and only it, below 424 px', async () => {
-    const css = await Bun.file(
-      `${import.meta.dir}/../src/public/static/css/main.css`
-    ).text();
-    const [, maxWidth, rules] =
-      css.match(
-        /@media \(max-width: ([\d.]+)rem\) \{\s*([^{}]*\{[^}]*display: none;[^}]*\})\s*\}/
-      ) ?? [];
-    expect(rules).toMatch(/^\.topbar__actions \.topbar__extra \{/);
-    const hiddenUpToPx = Number(maxWidth) * 16;
-    expect(hiddenUpToPx).toBeGreaterThanOrEqual(423);
-    expect(hiddenUpToPx).toBeLessThan(424);
-    const extras = [
-      ...topbarNav(html).matchAll(/<a [^>]*class="topbar__extra"[^>]*>/g)
-    ];
-    expect(extras.length).toBe(1);
-    expect(extras[0]?.[0]).toContain('href="https://github.com/');
+  it('shows the ribbon on every page', async () => {
+    for (const path of ['/jet', '/hype', '/doge', '/docs']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+      expect({ path, ribbon: ribbon(page) }).toEqual({
+        path,
+        ribbon: ribbon(html)
+      });
+    }
+    expect(ribbon(html)).not.toBe('');
+  });
+
+  it('draws the band from tokens, with a focus outline and no motion', async () => {
+    const css = await mainCss();
+    const band = ruleBody(css, '.ribbon__band');
+    expect(band).toContain('background: var(--accent);');
+    expect(band).toContain('color: var(--accent-ink);');
+    expect(band).toContain('rotate(45deg)');
+    expect(css).toMatch(
+      /\.ribbon:focus-visible \.ribbon__band \{[^}]*outline:/
+    );
+    const ribbonRules = [...css.matchAll(/\.ribbon[\w-]*[^{]*\{([^}]*)\}/g)]
+      .map(([, body]) => body)
+      .join('');
+    expect(ribbonRules).not.toMatch(/animation|transition/);
+  });
+
+  it('sizes the ribbon with a clamp() token and never hides it', async () => {
+    const css = await mainCss();
+    expect(ruleBody(css, ':root')).toMatch(/--ribbon: clamp\(/);
+    expect(css).not.toMatch(/\.ribbon[^{]*\{[^}]*display: none/);
+  });
+
+  it('lets only the band take clicks, not the corner around it', async () => {
+    const css = await mainCss();
+    expect(ruleBody(css, '.ribbon')).toContain('pointer-events: none;');
+    expect(ruleBody(css, '.ribbon__band')).toContain('pointer-events: auto;');
+  });
+
+  it('keeps the nav clear of the band', async () => {
+    const css = await mainCss();
+    expect(ruleBody(css, '.topbar__actions')).toMatch(
+      /padding-inline-end: calc\(var\(--ribbon\)/
+    );
+    expect(ruleBody(css, '.topbar')).not.toContain('overflow');
+  });
+
+  it('keeps the brand name for screen readers when only the icon shows', () => {
+    const brand = html.match(/<a class="brand"[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(accessibleName(brand)).toBe('elonmu.sh');
   });
 
   it('tightens the topbar gaps and nav text below 336 px', async () => {
@@ -445,16 +508,12 @@ describe('topbar', () => {
     }
   });
 
-  it('opens only GitHub in a new tab; service links stay in this one', () => {
-    const newTab = [
-      ...topbarNav(html).matchAll(/<a [^>]*target="_blank"[^>]*>/g)
-    ];
-    expect(newTab.length).toBe(1);
-    expect(newTab[0]?.[0]).toContain('href="https://github.com/');
+  it('opens no nav link in a new tab', () => {
+    expect(topbarNav(html)).not.toContain('target="_blank"');
   });
 
-  it('renders the same nav on /, /jet, /hype and /doge', async () => {
-    for (const path of ['/jet', '/hype', '/doge']) {
+  it('renders the same nav on /, /jet, /hype, /doge and /docs', async () => {
+    for (const path of ['/jet', '/hype', '/doge', '/docs']) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
@@ -468,7 +527,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(8);
+    expect(hrefs.length).toBe(9);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -491,7 +550,7 @@ describe('topbar', () => {
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();
-      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'GitHub']);
+      expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'Docs']);
       expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
     } finally {
       await three.close();
