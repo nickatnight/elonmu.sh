@@ -13,11 +13,11 @@ bundler. Bun runs the TypeScript directly.
   (NewsAPI, Bluesky, Wikimedia, CoinGecko) fails, the route returns **200 with `{ error }`** through
   `upstreamFailure()`. Only our own bugs return 500. The README documents
   this contract.
-- `src/catalog.ts` (`SERVICES`) lists the public tools. Each entry has an
-  `href` and an endpoint (`api`); its id is also its block's anchor on
-  `/docs`. The nav and the home page's service cards are rendered from it.
-  The nav's Docs link is hard-coded after the services, because `/docs` is
-  not a service.
+- `src/catalog.ts` (`SERVICES`) lists the public tools. Each entry has a page
+  (`href`) and an endpoint (`api`); its id is also its block's anchor on
+  `/docs`. The nav, the home page's service cards, and the endpoint links on
+  each service page are rendered from it. The nav's Docs link is hard-coded
+  after the services, because `/docs` is not a service.
 - The topbar (`partials/topbar.ejs`) carries the GitHub "fork me" ribbon on
   every page: pure CSS, sized by the `--ribbon` `clamp()` token. Only the
   band takes clicks. The nav has `padding-inline-end` derived from
@@ -54,12 +54,12 @@ changed, which shows the move kept its behaviour.
   down tries again. Hype, DOGE and news set it to a minute.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
 
-## News API (`src/news/`)
+## News roulette (`src/news/`)
 
-One random news article about Elon Musk from NewsAPI, as JSON
-(`/api/news`). Same layout as the other modules: `ports.ts` defines
-`ArticleSource` and `NewsQuery`, and `createNewsModule()` in `index.ts` is
-the only place that wires axios, `NEWS_API_KEY`, the clock and
+One random news article about Elon Musk from NewsAPI, as a page (`/news`)
+and as JSON (`/api/news`). Same layout as the other modules: `ports.ts`
+defines `ArticleSource` and `NewsQuery`, and `createNewsModule()` in
+`index.ts` is the only place that wires axios, `NEWS_API_KEY`, the clock and
 `Math.random`:
 
 ```
@@ -86,6 +86,11 @@ NewsApiArticleSource → CachedArticleSource (15 min TTL, one key, 1 min retry) 
   on the NewsAPI source (through `fakeHttpGet`), on `InMemoryArticleSource`
   and on `CachedArticleSource`. Tests pass `createApp({ news })` a fake;
   none spies on axios.
+- `format.ts` builds the `/news` page model. The image and the article link
+  are kept only if they are `https:` URLs. `/news` renders the article on
+  the server with no script, sends `Cache-Control: no-store`, and shows an
+  unavailable note with a 200 when NewsAPI fails. Its rules live in
+  `news.css` (`.news*`).
 
 ## API docs (`/docs`)
 
