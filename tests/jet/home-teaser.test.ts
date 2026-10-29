@@ -50,10 +50,10 @@ const teaser = (name: Name) =>
   html[name].match(/<section class="teaser"[\s\S]*?<\/section>/)?.[0] ?? '';
 
 describe('home jet teaser', () => {
-  it('sits between the console and the docs', () => {
+  it('sits between the console and the testimonials', () => {
     const at = (s: string) => html.full.indexOf(s);
     expect(at('class="teaser"')).toBeGreaterThan(at('id="try"'));
-    expect(at('class="teaser"')).toBeLessThan(at('id="get-api"'));
+    expect(at('class="teaser"')).toBeLessThan(at('id="testimonials"'));
   });
 
   it('has its heading and links to /jet', () => {

@@ -146,14 +146,29 @@ describe('GET /', () => {
     );
   });
 
-  it('names GET /api/news in the console, the docs heading and the curl example', () => {
+  it('names GET /api/news in the console, and leaves the reference to /docs', () => {
     expect(html).toContain(
       '<code class="console__url">https://elonmu.sh/api/news</code>'
     );
-    expect(html).toContain(
-      '<h2 id="get-api-title"><code>GET /api/news</code></h2>'
+    expect(html).not.toContain('id="get-api"');
+    expect(html).not.toContain('id="errors"');
+    expect(html).not.toContain('curl https://elonmu.sh/api/news');
+  });
+
+  it('sends the old #get-api and #errors links on to /docs with a hashed module', () => {
+    expect(html).toMatch(
+      /<script type="module" src="\/static\/js\/legacy-anchors\.js\?v=[0-9a-f]+"><\/script>/
     );
-    expect(html).toContain('<code>curl https://elonmu.sh/api/news</code>');
+  });
+
+  it('serves less HTML than main did with the docs on it (18,477 bytes)', () => {
+    expect(new TextEncoder().encode(html).byteLength).toBeLessThan(18_477);
+  });
+
+  it('never loads docs.css, globe.gl or jet.js', () => {
+    expect(html).not.toContain('docs.css');
+    expect(html).not.toContain('globe.gl');
+    expect(html).not.toContain('jet.js');
   });
 
   it('sends the console request to /api/news', async () => {
@@ -164,8 +179,8 @@ describe('GET /', () => {
     expect(js).not.toContain("fetch('/api'");
   });
 
-  it('documents a response example with the real /api/news keys', () => {
-    const block = html.match(/data-example="response"[^>]*>([\s\S]*?)<\/pre>/);
+  it('shows a console example with the real /api/news keys', () => {
+    const block = html.match(/<pre class="json"[^>]*>([\s\S]*?)<\/pre>/);
     expect(block).not.toBeNull();
     const text = (block?.[1] ?? '')
       .replace(/<[^>]+>/g, '')
@@ -181,10 +196,8 @@ describe('GET /', () => {
     ]);
   });
 
-  it('renders copy buttons hidden until the script runs', () => {
-    const buttons = html.match(/<button[^>]*class="copy"[^>]*>/g) ?? [];
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
-    for (const button of buttons) expect(button).toContain('hidden');
+  it('has no copy buttons, which moved to /docs with the examples', () => {
+    expect(html).not.toMatch(/<button[^>]*class="copy"/);
   });
 
   it('has a testimonials section that says its people are fictional', () => {
