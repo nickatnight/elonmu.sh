@@ -349,7 +349,8 @@ const testService = (n: number) => ({
   nav: `S${n}`,
   summary: `Does thing ${n}.`,
   href: `/s${n}`,
-  cta: `Open ${n}`
+  cta: `Open ${n}`,
+  api: `/api/s${n}`
 });
 
 const githubLink = (page: string): string =>
