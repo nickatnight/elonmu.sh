@@ -130,61 +130,40 @@ describe('GET /', () => {
     );
   });
 
-  it('renders the console send button hidden until the script runs', () => {
-    expect(html).toMatch(/<button[^>]*class="console__send[^"]*"[^>]*hidden/);
+  it('leaves the reference and the live requests to /docs', () => {
+    expect(html).not.toContain('id="try"');
+    expect(html).not.toContain('class="console');
+    expect(html).not.toContain('id="get-api"');
+    expect(html).not.toContain('id="errors"');
+    expect(html).not.toContain('curl https://elonmu.sh/api/news');
   });
 
-  it('opens the console article in a new tab, safely, and says so to screen readers', () => {
-    const link = html.match(
-      /<a [^>]*class="card__link"[^>]*>[\s\S]*?<\/a>/
-    )?.[0];
-    const tag = link?.match(/^<a [^>]*>/)?.[0] ?? '';
-    expect(tag).toContain('target="_blank"');
-    expect(tag).toMatch(/rel="[^"]*\bnoopener\b[^"]*"/);
-    expect(link).toContain(
-      '<span class="sr-only"> (opens in a new tab)</span>'
+  it('sends the old #get-api and #errors links on to /docs with a hashed module', () => {
+    expect(html).toMatch(
+      /<script type="module" src="\/static\/js\/legacy-anchors\.js\?v=[0-9a-f]+"><\/script>/
     );
   });
 
-  it('names GET /api/news in the console, the docs heading and the curl example', () => {
-    expect(html).toContain(
-      '<code class="console__url">https://elonmu.sh/api/news</code>'
-    );
-    expect(html).toContain(
-      '<h2 id="get-api-title"><code>GET /api/news</code></h2>'
-    );
-    expect(html).toContain('<code>curl https://elonmu.sh/api/news</code>');
+  it('serves less HTML than main did with the docs on it (18,477 bytes)', () => {
+    expect(new TextEncoder().encode(html).byteLength).toBeLessThan(18_477);
   });
 
-  it('sends the console request to /api/news', async () => {
-    const js = await Bun.file(
+  it('never loads docs.css, globe.gl or jet.js', () => {
+    expect(html).not.toContain('docs.css');
+    expect(html).not.toContain('globe.gl');
+    expect(html).not.toContain('jet.js');
+  });
+
+  it('does not load console.js, and main.js makes no requests', async () => {
+    expect(html).not.toContain('console.js');
+    const main = await Bun.file(
       `${import.meta.dir}/../src/public/static/js/main.js`
     ).text();
-    expect(js).toContain("fetch('/api/news'");
-    expect(js).not.toContain("fetch('/api'");
+    expect(main).not.toContain('fetch(');
   });
 
-  it('documents a response example with the real /api/news keys', () => {
-    const block = html.match(/data-example="response"[^>]*>([\s\S]*?)<\/pre>/);
-    expect(block).not.toBeNull();
-    const text = (block?.[1] ?? '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&quot;/g, '"')
-      .replace(/&amp;/g, '&');
-    expect(Object.keys(JSON.parse(text))).toEqual([
-      'source',
-      'title',
-      'description',
-      'url',
-      'urlImage',
-      'publishDate'
-    ]);
-  });
-
-  it('renders copy buttons hidden until the script runs', () => {
-    const buttons = html.match(/<button[^>]*class="copy"[^>]*>/g) ?? [];
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
-    for (const button of buttons) expect(button).toContain('hidden');
+  it('has no copy buttons, which moved to /docs with the examples', () => {
+    expect(html).not.toMatch(/<button[^>]*class="copy"/);
   });
 
   it('has a testimonials section that says its people are fictional', () => {
@@ -193,13 +172,24 @@ describe('GET /', () => {
     expect(html).toContain('AI-generated');
   });
 
-  it('keeps the console out of the hero, in its own section below it', () => {
-    const hero =
-      html.match(/<section\s+class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
-    expect(hero).toContain('id="hero-title"');
-    expect(hero).not.toContain('class="console"');
-    expect(html).toMatch(
-      /<section class="try" id="try"[^>]*>\s*<figure class="console"/
+  it('runs hero, services, jet teaser, testimonials, then the footer', () => {
+    const at = (marker: string) => html.indexOf(marker);
+    const order = [
+      'class="hero"',
+      '<section class="services"',
+      '<section class="teaser"',
+      '<section class="praise"',
+      '<footer class="footer"'
+    ].map(at);
+    expect(order.every((i) => i > -1)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it("quotes Priya's approved four-curl testimonial", () => {
+    const lead =
+      html.match(/<figure class="praise__lead">[\s\S]*?<\/figure>/)?.[0] ?? '';
+    expect(lead).toContain(
+      '<p>We replaced our news desk, our travel desk, our sentiment analyst and our financial adviser with four curls. Morale is down, but uptime is divine.</p>'
     );
   });
 
@@ -317,10 +307,6 @@ describe('GET /', () => {
         types[ext as keyof typeof types]
       );
     }
-  });
-
-  it('announces console results politely', () => {
-    expect(html).toContain('aria-live="polite"');
   });
 
   it('serves every local asset the page references', async () => {
@@ -534,7 +520,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(9);
+    expect(hrefs.length).toBe(13);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -639,12 +625,6 @@ describe('catalog copy', () => {
     );
   });
 
-  it('labels the console as the News API', () => {
-    expect(html).toContain(
-      '<section class="try" id="try" aria-label="Try the News API">'
-    );
-  });
-
   it('drops the single-endpoint copy', () => {
     expect(html).not.toContain('One endpoint');
     expect(html).not.toContain('Stay Informed');
@@ -659,23 +639,22 @@ const servicesSection = (page: string): string =>
 const serviceCards = (page: string) =>
   [
     ...servicesSection(page).matchAll(
-      /<(a|div) class="(service(?: [^"]*)?)"(?: href="([^"]*)")?/g
+      /<(article|div) class="(service(?: [^"]*)?)">([\s\S]*?)<\/\1>/g
     )
-  ].map(([, tag, cls, href]) => ({
+  ].map(([, tag, cls, body]) => ({
     tag,
     cls,
-    // An unmatched optional group is undefined at runtime
-    href: href as string | undefined
+    links: [...body.matchAll(/<a [^>]*href="([^"]*)"/g)].map(([, href]) => href)
   }));
 
 describe('services section', () => {
-  it('sits between the hero and the console', () => {
+  it('sits between the hero and the jet teaser', () => {
     const hero = html.search(/<section\s+class="hero"/);
     const services = html.indexOf('<section class="services" id="services"');
-    const tryIt = html.indexOf('<section class="try" id="try"');
+    const teaser = html.indexOf('<section class="teaser"');
     expect(hero).toBeGreaterThan(-1);
     expect(services).toBeGreaterThan(hero);
-    expect(tryIt).toBeGreaterThan(services);
+    expect(teaser).toBeGreaterThan(services);
   });
 
   it('has the Services heading and its subline', () => {
@@ -687,11 +666,15 @@ describe('services section', () => {
 
   it('links one card per catalog entry, in order, then More soon', () => {
     expect(serviceCards(html)).toEqual([
-      { tag: 'a', cls: 'service', href: '/news' },
-      { tag: 'a', cls: 'service', href: '/jet' },
-      { tag: 'a', cls: 'service', href: '/hype' },
-      { tag: 'a', cls: 'service', href: '/doge' },
-      { tag: 'div', cls: 'service service--soon', href: undefined }
+      { tag: 'article', cls: 'service', links: ['/news', '/docs#news-api'] },
+      { tag: 'article', cls: 'service', links: ['/jet', '/docs#jet-tracker'] },
+      { tag: 'article', cls: 'service', links: ['/hype', '/docs#hype-meter'] },
+      {
+        tag: 'article',
+        cls: 'service',
+        links: ['/doge', '/docs#doge-since-snl']
+      },
+      { tag: 'div', cls: 'service service--soon', links: [] }
     ]);
     const section = servicesSection(html);
     for (const text of [
@@ -711,6 +694,50 @@ describe('services section', () => {
     ]) {
       expect(section).toContain(text);
     }
+  });
+
+  it('links the name to the page and stretches that link over the card', async () => {
+    const section = servicesSection(html);
+    for (const { name, href } of SERVICES)
+      expect(section).toContain(
+        `<h3 class="service__name"><a class="service__link" href="${href}">${name}</a></h3>`
+      );
+    const css = await mainCss();
+    const stretch = ruleBody(css, '.service__link::after');
+    expect(stretch).toContain('position: absolute;');
+    expect(stretch).toContain('inset: 0;');
+    expect(ruleBody(css, '.service')).toContain('position: relative;');
+  });
+
+  it('ends each card with one endpoint link to its docs block, above the stretched link', async () => {
+    const section = servicesSection(html);
+    for (const { id, api } of SERVICES)
+      expect(section).toContain(
+        `<a class="service__endpoint" href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
+      );
+    const css = await mainCss();
+    const row = ruleBody(css, '.service__endpoint');
+    expect(row).toContain('position: relative;');
+    expect(row).toMatch(/z-index: [1-9]/);
+    expect(row).toMatch(/border-top: 1px solid /);
+    expect(row).toContain('font-family: var(--font-code);');
+  });
+
+  it('puts the name link before the endpoint link, and never nests links', () => {
+    const section = servicesSection(html);
+    for (const link of section.match(/<a [^>]*>[\s\S]*?<\/a>/g) ?? [])
+      expect(link.slice(2)).not.toContain('<a ');
+    for (const { id, href } of SERVICES)
+      expect(section.indexOf(`href="${href}"`)).toBeLessThan(
+        section.indexOf(`href="/docs#${id}"`)
+      );
+  });
+
+  it('shows a focus ring around the whole card for the name link', async () => {
+    const css = await mainCss();
+    expect(css).toMatch(
+      /\.service__link:focus-visible::after \{[^}]*outline: 2px solid var\(--accent\);/
+    );
   });
 
   it('lays the cards out two by two on desktop, an odd last card spanning the row at its own height', async () => {
@@ -736,7 +763,7 @@ describe('services section', () => {
     expect(oddLast).toContain('grid-column: 1 / -1;');
     expect(oddLast).toContain('align-self: start;');
     expect(oddLast).not.toContain('min-height');
-    expect(desktop).toContain('grid-auto-rows: 1fr;');
+    expect(desktop).not.toContain('grid-auto-rows');
     const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
     expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
     expect(base).not.toContain('grid-auto-rows');
@@ -755,11 +782,11 @@ describe('services section', () => {
     );
     try {
       const page = await (await fetch(`${three.url}/`)).text();
-      expect(serviceCards(page).map(({ href }) => href)).toEqual([
-        '/s1',
-        '/s2',
-        '/s3',
-        undefined
+      expect(serviceCards(page).map(({ links }) => links)).toEqual([
+        ['/s1', '/docs#service-1'],
+        ['/s2', '/docs#service-2'],
+        ['/s3', '/docs#service-3'],
+        []
       ]);
       expect(servicesSection(page)).toContain(
         'Uses &lt;b&gt;bold&lt;/b&gt; &amp; more.'

@@ -60,8 +60,8 @@ understood, rename or extract a function instead.
   BEM-ish classes (`.hero__video`), and no `!important`. Respect
   `prefers-reduced-motion` and keep `:focus-visible` outlines.
 - `/jet`-only rules (`.jet*`, `.flight*`) go in `jet.css`, never `main.css`
-  (enforced in `tests/jet/page.test.ts`). The home page never loads globe.gl or
-  `jet.js`.
+  (enforced in `tests/jet/page.test.ts`). The home page never loads globe.gl,
+  `jet.js`, `docs.css` or `console.js`.
 - Client JS is vanilla ES modules with JSDoc types. Put post-derived text into
   the DOM with `textContent` (no `innerHTML`) and allow only `https:` URLs.
 - CSP: never `'unsafe-eval'`, `'unsafe-inline'` or `*`. Fit it to the

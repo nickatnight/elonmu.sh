@@ -11,7 +11,7 @@
 <%- include('partials/head-assets') %>
 <%- include('partials/share-tags', { url: 'https://elonmu.sh/docs', title, description }) %>
     <link rel="stylesheet" href="<%= asset('static/css/docs.css') %>" />
-    <script src="<%= asset('static/js/main.js') %>" defer></script>
+    <script type="module" src="<%= asset('static/js/console.js') %>"></script>
   </head>
 
   <body>
@@ -53,10 +53,7 @@
             <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
             <pre translate="no"><code>curl https://elonmu.sh/api/news</code></pre>
           </figure>
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['news-api'] }) %></code></pre>
-          </figure>
+<%- include('partials/docs-response', { id: 'news-api' }) -%>
         </div>
       </section>
 
@@ -100,10 +97,7 @@
             <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
             <pre translate="no"><code>curl https://elonmu.sh/api/jet/flights</code></pre>
           </figure>
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['jet-tracker'] }) %></code></pre>
-          </figure>
+<%- include('partials/docs-response', { id: 'jet-tracker' }) -%>
         </div>
       </section>
 
@@ -144,10 +138,7 @@
             <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
             <pre translate="no"><code>curl https://elonmu.sh/api/hype</code></pre>
           </figure>
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['hype-meter'] }) %></code></pre>
-          </figure>
+<%- include('partials/docs-response', { id: 'hype-meter' }) -%>
         </div>
       </section>
 
@@ -184,10 +175,7 @@
             <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
             <pre translate="no"><code>curl https://elonmu.sh/api/doge</code></pre>
           </figure>
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre data-example="response" translate="no"><code><%- include('partials/json', { tokens: examples['doge-since-snl'] }) %></code></pre>
-          </figure>
+<%- include('partials/docs-response', { id: 'doge-since-snl' }) -%>
         </div>
       </section>
 

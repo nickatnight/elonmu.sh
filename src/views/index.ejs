@@ -8,9 +8,9 @@
     <link rel="canonical" href="https://elonmu.sh/" />
 
 <%- include('partials/head-assets') %>
-    <link rel="stylesheet" href="<%= asset('static/css/docs.css') %>" />
     <script src="<%= asset('static/js/main.js') %>" defer></script>
     <script type="module" src="<%= asset('static/js/hero.js') %>"></script>
+    <script type="module" src="<%= asset('static/js/legacy-anchors.js') %>"></script>
 
 <%- include('partials/share-tags', {
   url: 'https://elonmu.sh/',
@@ -70,128 +70,13 @@
 
 <%- include('partials/services') %>
 
-      <section class="try" id="try" aria-label="Try the News API">
-        <figure class="console" data-ui aria-label="Request and response">
-          <div class="console__bar">
-            <code class="console__method">GET</code>
-            <code class="console__url">https://elonmu.sh/api/news</code>
-            <span class="console__status">200 OK · example</span>
-            <button class="console__send button" type="button" hidden>
-              Send
-            </button>
-          </div>
-          <div class="console__body">
-            <article class="card">
-              <div class="card__media" hidden></div>
-              <p class="card__meta">Example Daily · Oct 22, 2026</p>
-              <h2 class="card__title">
-                Musk announces plan to announce a plan
-              </h2>
-              <p class="card__desc">
-                Sources close to the announcement say the announcement will be
-                announced shortly.
-              </p>
-              <a class="card__link" target="_blank" rel="noopener noreferrer">Read article →<span class="sr-only"> (opens in a new tab)</span></a>
-            </article>
-            <pre class="json" translate="no"><code>{
-  <span class="tok-key">"source"</span>: <span class="tok-str">"Example Daily"</span>,
-  <span class="tok-key">"title"</span>: <span class="tok-str">"Musk announces plan to announce a plan"</span>,
-  <span class="tok-key">"description"</span>: <span class="tok-str">"Sources close to…"</span>,
-  <span class="tok-key">"url"</span>: <span class="tok-str">"https://example.com/plan"</span>,
-  <span class="tok-key">"urlImage"</span>: <span class="tok-str">"https://example.com/plan.jpg"</span>,
-  <span class="tok-key">"publishDate"</span>: <span class="tok-str">"2026-10-22T09:00:00Z"</span>
-}</code></pre>
-          </div>
-        </figure>
-      </section>
-
 <%- include('partials/jet-teaser', { teaser }) %>
 
-      <section class="doc" id="get-api" aria-labelledby="get-api-title" data-reveal>
-        <div class="doc__prose">
-          <h2 id="get-api-title"><code>GET /api/news</code></h2>
-          <p>
-            Returns one random English-language news article about Elon Musk,
-            picked from the latest page of NewsAPI results. No parameters, no
-            headers, no API key.
-          </p>
-          <h3>Response fields</h3>
-          <table class="fields">
-            <thead>
-              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><code>source</code></td><td>string</td><td>Publication name</td></tr>
-              <tr><td><code>title</code></td><td>string</td><td>Headline</td></tr>
-              <tr><td><code>description</code></td><td>string | null</td><td>Summary from the publisher</td></tr>
-              <tr><td><code>url</code></td><td>string</td><td>Link to the full article</td></tr>
-              <tr><td><code>urlImage</code></td><td>string | null</td><td>Lead image URL</td></tr>
-              <tr><td><code>publishDate</code></td><td>string</td><td>ISO 8601 timestamp</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="doc__code">
-          <figure class="code" data-ui>
-            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre translate="no"><code>curl https://elonmu.sh/api/news</code></pre>
-          </figure>
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre data-example="response" translate="no"><code>{
-  <span class="tok-key">"source"</span>: <span class="tok-str">"Business Insider"</span>,
-  <span class="tok-key">"title"</span>: <span class="tok-str">"Elon Musk's 10 most colorful quotes from Tesla's investor day"</span>,
-  <span class="tok-key">"description"</span>: <span class="tok-str">"Musk joked about charging mishaps."</span>,
-  <span class="tok-key">"url"</span>: <span class="tok-str">"https://example.com/elon-musk-investor-day"</span>,
-  <span class="tok-key">"urlImage"</span>: <span class="tok-str">"https://example.com/elon.jpg"</span>,
-  <span class="tok-key">"publishDate"</span>: <span class="tok-str">"2023-03-02T11:37:41Z"</span>
-}</code></pre>
-          </figure>
-        </div>
-      </section>
-
-      <section class="doc" id="errors" aria-labelledby="errors-title" data-reveal>
-        <div class="doc__prose">
-          <h2 id="errors-title">Errors</h2>
-          <p>
-            Errors come back as JSON with a single <code>error</code> message.
-            When NewsAPI is down or unreachable, the status is still 200: we are
-            fine, it is the news that failed. Our own mistakes are a 500.
-          </p>
-          <table class="fields">
-            <thead>
-              <tr><th scope="col">Status</th><th scope="col">When</th></tr>
-            </thead>
-            <tbody>
-              <tr><td><code>200</code></td><td>NewsAPI returned an error or never answered</td></tr>
-              <tr><td><code>500</code></td><td>Something broke on our side</td></tr>
-              <tr><td><code>404</code></td><td>Any other path. The body is plain text: <code>does not compute...</code></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="doc__code">
-          <figure class="code" data-ui>
-            <figcaption>Response · 200 <button class="copy" type="button" hidden>Copy</button></figcaption>
-            <pre translate="no"><code>{
-  <span class="tok-key">"error"</span>: <span class="tok-str">"There was an error with NewsAPI. Please try again later."</span>
-}</code></pre>
-          </figure>
-          <figure class="illus">
-            <img
-              src="<%= asset('static/img/rud.jpg') %>"
-              width="960"
-              height="536"
-              alt="A rocket breaking apart mid-flight"
-              loading="lazy"
-            />
-            <figcaption>Fig. 1: a 500, in production.</figcaption>
-          </figure>
-        </div>
-      </section>
       <section class="praise" id="testimonials" aria-labelledby="testimonials-title" data-reveal>
         <h2 id="testimonials-title">What developers are saying</h2>
         <figure class="praise__lead">
           <blockquote>
-            <p>We replaced our news team with a single curl. Morale is down, but uptime is divine.</p>
+            <p>We replaced our news desk, our travel desk, our sentiment analyst and our financial adviser with four curls. Morale is down, but uptime is divine.</p>
           </blockquote>
           <figcaption>Priya Null, CTO at a Series Z startup</figcaption>
         </figure>
@@ -218,7 +103,6 @@
           <figcaption>Jordan Byte, staff engineer at Hypothetical Corp</figcaption>
         </figure>
       </section>
-      <p class="sr-only announce" aria-live="polite"></p>
     </main>
 
     <footer class="footer">

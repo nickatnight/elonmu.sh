@@ -6,11 +6,12 @@
         <ul class="services__grid" role="list">
 <% for (const service of services) { -%>
           <li>
-            <a class="service" href="<%= service.href %>">
-              <h3 class="service__name"><%= service.name %></h3>
+            <article class="service">
+              <h3 class="service__name"><a class="service__link" href="<%= service.href %>"><%= service.name %></a></h3>
               <p class="service__summary"><%= service.summary %></p>
               <span class="service__cta"><%= service.cta %> <span class="service__arrow" aria-hidden="true">→</span></span>
-            </a>
+              <a class="service__endpoint" href="/docs#<%= service.id %>"><code>GET <%= service.api %></code> <span>docs</span></a>
+            </article>
           </li>
 <% } -%>
           <li>

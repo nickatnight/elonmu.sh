@@ -80,7 +80,7 @@ describe('compression', () => {
   });
 
   it('gzips static CSS and JS', async () => {
-    for (const file of ['/static/css/main.css', '/static/js/main.js']) {
+    for (const file of ['/static/css/main.css', '/static/js/hero.js']) {
       const headers = await fetchGzip(`${ok.url}${file}`);
       expect(headers.get('content-encoding')).toBe('gzip');
     }

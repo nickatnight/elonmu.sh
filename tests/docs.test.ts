@@ -202,14 +202,45 @@ describe('GET /docs', () => {
     expect(sheets[1]).toMatch(/^\/static\/css\/docs\.css\?v=[0-9a-f]+$/);
   });
 
-  it('loads no script but main.js, for the copy buttons', () => {
+  it('loads only console.js, for Send and Copy, with a content hash', () => {
     const scripts = html.match(/<script\b[^>]*>/g) ?? [];
     expect(scripts).toEqual([
       expect.stringMatching(
-        /^<script src="\/static\/js\/main\.js\?v=[0-9a-f]+" defer>$/
+        /^<script type="module" src="\/static\/js\/console\.js\?v=[0-9a-f]+">$/
       )
     ]);
     expect(html).toContain('aria-live="polite"');
+  });
+
+  it('gives each endpoint block a Send button for its catalog api, hidden until the script runs', () => {
+    for (const { id, api } of SERVICES) {
+      const sends = block(id).match(/<button [^>]*data-api="[^"]*"[^>]*>/g);
+      expect({ id, sends }).toEqual({
+        id,
+        sends: [
+          `<button class="button code__send" type="button" data-api="${api}" hidden>`
+        ]
+      });
+    }
+    expect(block('errors')).not.toContain('data-api=');
+  });
+
+  it('links each live preview to the full response in a new tab, hidden until a preview exists', () => {
+    for (const { id, api } of SERVICES) {
+      const link =
+        block(id).match(/<a class="code__full"[\s\S]*?<\/a>/)?.[0] ?? '';
+      expect(link).toContain(
+        `<a class="code__full" href="${api}" target="_blank" rel="noopener noreferrer" hidden>`
+      );
+      expect(textOf(link)).toBe('Full response ↗ (opens in a new tab)');
+    }
+  });
+
+  it('labels the static example as the response until Send replaces it', () => {
+    for (const { id } of SERVICES)
+      expect(block(id)).toContain(
+        '<span class="code__label">Response · 200</span>'
+      );
   });
 
   it('puts no inline style attributes on the page', () => {

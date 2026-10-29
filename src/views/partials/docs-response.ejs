@@ -1,0 +1,5 @@
+<% const api = services.find((s) => s.id === id)?.api; -%>
+          <figure class="code" data-ui>
+            <figcaption><span class="code__label">Response · 200</span><span class="code__actions"><% if (api) { %><a class="code__full" href="<%= api %>" target="_blank" rel="noopener noreferrer" hidden>Full response ↗<span class="sr-only"> (opens in a new tab)</span></a> <button class="button code__send" type="button" data-api="<%= api %>" hidden>Send</button> <% } %><button class="copy" type="button" hidden>Copy</button></span></figcaption>
+            <pre data-example="response" translate="no"><code><%- include('json', { tokens: examples[id] }) %></code></pre>
+          </figure>

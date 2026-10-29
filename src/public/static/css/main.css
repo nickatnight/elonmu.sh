@@ -13,7 +13,6 @@
   --muted: #a1a8b3;
   --accent: #e31937;
   --accent-ink: #ffffff;
-  --ok: #7ed492;
   --tok-key: #8cc4ff;
   --tok-str: #a8d9a1;
 
@@ -402,6 +401,7 @@ pre {
 }
 
 .service {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -415,6 +415,21 @@ pre {
   font-size: 1.25rem;
   line-height: 1.25;
   letter-spacing: -0.01em;
+}
+
+.service__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.service__link:focus-visible {
+  outline: none;
+}
+
+.service__link:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .service__summary {
@@ -433,13 +448,37 @@ pre {
   transition: transform 150ms var(--ease-out);
 }
 
-a.service:hover,
-a.service:focus-visible {
+.service__endpoint {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  color: var(--muted);
+  font-family: var(--font-code);
+  font-size: var(--step-small);
+  transition: color 150ms var(--ease-out);
+}
+
+.service__endpoint code {
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+
+.service__endpoint:hover,
+.service__endpoint:focus-visible {
+  color: var(--ink);
+}
+
+.service:has(.service__link:hover, .service__link:focus-visible) {
   background: var(--raised);
 }
 
-a.service:hover .service__arrow,
-a.service:focus-visible .service__arrow {
+.service:has(.service__link:hover, .service__link:focus-visible)
+  .service__arrow {
   transform: translateX(3px);
 }
 
@@ -456,7 +495,6 @@ a.service:focus-visible .service__arrow {
 @media (min-width: 56.25rem) {
   .services__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 1fr;
   }
 
   .services__grid > li:last-child:nth-child(odd) {
@@ -470,48 +508,14 @@ a.service:focus-visible .service__arrow {
     transition: none;
   }
 
-  a.service:hover .service__arrow,
-  a.service:focus-visible .service__arrow {
+  .service__endpoint {
+    transition: none;
+  }
+
+  .service:has(.service__link:hover, .service__link:focus-visible)
+    .service__arrow {
     transform: none;
   }
-}
-
-.try {
-  margin: 0 var(--margin) clamp(5rem, 10vw, 9rem);
-}
-
-.console {
-  background: var(--code-bg);
-  color: var(--code-ink);
-  animation: fade 900ms var(--ease-out) 650ms both;
-}
-
-.console__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 0.85rem 1.25rem;
-  background: var(--code-bar);
-  font-family: var(--font);
-  font-size: var(--step-small);
-}
-
-.console__method {
-  color: var(--ok);
-  font-weight: 700;
-}
-
-.console__status {
-  margin-left: auto;
-  font-variant-numeric: tabular-nums;
-  margin-right: 0.5rem;
-  color: var(--code-muted);
-}
-
-.console__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
 }
 
 .card {
@@ -540,22 +544,6 @@ a.service:focus-visible .service__arrow {
   display: inline-block;
   margin-top: 1.5rem;
   font-weight: 600;
-}
-
-.json {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  padding: clamp(1.5rem, 3vw, 2.75rem);
-  background: var(--code-bar);
-  line-height: 1.8;
-}
-
-.tok-key {
-  color: var(--tok-key);
-}
-
-.tok-str {
-  color: var(--tok-str);
 }
 
 .footer {
@@ -708,20 +696,6 @@ a.service:focus-visible .service__arrow {
       rgb(5 7 10 / 0) 72%
     );
   }
-
-  .console__body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .console__send {
-    margin-left: auto;
-  }
-
-  .console__status {
-    order: 3;
-    width: 100%;
-    margin-left: 0;
-  }
 }
 
 @media (max-width: 48rem) {
@@ -738,8 +712,7 @@ a.service:focus-visible .service__arrow {
 @media (prefers-reduced-motion: reduce) {
   .line > span,
   .hero__lead,
-  .hero__cue,
-  .console {
+  .hero__cue {
     animation: none;
   }
 
@@ -755,21 +728,6 @@ a.service:focus-visible .service__arrow {
     opacity: 1;
     transition: none;
   }
-}
-
-.console__send {
-  white-space: nowrap;
-  border: 0;
-  background: var(--code-ink);
-  color: var(--code-bg);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.console__send:disabled {
-  cursor: progress;
-  opacity: 0.7;
 }
 
 .card__media {
