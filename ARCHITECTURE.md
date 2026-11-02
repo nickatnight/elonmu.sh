@@ -416,6 +416,9 @@ CelesTrakReentrySource → CachedReentrySource (12 h TTL, one key, 1 min or 2 h 
   (46% of epochs on 16 SpaceX epochs, one mean motion per shell, planes
   shared within a launch), which gzips to 327.6 KB, a little above the real
   321 KB.
+- `format.ts` builds the `/starlink` page model: the in-orbit count, the
+  obituary heading and, per re-entry, the launch year, the re-entry day and
+  the lifespan in whole years and months (days under a month).
 - Every source must satisfy its contract in `ports.ts`.
   `tests/starlink/orbit-source.contract.ts` and `reentry-source.contract.ts`
   run on the CelesTrak sources (through `fakeHttpGet` and the trimmed real
@@ -428,3 +431,97 @@ CelesTrakReentrySource → CachedReentrySource (12 h TTL, one key, 1 min or 2 h 
   back, so later tests stay in UTC (`tests/fakes.test.ts`). The obituary
   formatter is built when `format.ts` loads, so its test re-imports the
   module fresh (`?los-angeles`) inside the zone.
+
+### Decisions
+
+These were settled at the spec's Gate 1, or at Gate 2 where marked, and are
+recorded here as reasons, so they aren't re-decided by accident.
+- The propagator is our own Kepler + J2 code in `orbits.js` (spec Decision
+  1), not a vendored satellite.js (real SGP4). It adds no dependency and
+  stays within 50 km of SGP4 for operational satellites; the cost is the
+  missing short-period terms (up to 17 km) and more error for satellites
+  that are deorbiting. The API carries `meanMotionDot` for the drag term.
+- Re-entries come from CelesTrak's satellite catalogue (spec Decision 2), not
+  McDowell's GCAT: GCAT is a 19 MB TSV of every catalogued object, and his
+  per-satellite Starlink index had not been updated since August.
+- The globe is its own page, `/starlink` (spec Decision 3), not a layer on
+  `/jet`, whose panel is a flight list.
+- The API serves objects with names (spec Decision 6), not positional rows,
+  to match the other endpoints. The spec measured 313 KB gzipped for named
+  objects against 244 KB for positional rows, before `meanMotionDot` was
+  added; with it, the 340 KB budget is what forced the element rounding
+  above.
+- After a CelesTrak 403 or 429 the caches wait 2 hours before asking again,
+  and `bun run dev` skips the Starlink warm-up (Gate 2 rework decision). For
+  refusals this replaces the spec's 1-minute retry after every failure
+  (acceptance criterion 4). A security review found that retry could get
+  the server's IP blocked, because CelesTrak refuses repeat downloads inside
+  its 2-hour window and blocks clients that keep asking. Other failures
+  keep the 1-minute retry: a timeout or a 500 says nothing about the
+  window. Ruled out: exponential back-off (more state, and CelesTrak
+  documents a fixed window), honouring `Retry-After` (no captured refusal
+  shows whether CelesTrak sends it), and keeping the wait on disk (one
+  process, and a restart costs at most one request per catalogue). The skip
+  is an explicit variable set by the `dev` script, not a guess at whether
+  `--watch` is on, so a test can pin it.
+
+### The propagator (`orbits.js`)
+
+`src/public/static/js/orbits.js` moves the dots in the browser, and the tests
+import it on the server, like `doge.js`. It must not touch the DOM at module
+top level. `positionAt(sat, date)` returns `{ lat, lng, altKm }`:
+- It recovers the Brouwer mean motion and semi-major axis from CelesTrak's
+  Kozai mean motion, as SGP4 does (WGS72 constants).
+- It adds the J2 secular drift of the node, the argument of perigee and the
+  mean anomaly, and the drag term `M = M0 + n·t + meanMotionDot·t²` (rev and
+  days). `tests/starlink/orbits.test.ts` shows the unit: 0.01 puts a
+  satellite 3.6° ahead after one day.
+- It solves Kepler's equation and rotates into Earth-fixed coordinates with
+  GMST (IAU 1982), on a sphere of radius `EARTH_RADIUS_KM`.
+- It leaves out SGP4's short-period terms. Against
+  `tests/fixtures/sgp4-reference.json` (skyfield 1.55 / sgp4 2.27, 5
+  satellites at +0, +6 and +24 h; the file holds the script that made it), the
+  worst error is 17.0 km. The error is already there at epoch and does not grow
+  over the day, which fits those periodic terms rather than a rate error. The
+  test allows 50 km. At the default zoom in a 1280×800 window the Earth is
+  about 395 px across, so a pixel is about 32 km.
+- Per-satellite constants are cached in a `WeakMap` keyed by the satellite
+  object. 11,130 positions take about 3 ms in Bun.
+
+### Client and page
+
+- `/starlink` renders on the server: the still Earth with the count over it,
+  then the obituaries, then the CelesTrak credit. Without JS or WebGL the page
+  is complete except for the dots.
+- The still is the jet teaser render (orthographic, centred on
+  `TEASER_VIEW`). The live globe opens on the same view (`HOME_VIEW` in
+  `starlink.js`) with no intro animation, and `starlink.css` sizes the still
+  to the live Earth's diameter: 62.01% of the pane's height, from globe.gl's
+  50° camera at 3.6 Earth radii. The still is absolutely positioned because a
+  percentage height on a grid item's image resolves to `auto`. A page test
+  ties the percentage to `HOME_VIEW`'s altitude and its centre to
+  `TEASER_VIEW`, so the hand-off doesn't jump.
+- `starlink.js` is only emitted when the orbits loaded. After `load`, it
+  fetches `/api/starlink` and the vendored globe.gl together and starts the
+  chosen texture's download with `new Image()`, so three.js later finds it in
+  the cache. It then draws all satellites as one `particlesData` set (one
+  `THREE.Points`). It reuses one array of particles, so globe.gl updates the
+  same object instead of creating a new one.
+- `starlink.js` imports `orbits.js` by a relative URL, which `asset()` can't
+  hash. `src/app.ts` serves that file with `Cache-Control: no-cache` (a 304
+  on repeat visits), and a page test checks every relative import under
+  `static/js`.
+- At that zoom a satellite at 7.6 km/s moves about 0.24 px a second, so
+  positions advance once a second. Each second's update is spread over four
+  frames, a quarter of the fleet every 250 ms. In Chrome a full 11k update
+  took 10-14 ms with cold caches; a quarter takes about 4.4 ms. `animate`
+  runs this through `everyInterval` and `requestAnimationFrame`, so it stops
+  while the tab is hidden. `tests/starlink/scene.test.ts` drives it with a
+  fake frame timer.
+- With `prefers-reduced-motion`, `animate` places the dots once and asks for
+  no frame, and the globe does not auto-rotate.
+- `/starlink`-only rules live in `starlink.css`, all under `.starlink__`.
+  `tests/starlink/page.test.ts` keeps them out of `main.css`, keeps
+  globe.gl, `starlink.js`, `orbits.js` and `starlink.css` off the home page and
+  caps the HTML at 12 KB. `tests/starlink/budgets.test.ts` caps `starlink.js`
+  at 8 KB and `orbits.js` at 4 KB.

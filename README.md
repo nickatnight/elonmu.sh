@@ -11,7 +11,8 @@ Musk as a Service: a catalog of free, satirical tools about our Lord and Savior.
 No key, no signup. /s
 
 The tools: [News roulette](#news-roulette), the [Jet tracker](#jet-tracker),
-the [Hype meter](#hype-meter) and [DOGE since SNL](#doge-since-snl). Every
+the [Hype meter](#hype-meter), [DOGE since SNL](#doge-since-snl) and the
+[Starlink globe](#starlink-globe). Every
 endpoint is documented at [elonmu.sh/docs](https://elonmu.sh/docs), where each
 one has a Send button that calls it live and shows the response.
 
@@ -190,6 +191,72 @@ Example 200 response:
   `{ "error": "..." }`, like the News API, and `Cache-Control: no-store`.
   After one good load, a failure serves the last good price instead. After a
   failure, the server waits a minute before asking CoinGecko again.
+
+## Starlink globe
+
+Every Starlink satellite in orbit, moving live on a globe, with this year's
+re-entries listed as obituaries: [elonmu.sh/starlink](https://elonmu.sh/starlink).
+The orbits and the re-entries come from [CelesTrak](https://celestrak.org) (the
+Starlink GP group and the satellite catalogue).
+
+The same data is available as JSON:
+
+```shell
+$ curl --request GET \
+       --url 'https://elonmu.sh/api/starlink' \
+       --header 'accept: application/json'
+```
+
+Example 200 response (`satellites` and `recent` shortened):
+
+```json
+{
+  "updatedAt": "2026-10-30T04:52:13.127Z",
+  "inOrbit": 11130,
+  "satellites": [
+    {
+      "id": 44714,
+      "name": "STARLINK-1008",
+      "epoch": "2026-10-28T20:33:11.108Z",
+      "meanMotion": 15.68273,
+      "meanMotionDot": 0.00034,
+      "eccentricity": 0.0002,
+      "inclination": 53.14,
+      "raan": 138.75,
+      "argOfPerigee": 162.32,
+      "meanAnomaly": 197.79
+    }
+  ],
+  "reentries": {
+    "year": 2026,
+    "count": 459,
+    "recent": [
+      {
+        "id": 45414,
+        "name": "STARLINK-1309",
+        "launched": "2020-03-18",
+        "reentered": "2026-10-29"
+      }
+    ]
+  },
+  "attribution": [{ "name": "CelesTrak", "url": "https://celestrak.org" }]
+}
+```
+
+- The full response is about 2.4 MB, 330 KB gzipped. Elements are rounded:
+  `meanMotion` (rev/day) to 5 decimals, `meanMotionDot` (half the rate of
+  change of mean motion, rev/day², as in a TLE) to 6, `eccentricity` to 4,
+  and the angles in degrees to 2. Across the catalogue that moves a satellite
+  by up to about 2 km.
+- `reentries.count` is this UTC year's re-entries, so it starts again from 0 on
+  1 January. `recent` is the latest 12, newest first.
+- Orbits are refreshed every 6 hours and re-entries every 12, because CelesTrak
+  asks clients not to download a group more often than every 2 hours. The
+  response is cached for an hour. If one half has never loaded, it is `null`
+  and the response is sent with `Cache-Control: no-store`. If neither has, it
+  returns a 200 with `{ "error": "..." }`, like the News API. After a failure,
+  the server waits a minute before asking CelesTrak again, or 2 hours if
+  CelesTrak refused with a 403 or 429.
 
 ## Development
 
