@@ -1,0 +1,148 @@
+.starlink__sky {
+  position: relative;
+  display: grid;
+  grid-template-areas: "sky";
+  height: clamp(24rem, 80svh, 54rem);
+  overflow: hidden;
+  background: var(--hero-bg);
+  color: var(--hero-ink);
+}
+
+.starlink__globe,
+.starlink__head {
+  grid-area: sky;
+}
+
+.starlink__globe {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.starlink__still {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: 62.01%;
+  margin: auto;
+}
+
+.starlink__canvas {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+
+.starlink__canvas:active {
+  cursor: grabbing;
+}
+
+.starlink__globe.has-globe .starlink__still {
+  visibility: hidden;
+}
+
+.starlink__fallback {
+  position: absolute;
+  inset: auto var(--margin) 1rem;
+  color: var(--hero-ink);
+  font-size: var(--step-small);
+  text-align: center;
+  opacity: 0.8;
+}
+
+.starlink__head {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  justify-self: center;
+  width: min(100%, 72rem);
+  padding: 0 var(--margin) clamp(1.25rem, 0.75rem + 2vw, 2.5rem);
+  pointer-events: none;
+}
+
+.starlink__head h1 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.starlink__count {
+  margin-top: 0.35rem;
+  color: var(--hero-muted);
+  font-size: var(--step-lead);
+  line-height: 1.2;
+}
+
+.starlink__number {
+  display: block;
+  color: var(--hero-ink);
+  font-size: clamp(3rem, 2rem + 6vw, 6.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.starlink__body {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 1.5rem + 4vw, 5rem) var(--margin)
+    clamp(3rem, 2rem + 5vw, 6rem);
+}
+
+.starlink__note {
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+}
+
+.starlink__obits h2 {
+  font-size: var(--step-head);
+  line-height: 1.1;
+}
+
+.starlink__obits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 1.75rem 2.5rem;
+  margin: clamp(1.5rem, 1rem + 1.5vw, 2.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.starlink__obit-name {
+  font-weight: 700;
+}
+
+.starlink__obit-dates,
+.starlink__obit-life {
+  color: var(--muted);
+  font-size: var(--step-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.starlink__credit {
+  margin-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.starlink__credit a:hover,
+.starlink__credit a:focus-visible {
+  color: var(--ink);
+}
+
+@media (max-width: 56rem) {
+  .starlink__sky {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .starlink__globe {
+    height: min(100vw, 60svh);
+  }
+
+  .starlink__head {
+    padding-top: 0.25rem;
+  }
+}

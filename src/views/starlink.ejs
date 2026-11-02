@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<% const title = 'Starlink globe | elonmu.sh'; -%>
+<% const description = "Every Starlink satellite in orbit, moving live on a globe, with this year's re-entries listed as obituaries."; -%>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+    <link rel="canonical" href="https://elonmu.sh/starlink" />
+<%- include('partials/head-assets') %>
+<%- include('partials/share-tags', { url: 'https://elonmu.sh/starlink', title, description }) %>
+    <link rel="stylesheet" href="<%= asset('static/css/starlink.css') %>" />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+<%- include('partials/topbar', { current: 'starlink-globe' }) %>
+
+    <main id="main" class="starlink">
+      <section class="starlink__sky" aria-labelledby="starlink-title">
+        <div
+          class="starlink__globe"
+          aria-hidden="true"
+          data-globe-src="<%= asset('static/vendor/globe.gl.min.js') %>"
+          data-texture="<%= asset('static/img/globe/earth-night.jpg') %>"
+          data-texture-small="<%= asset('static/img/globe/earth-night-2048.jpg') %>"
+        >
+          <img
+            class="starlink__still"
+            src="<%= asset('static/img/globe/teaser-earth.webp') %>"
+            width="<%= teaserSize %>"
+            height="<%= teaserSize %>"
+            alt=""
+            decoding="async"
+            fetchpriority="high"
+          />
+        </div>
+        <header class="starlink__head">
+          <h1 id="starlink-title">Starlink globe</h1>
+<% if (page.state === 'loaded' && page.inOrbit !== null) { -%>
+          <p class="starlink__count"><span class="starlink__number"><%= page.inOrbit %></span> in orbit</p>
+<% } -%>
+        </header>
+      </section>
+
+      <div class="starlink__body">
+<% if (page.state === 'unavailable') { -%>
+        <p class="starlink__note">Satellite data is unavailable right now. Please try again in a few minutes.</p>
+<% } else { -%>
+<% if (page.inOrbit === null) { -%>
+        <p class="starlink__note">Satellite positions are unavailable right now. Please try again in a few minutes.</p>
+<% } -%>
+<% if (page.obituaries) { -%>
+        <section class="starlink__obits" aria-labelledby="obits-title">
+          <h2 id="obits-title"><%= page.obituaries.heading %></h2>
+<% if (page.obituaries.list.length) { -%>
+          <ol class="starlink__obits-list">
+<% for (const o of page.obituaries.list) { -%>
+            <li class="starlink__obit">
+              <p class="starlink__obit-name"><%= o.name %></p>
+              <p class="starlink__obit-dates"><time datetime="<%= o.launched.datetime %>"><%= o.launched.text %></time> <span aria-hidden="true">→</span><span class="sr-only">to</span> <time datetime="<%= o.reentered.datetime %>"><%= o.reentered.text %></time></p>
+              <p class="starlink__obit-life"><%= o.lifespan %></p>
+            </li>
+<% } -%>
+          </ol>
+<% } -%>
+        </section>
+<% } else { -%>
+        <p class="starlink__note">This year's re-entries are unavailable right now. Please try again in a few minutes.</p>
+<% } -%>
+        <p class="starlink__credit">Orbits and re-entries: <% page.attribution.forEach((a, i) => { %><%= i ? ', ' : '' %><a href="<%= a.url %>" rel="noopener noreferrer"><%= a.name %></a><% }) %></p>
+<% } -%>
+<%- include('partials/endpoint-link', { id: 'starlink-globe' }) -%>
+      </div>
+    </main>
+  </body>
+</html>
