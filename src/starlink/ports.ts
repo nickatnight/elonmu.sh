@@ -31,3 +31,10 @@ export interface ReentrySource {
    */
   fetchReentries(): Promise<ReentryLog>;
 }
+
+export class UpstreamRefusedError extends Error {
+  constructor(status: number, options?: { cause?: unknown }) {
+    super(`celestrak: refused with status ${status}`, options);
+    this.name = 'UpstreamRefusedError';
+  }
+}
