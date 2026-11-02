@@ -176,7 +176,7 @@ BlueskyFlightSource â†’ CachedFlightSource (5 min TTL, serves stale on error) â†
   `scripts/render-teaser-earth.ts` from the same `TEASER_VIEW` and
   `TEASER_SIZE`. A test checks that they match.
 - On the client, `src/public/static/js/jet.js` is a vanilla ES module with
-  JSDoc types. It is typechecked through `allowJs` and unit-tested in
+  JSDoc types, which tsc does not check (no `checkJs`). It is unit-tested in
   `tests/jet/scene.test.ts`. It lazy-loads the vendored globe.gl and fetches
   `/api/jet/flights`.
 - `tests/jet/budgets.test.ts` caps the size of the vendored script and the
