@@ -1,7 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
+import { TEASER_VIEW } from '../../src/jet/projection';
+import { HOME_VIEW } from '../../src/public/static/js/starlink.js';
 import type { StarlinkQuery } from '../../src/starlink/ports';
 import { FakeClock } from '../fakes';
 import { metaContent, startTestServer, type TestServer } from '../helpers';
@@ -235,6 +237,64 @@ describe('GET /starlink when CelesTrak fails', () => {
   });
 });
 
+const scripts = (page: string): string[] =>
+  page.match(/<script\b[^>]*>[\s\S]*?<\/script>/g) ?? [];
+
+describe('the globe script', () => {
+  it('loads starlink.js as a module from this origin when there are orbits to draw', () => {
+    for (const name of ['ok', 'reentriesDown'] as const)
+      expect({ name, scripts: scripts(html[name]) }).toEqual({
+        name,
+        scripts: [
+          expect.stringMatching(
+            /^<script type="module" src="\/static\/js\/starlink\.js\?v=\w+"><\/script>$/
+          )
+        ]
+      });
+  });
+
+  it('loads no script when there are no orbits to draw', () => {
+    expect(scripts(html.down)).toEqual([]);
+    expect(scripts(html.orbitsDown)).toEqual([]);
+  });
+});
+
+describe('client modules imported by a relative URL', () => {
+  const jsDir = path.join(import.meta.dir, '../../src/public/static/js');
+  const relativeImports = readdirSync(jsDir)
+    .filter((file) => file.endsWith('.js'))
+    .flatMap((file) =>
+      [
+        ...readFileSync(path.join(jsDir, file), 'utf8').matchAll(
+          /(?:from|import\()\s*'\.\/([\w.-]+\.js)'/g
+        )
+      ].map(([, target]) => target)
+    );
+
+  it('include orbits.js, which starlink.js imports without a content hash', () => {
+    expect(relativeImports).toContain('orbits.js');
+  });
+
+  it('are revalidated on every visit, so a deploy reaches returning visitors', async () => {
+    for (const target of new Set(relativeImports)) {
+      const res = await fetch(`${servers.ok.url}/static/js/${target}`);
+      await res.arrayBuffer();
+      expect({ target, cache: res.headers.get('cache-control') }).toEqual({
+        target,
+        cache: 'no-cache'
+      });
+    }
+  });
+
+  it('keeps the one-year cache on starlink.js, which is linked with a hash', async () => {
+    const src =
+      html.ok.match(/src="(\/static\/js\/starlink\.js\?v=\w+)"/)?.[1] ?? '';
+    const res = await fetch(`${servers.ok.url}${src}`);
+    await res.arrayBuffer();
+    expect(res.headers.get('cache-control')).toBe('public, max-age=31536000');
+  });
+});
+
 describe('starlink assets stay off the home page', () => {
   it('never loads globe.gl, starlink.js, orbits.js or starlink.css on the home page', () => {
     for (const file of ['globe.gl', 'starlink.js', 'orbits.js', 'starlink.css'])
@@ -297,6 +357,23 @@ describe('starlink.css', () => {
     expect(
       classes.filter((c) => !c.startsWith('starlink__') && c !== 'has-globe')
     ).toEqual([]);
+  });
+
+  it('sizes the still Earth to the live globe, so the hand-off does not jump', () => {
+    const rule =
+      css('starlink.css').match(/\n\.starlink__still\s*\{([^}]*)\}/)?.[1] ?? '';
+    const percent = Number(rule.match(/height:\s*([\d.]+)%;/)?.[1]);
+    const cameraRadii = 1 + HOME_VIEW.altitude;
+    const globeGlFovDeg = 50;
+    const diameterOfPane =
+      Math.tan(Math.asin(1 / cameraRadii)) /
+      Math.tan(((globeGlFovDeg / 2) * Math.PI) / 180);
+    expect(percent).toBeCloseTo(100 * diameterOfPane, 1);
+    expect(rule).toContain('width: auto;');
+  });
+
+  it('opens the live globe on the view the still was rendered from', () => {
+    expect({ lat: HOME_VIEW.lat, lon: HOME_VIEW.lng }).toEqual(TEASER_VIEW);
   });
 
   it('keeps a visible focus style and no !important', () => {

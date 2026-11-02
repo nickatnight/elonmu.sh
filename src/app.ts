@@ -21,6 +21,11 @@ const publicDir = path.join(__dirname, 'public');
 const CRAWLER_FILES = new Set(
   ['robots.txt', 'sitemap.xml'].map((file) => path.join(publicDir, file))
 );
+// starlink.js imports this module by a relative URL, which asset() cannot
+// hash, so browsers must revalidate it rather than keep it for a year.
+const UNHASHED_MODULES = new Set(
+  ['static/js/orbits.js'].map((file) => path.join(publicDir, file))
+);
 
 const assetUrls = new Map<string, string>();
 const assetUrl = (file: string): string => {
@@ -73,6 +78,9 @@ export const createApp = ({
       setHeaders: (res, filePath) => {
         if (CRAWLER_FILES.has(filePath)) {
           res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+        if (UNHASHED_MODULES.has(filePath)) {
+          res.setHeader('Cache-Control', 'no-cache');
         }
       }
     })

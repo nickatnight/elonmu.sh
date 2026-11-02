@@ -11,6 +11,9 @@
 <%- include('partials/head-assets') %>
 <%- include('partials/share-tags', { url: 'https://elonmu.sh/starlink', title, description }) %>
     <link rel="stylesheet" href="<%= asset('static/css/starlink.css') %>" />
+<% if (page.state === 'loaded' && page.inOrbit !== null) { -%>
+    <script type="module" src="<%= asset('static/js/starlink.js') %>"></script>
+<% } -%>
   </head>
 
   <body>

@@ -116,6 +116,10 @@ const scriptSize = (file: string): number =>
   statSync(path.join(import.meta.dir, '../../src/public/static/js', file)).size;
 
 describe('script budgets', () => {
+  it('keeps starlink.js at or under 8 KB', () => {
+    expect(scriptSize('starlink.js')).toBeLessThanOrEqual(8 * KB);
+  });
+
   it('keeps orbits.js at or under 4 KB', () => {
     expect(scriptSize('orbits.js')).toBeLessThanOrEqual(4 * KB);
   });
