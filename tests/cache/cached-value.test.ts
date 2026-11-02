@@ -223,3 +223,79 @@ describe('CachedValue', () => {
     });
   });
 });
+
+describe('CachedValue with retryAfterMs chosen per error', () => {
+  class Refused extends Error {}
+
+  const LONG = 2 * 3_600_000;
+
+  const setupByError = () => {
+    const clock = new FakeClock('2026-07-01T00:00:00.000Z');
+    const logger = new FakeLogger();
+    const cache = new CachedValue<string>({
+      clock,
+      ttlMs: TTL,
+      logger,
+      messages: MESSAGES,
+      retryAfterMs: (err) => (err instanceof Refused ? LONG : RETRY)
+    });
+    const source = {
+      calls: 0,
+      error: null as Error | null,
+      load: async (): Promise<string> => {
+        source.calls++;
+        if (source.error) throw source.error;
+        return 'fresh';
+      }
+    };
+    return { clock, logger, cache, source };
+  };
+
+  it('waits as long as the error from the failed load asks before loading again', async () => {
+    const { clock, cache, source } = setupByError();
+    source.error = new Refused('slow down');
+    await expect(cache.get('k', source.load)).rejects.toThrow('slow down');
+    clock.advance(LONG - 1);
+    await expect(cache.get('k', source.load)).rejects.toThrow('slow down');
+    expect(source.calls).toBe(1);
+    clock.advance(1);
+    source.error = null;
+    expect(await cache.get('k', source.load)).toBe('fresh');
+    expect(source.calls).toBe(2);
+  });
+
+  it('waits the shorter delay for an error that asks for it', async () => {
+    const { clock, cache, source } = setupByError();
+    source.error = new Error('upstream down');
+    await expect(cache.get('k', source.load)).rejects.toThrow();
+    clock.advance(RETRY);
+    source.error = null;
+    expect(await cache.get('k', source.load)).toBe('fresh');
+    expect(source.calls).toBe(2);
+  });
+
+  it('serves the last good value through the long wait with one warning', async () => {
+    const { clock, logger, cache, source } = setupByError();
+    await cache.get('k', source.load);
+    clock.advance(TTL);
+    source.error = new Refused('slow down');
+    for (let waited = 0; waited < LONG; waited += RETRY) {
+      expect(await cache.get('k', source.load)).toBe('fresh');
+      clock.advance(RETRY);
+    }
+    expect(source.calls).toBe(2);
+    expect(logger.warnings).toHaveLength(1);
+  });
+
+  it('chooses the delay again for each failure', async () => {
+    const { clock, cache, source } = setupByError();
+    source.error = new Refused('slow down');
+    await expect(cache.get('k', source.load)).rejects.toThrow();
+    clock.advance(LONG);
+    source.error = new Error('upstream down');
+    await expect(cache.get('k', source.load)).rejects.toThrow('upstream down');
+    clock.advance(RETRY);
+    await expect(cache.get('k', source.load)).rejects.toThrow('upstream down');
+    expect(source.calls).toBe(3);
+  });
+});

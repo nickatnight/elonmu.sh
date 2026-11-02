@@ -6,12 +6,12 @@ export type CachedValueOptions = {
   logger: Logger;
   messages: { stale: string; empty: string };
   staleAcrossKeys?: boolean;
-  retryAfterMs?: number;
+  retryAfterMs?: number | ((error: unknown) => number);
 };
 
 type Entry<T> = { key: string; at: number; value: T };
 
-type Failure = { at: number; error: unknown };
+type Failure = { until: number; error: unknown };
 
 export class CachedValue<T> {
   private last: Entry<T> | null = null;
@@ -42,7 +42,7 @@ export class CachedValue<T> {
         return value;
       },
       (err: unknown) => {
-        this.failure = { at: clock.now().getTime(), error: err };
+        this.failure = this.backOffAfter(err);
         return this.recover(err, fallback);
       }
     );
@@ -56,10 +56,16 @@ export class CachedValue<T> {
     return promise;
   }
 
+  private backOffAfter(error: unknown): Failure | null {
+    const { clock, retryAfterMs } = this.options;
+    if (retryAfterMs === undefined) return null;
+    const wait =
+      typeof retryAfterMs === 'number' ? retryAfterMs : retryAfterMs(error);
+    return { until: clock.now().getTime() + wait, error };
+  }
+
   private recentFailure(now: number): Failure | null {
-    const { retryAfterMs } = this.options;
-    if (retryAfterMs === undefined || !this.failure) return null;
-    return now - this.failure.at < retryAfterMs ? this.failure : null;
+    return this.failure && now < this.failure.until ? this.failure : null;
   }
 
   private recover(err: unknown, fallback: Entry<T> | null): T {
