@@ -1,4 +1,4 @@
-import type { OrbitCatalog, ReentryLog } from './domain';
+import type { OrbitCatalog, ReentryLog, StarlinkSnapshot } from './domain';
 
 export interface OrbitSource {
   /**
@@ -30,6 +30,10 @@ export interface ReentrySource {
    * 7. throws on upstream failure or a body with no usable re-entry
    */
   fetchReentries(): Promise<ReentryLog>;
+}
+
+export interface StarlinkQuery {
+  snapshot(): Promise<StarlinkSnapshot>;
 }
 
 export class UpstreamRefusedError extends Error {

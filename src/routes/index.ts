@@ -4,12 +4,14 @@ import type { HypeQuery } from '../hype/ports';
 import type { JetQuery } from '../jet/ports';
 import { type Teaser, toTeaser } from '../jet/teaser';
 import type { NewsQuery } from '../news/ports';
+import type { StarlinkQuery } from '../starlink/ports';
 import * as docsRoutes from './docs';
 import * as dogeRoutes from './doge';
 import * as health from './health';
 import * as hypeRoutes from './hype';
 import * as jetRoutes from './jet';
 import * as newsRoutes from './news';
+import * as starlinkRoutes from './starlink';
 
 const TEASER_WAIT_MS = 300;
 
@@ -36,11 +38,12 @@ export type RouteDeps = {
   hype: HypeQuery;
   doge: DogeQuery;
   news: NewsQuery;
+  starlink: StarlinkQuery;
 };
 
 export const register = (
   app: express.Application,
-  { jet, hype, doge, news }: RouteDeps
+  { jet, hype, doge, news, starlink }: RouteDeps
 ) => {
   app.get('/', async (_req, res) => {
     res.render('index', { teaser: await teaserWithin(jet, TEASER_WAIT_MS) });
@@ -51,5 +54,6 @@ export const register = (
   jetRoutes.register(app, jet);
   hypeRoutes.register(app, hype);
   dogeRoutes.register(app, doge);
+  starlinkRoutes.register(app, starlink);
   docsRoutes.register(app);
 };
