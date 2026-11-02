@@ -5,6 +5,7 @@ import { createApp } from '../../src/app';
 import { TEASER_SIZE } from '../../src/jet/projection';
 import { startTestServer, type TestServer } from '../helpers';
 import { sampleNews } from '../news/fakes';
+import { sampleStarlink } from '../starlink/fakes';
 import { failingJet, flight, sampleJet } from './fakes';
 
 const servers: Record<'full' | 'empty' | 'down' | 'nasty', TestServer> =
@@ -16,7 +17,11 @@ beforeAll(async () => {
     from: { name: '<img src=x onerror=alert(1)>, Evil, Place', lat: 1, lon: 1 }
   });
   const apps = {
-    full: createApp({ jet: sampleJet(), news: sampleNews() }),
+    full: createApp({
+      jet: sampleJet(),
+      news: sampleNews(),
+      starlink: sampleStarlink()
+    }),
     empty: createApp({ jet: sampleJet([]) }),
     down: createApp({ jet: failingJet() }),
     nasty: createApp({ jet: sampleJet([nasty]) })

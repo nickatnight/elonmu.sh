@@ -46,5 +46,15 @@ export const SERVICES: readonly Service[] = [
     href: '/doge',
     cta: 'Check the damage',
     api: '/api/doge'
+  },
+  {
+    id: 'starlink-globe',
+    name: 'Starlink globe',
+    nav: 'Starlink',
+    summary:
+      'Every Starlink satellite in orbit right now, and obituaries for the ones that burned up this year.',
+    href: '/starlink',
+    cta: 'Pay your respects',
+    api: '/api/starlink'
   }
 ];

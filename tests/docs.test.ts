@@ -6,6 +6,7 @@ import { metaContent, startTestServer, type TestServer } from './helpers';
 import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
 import { sampleNews } from './news/fakes';
+import { sampleStarlink } from './starlink/fakes';
 
 let server: TestServer;
 let res: Response;
@@ -17,7 +18,8 @@ beforeAll(async () => {
       jet: sampleJet(),
       hype: sampleHype(),
       doge: sampleDoge(),
-      news: sampleNews()
+      news: sampleNews(),
+      starlink: sampleStarlink()
     })
   );
   res = await fetch(`${server.url}/docs`);
@@ -75,7 +77,7 @@ describe('GET /docs', () => {
     expect(
       textOf(html.match(/<p class="docs__lead">[\s\S]*?<\/p>/)?.[0] ?? '')
     ).toBe(
-      'Four endpoints. No key, no signup, no SDK, no parameters, no point. All GET, all JSON. /s'
+      'Five endpoints. No key, no signup, no SDK, no parameters, no point. All GET, all JSON. /s'
     );
     expect(metaContent(html, 'name="description"')).toBe(
       'Reference for the elonmu.sh JSON APIs: random Elon Musk news, his private-jet flights this year, a year of Wikipedia views, and what your SNL-night Dogecoin is worth now.'
@@ -146,6 +148,7 @@ describe('GET /docs', () => {
   it('says where an example is trimmed', () => {
     expect(textOf(block('jet-tracker'))).toContain('trimmed');
     expect(textOf(block('hype-meter'))).toContain('trimmed');
+    expect(textOf(block('starlink-globe'))).toContain('trimmed');
   });
 
   it('cites the SNL price source and what now.at means', () => {
@@ -157,7 +160,7 @@ describe('GET /docs', () => {
   it('explains errors with the approved intro, the statuses and the 404 body', () => {
     const errors = textOf(block('errors'));
     expect(errors).toContain(
-      'When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko) is down, the status is still 200: we are fine, it is the world that failed. Our own mistakes are a 500.'
+      'When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) is down, the status is still 200: we are fine, it is the world that failed. Our own mistakes are a 500.'
     );
     for (const status of ['200', '500', '404'])
       expect(block('errors')).toContain(`<td><code>${status}</code></td>`);
@@ -168,8 +171,13 @@ describe('GET /docs', () => {
     );
   });
 
-  it('says news, hype and DOGE wait a minute after a failed refresh', () => {
-    for (const api of ['/api/news', '/api/hype', '/api/doge']) {
+  it('says news, hype, DOGE and Starlink wait a minute after a failed refresh', () => {
+    for (const api of [
+      '/api/news',
+      '/api/hype',
+      '/api/doge',
+      '/api/starlink'
+    ]) {
       const row =
         block('errors').match(
           new RegExp(`<tr><td><code>${api}</code></td>[\\s\\S]*?</tr>`)
@@ -270,6 +278,16 @@ describe('GET /docs', () => {
       await asset.arrayBuffer();
       expect({ url, status: asset.status }).toEqual({ url, status: 200 });
     }
+  });
+});
+
+describe('the /api/starlink docs', () => {
+  it('says what partial data looks like and how precise the elements are', () => {
+    const starlink = textOf(block('starlink-globe'));
+    expect(starlink).toContain('null');
+    expect(starlink).toContain('no-store');
+    expect(starlink).toContain('meanMotionDot');
+    expect(starlink).toContain('2 decimals');
   });
 });
 

@@ -22,7 +22,7 @@
     <main id="main" class="docs">
       <header class="docs__head">
         <h1>API docs</h1>
-        <p class="docs__lead">Four endpoints. No key, no signup, no SDK, no parameters, no point. All <code>GET</code>, all JSON. /s</p>
+        <p class="docs__lead">Five endpoints. No key, no signup, no SDK, no parameters, no point. All <code>GET</code>, all JSON. /s</p>
       </header>
 
       <section class="doc" id="news-api" aria-labelledby="news-api-title">
@@ -179,13 +179,61 @@
         </div>
       </section>
 
+      <section class="doc" id="starlink-globe" aria-labelledby="starlink-globe-title">
+        <div class="doc__prose">
+          <h2 id="starlink-globe-title"><code>GET /api/starlink</code></h2>
+          <p>
+            Every Starlink satellite in orbit, as orbital elements you can
+            propagate, and this year's re-entries. Both come from
+            <a href="https://celestrak.org" rel="noopener noreferrer">CelesTrak</a>:
+            the Starlink GP group and the satellite catalogue.
+          </p>
+          <h3>Response fields</h3>
+          <table class="fields">
+            <thead>
+              <tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>updatedAt</code></td><td>string</td><td>When the older of the two catalogues was read, ISO 8601</td></tr>
+              <tr><td><code>inOrbit</code></td><td>number | null</td><td>How many satellites are in orbit</td></tr>
+              <tr><td><code>satellites</code></td><td>array | null</td><td>One entry per satellite, by NORAD catalogue number</td></tr>
+              <tr><td><code>satellites[].<wbr>id</code>, <code>.name</code></td><td>number, string</td><td>NORAD catalogue number and CelesTrak name</td></tr>
+              <tr><td><code>satellites[].<wbr>epoch</code></td><td>string</td><td>Time the elements are for, ISO 8601 UTC</td></tr>
+              <tr><td><code>satellites[].<wbr>meanMotion</code></td><td>number</td><td>Revolutions per day</td></tr>
+              <tr><td><code>satellites[].<wbr>meanMotionDot</code></td><td>number</td><td>Half the rate of change of mean motion, rev/day², as in a TLE</td></tr>
+              <tr><td><code>satellites[].<wbr>eccentricity</code></td><td>number</td><td>Orbit eccentricity</td></tr>
+              <tr><td><code>satellites[].<wbr>inclination</code>, <code>.raan</code>, <code>.argOfPerigee</code>, <code>.meanAnomaly</code></td><td>number</td><td>Angles in degrees</td></tr>
+              <tr><td><code>reentries</code></td><td>object | null</td><td>This year's <code>count</code> and the 12 most <code>recent</code></td></tr>
+              <tr><td><code>reentries.<wbr>year</code></td><td>number</td><td>The current UTC year</td></tr>
+              <tr><td><code>reentries.<wbr>count</code></td><td>number</td><td>Satellites whose re-entry date falls in that year</td></tr>
+              <tr><td><code>reentries.<wbr>recent[]</code></td><td>array</td><td><code>id</code>, <code>name</code>, <code>launched</code> and <code>reentered</code> (<code>YYYY-MM-DD</code>), newest first</td></tr>
+              <tr><td><code>attribution</code></td><td>array</td><td><code>name</code> and <code>url</code> of each source</td></tr>
+            </tbody>
+          </table>
+          <ul class="doc__notes">
+            <li>The example is trimmed to one satellite and one re-entry. The full response is about 2.4 MB, 330 KB gzipped.</li>
+            <li>Elements are rounded to keep the response small: <code>meanMotion</code> to 5 decimals, <code>meanMotionDot</code> to 6, <code>eccentricity</code> to 4 and the angles to 2 decimals. Across the whole catalogue that moves a satellite by up to about 2 km, under a pixel on the globe.</li>
+            <li>The year is the current UTC year, so <code>reentries.count</code> starts again from 0 at midnight UTC on 1 January.</li>
+            <li>If one of the two CelesTrak catalogues has never loaded, its half is <code>null</code> and the response is sent with <code>Cache-Control: no-store</code>.</li>
+          </ul>
+        </div>
+        <div class="doc__code">
+          <figure class="code" data-ui>
+            <figcaption>Request <button class="copy" type="button" hidden>Copy</button></figcaption>
+            <pre translate="no"><code>curl https://elonmu.sh/api/starlink</code></pre>
+          </figure>
+<%- include('partials/docs-response', { id: 'starlink-globe' }) -%>
+        </div>
+      </section>
+
       <section class="doc" id="errors" aria-labelledby="errors-title">
         <div class="doc__prose">
           <h2 id="errors-title">Errors</h2>
           <p>
             Errors come back as JSON with a single <code>error</code> message.
-            When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko) is down,
-            the status is still 200: we are fine, it is the world that failed.
+            When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko,
+            CelesTrak) is down, the status is still 200: we are fine, it is the
+            world that failed.
             Our own mistakes are a 500.
           </p>
           <table class="fields">
@@ -212,6 +260,7 @@
               <tr><td><code>/api/jet/<wbr>flights</code></td><td>5 min</td><td>Serves this year's last good flights</td></tr>
               <tr><td><code>/api/hype</code></td><td>4 h</td><td>Serves the last good year, asks again after a minute</td></tr>
               <tr><td><code>/api/doge</code></td><td>5 min</td><td>Serves the last good price, asks again after a minute</td></tr>
+              <tr><td><code>/api/starlink</code></td><td>6 h orbits, 12 h re-entries</td><td>Serves the last good orbits and re-entries, asks again after a minute, or after 2 hours if CelesTrak refused</td></tr>
             </tbody>
           </table>
         </div>

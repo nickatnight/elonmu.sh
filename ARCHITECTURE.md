@@ -12,6 +12,10 @@ bundler. Bun runs the TypeScript directly.
   `src/app.ts` exports `createApp({ jet, hype, doge, news, starlink,
   services })`, so tests can inject fakes and start the app on a random port
   with `startTestServer` (`tests/helpers.ts`).
+- Any module a test leaves out is the real one. A test that follows nav links
+  or card links must pass a fake for every page it reaches, or it calls the
+  real upstream. `tests/jet/page.test.ts` passes `sampleStarlink()` for this
+  reason.
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
   (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) fails, the route
   returns **200 with `{ error }`** through `upstreamFailure()`. Only our own
@@ -24,9 +28,13 @@ bundler. Bun runs the TypeScript directly.
 - The topbar (`partials/topbar.ejs`) carries the GitHub "fork me" ribbon on
   every page: pure CSS, sized by the `--ribbon` `clamp()` token. Only the
   band takes clicks. The nav has `padding-inline-end` derived from
-  `--ribbon` so no link runs under the band. Below 460 px (28.74rem) the
+  `--ribbon` so no link runs under the band. Below 520 px (32.49rem) the
   brand shows only its icon, and the name stays for screen readers, because
-  the brand, five links and a readable band don't fit in one bar there.
+  the brand, six links and a readable band don't fit in one bar there.
+  The brand never shrinks (`flex-shrink: 0`). Instead, the nav text and gaps
+  shrink with the viewport through `clamp()`, to 11.5 px text and 4.8 px gaps
+  at 320 px, and reach full size at 400 px. A seventh link will need another
+  look at 320 px.
 - Static files are served with a one-year cache. Templates link them through
   `asset('static/...')`, which appends a hash of the file's contents.
 - `src/middleware/security-headers.ts` sets a strict CSP (`script-src 'self'`,

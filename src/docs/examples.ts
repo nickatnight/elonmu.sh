@@ -11,6 +11,10 @@ import {
 } from '../hype/domain';
 import type { JetSnapshot } from '../jet/domain';
 import type { Article } from '../news/domain';
+import {
+  STARLINK_ATTRIBUTION,
+  type StarlinkSnapshot
+} from '../starlink/domain';
 
 const news: Article = {
   source: 'Business Insider',
@@ -86,11 +90,44 @@ const doge: DogeComparison = {
   attribution: DOGE_ATTRIBUTION
 };
 
+const starlink: StarlinkSnapshot = {
+  updatedAt: '2026-10-30T04:52:13.127Z',
+  inOrbit: 11130,
+  satellites: [
+    {
+      id: 44714,
+      name: 'STARLINK-1008',
+      epoch: '2026-10-28T20:33:11.108Z',
+      meanMotion: 15.68273,
+      meanMotionDot: 0.00034,
+      eccentricity: 0.0002,
+      inclination: 53.14,
+      raan: 138.75,
+      argOfPerigee: 162.32,
+      meanAnomaly: 197.79
+    }
+  ],
+  reentries: {
+    year: 2026,
+    count: 459,
+    recent: [
+      {
+        id: 45414,
+        name: 'STARLINK-1309',
+        launched: '2020-03-18',
+        reentered: '2026-10-29'
+      }
+    ]
+  },
+  attribution: STARLINK_ATTRIBUTION
+};
+
 export const EXAMPLES = {
   'news-api': news,
   'jet-tracker': jet,
   'hype-meter': hype,
-  'doge-since-snl': doge
+  'doge-since-snl': doge,
+  'starlink-globe': starlink
 };
 
 export const UPSTREAM_ERROR_EXAMPLE = {
