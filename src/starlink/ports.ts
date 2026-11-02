@@ -1,4 +1,4 @@
-import type { OrbitCatalog } from './domain';
+import type { OrbitCatalog, ReentryLog } from './domain';
 
 export interface OrbitSource {
   /**
@@ -16,4 +16,18 @@ export interface OrbitSource {
    * 8. throws on upstream failure or a body with no usable satellite
    */
   fetchOrbits(): Promise<OrbitCatalog>;
+}
+
+export interface ReentrySource {
+  /**
+   * Contract (tests/starlink/reentry-source.contract.ts):
+   * 1. at least one re-entry; satellites still in orbit are left out
+   * 2. ids are unique positive integers (NORAD catalogue numbers)
+   * 3. every re-entry has a non-blank name
+   * 4. launched and reentered are YYYY-MM-DD (UTC), launched <= reentered
+   * 5. carries only readAt and the re-entries' domain fields
+   * 6. readAt is when the catalogue was read, an ISO 8601 UTC timestamp
+   * 7. throws on upstream failure or a body with no usable re-entry
+   */
+  fetchReentries(): Promise<ReentryLog>;
 }
