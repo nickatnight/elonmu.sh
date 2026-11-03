@@ -6,14 +6,16 @@ import { startTestServer, type TestServer } from './helpers';
 import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
 import { sampleNews } from './news/fakes';
+import { sampleStarlink } from './starlink/fakes';
 
 describe('SERVICES', () => {
-  it('lists the News API, the jet tracker, the hype meter, then DOGE since SNL', () => {
+  it('lists the News API, the jet tracker, the hype meter, DOGE since SNL, then the Starlink globe', () => {
     expect(SERVICES.map((service) => service.id)).toEqual([
       'news-api',
       'jet-tracker',
       'hype-meter',
-      'doge-since-snl'
+      'doge-since-snl',
+      'starlink-globe'
     ]);
   });
 
@@ -37,6 +39,19 @@ describe('SERVICES', () => {
       href: '/news',
       cta: 'Spin the wheel',
       api: '/api/news'
+    });
+  });
+
+  it('names the Starlink globe with the copy approved at Gate 1', () => {
+    expect(SERVICES[4]).toEqual({
+      id: 'starlink-globe',
+      name: 'Starlink globe',
+      nav: 'Starlink',
+      summary:
+        'Every Starlink satellite in orbit right now, and obituaries for the ones that burned up this year.',
+      href: '/starlink',
+      cta: 'Pay your respects',
+      api: '/api/starlink'
     });
   });
 
@@ -65,7 +80,8 @@ describe('SERVICES', () => {
       { id: 'news-api', api: '/api/news' },
       { id: 'jet-tracker', api: '/api/jet/flights' },
       { id: 'hype-meter', api: '/api/hype' },
-      { id: 'doge-since-snl', api: '/api/doge' }
+      { id: 'doge-since-snl', api: '/api/doge' },
+      { id: 'starlink-globe', api: '/api/starlink' }
     ]);
   });
 });
@@ -79,7 +95,8 @@ describe('SERVICES over HTTP', () => {
         jet: sampleJet(),
         hype: sampleHype(),
         doge: sampleDoge(),
-        news: sampleNews()
+        news: sampleNews(),
+        starlink: sampleStarlink()
       })
     );
   });

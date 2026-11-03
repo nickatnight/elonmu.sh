@@ -12,6 +12,7 @@ import {
 import { sampleHype } from './hype/fakes';
 import { sampleJet } from './jet/fakes';
 import { sampleNews } from './news/fakes';
+import { sampleStarlink } from './starlink/fakes';
 
 let server: TestServer;
 let html: string;
@@ -22,7 +23,8 @@ beforeAll(async () => {
       jet: sampleJet(),
       hype: sampleHype(),
       doge: sampleDoge(),
-      news: sampleNews()
+      news: sampleNews(),
+      starlink: sampleStarlink()
     })
   );
   html = await (await fetch(`${server.url}/`)).text();
@@ -358,6 +360,35 @@ const accessibleName = (link: string): string =>
 const mainCss = () =>
   Bun.file(`${import.meta.dir}/../src/public/static/css/main.css`).text();
 
+const declared = (css: string, selector: string, prop: string): string =>
+  ruleBody(css, selector).match(
+    new RegExp(`(?:^|\\s)${prop}: ([^;]+);`)
+  )?.[1] ?? '';
+
+const pxAt = (css: string, value: string, viewportPx: number): number => {
+  const term = (t: string): number => {
+    const token = t.match(/^var\((--[\w-]+)\)$/)?.[1];
+    if (token) return pxAt(css, declared(css, ':root', token), viewportPx);
+    const [, n, unit] = t.match(/^(-?[\d.]+)(rem|px|vw)$/) ?? [];
+    if (unit === 'rem') return Number(n) * 16;
+    if (unit === 'px') return Number(n);
+    if (unit === 'vw') return (Number(n) * viewportPx) / 100;
+    return Number.NaN;
+  };
+  const sum = (expr: string): number =>
+    expr
+      .trim()
+      .split(/\s+(?=[+-]\s)/)
+      .reduce((total, part) => {
+        const [, sign, t] = part.match(/^([+-])?\s*(.+)$/) ?? [];
+        return total + (sign === '-' ? -term(t) : term(t));
+      }, 0);
+  const clamp = value.match(/^clamp\(([^,]+),([^,]+),([^)]+\)?)\)$/);
+  if (!clamp) return sum(value);
+  const [, min, preferred, max] = clamp;
+  return Math.min(Math.max(sum(min), sum(preferred)), sum(max));
+};
+
 const ruleBody = (css: string, selector: string): string =>
   css.match(
     new RegExp(
@@ -366,8 +397,15 @@ const ruleBody = (css: string, selector: string): string =>
   )?.[1] ?? '';
 
 describe('topbar', () => {
-  it('reads News · Jet · Hype · DOGE · Docs', () => {
-    expect(navLinks(html)).toEqual(['News', 'Jet', 'Hype', 'DOGE', 'Docs']);
+  it('reads News · Jet · Hype · DOGE · Starlink · Docs', () => {
+    expect(navLinks(html)).toEqual([
+      'News',
+      'Jet',
+      'Hype',
+      'DOGE',
+      'Starlink',
+      'Docs'
+    ]);
   });
 
   it('links Docs to /docs, after the services, marking it current only there', async () => {
@@ -415,7 +453,14 @@ describe('topbar', () => {
   });
 
   it('shows the ribbon on every page', async () => {
-    for (const path of ['/news', '/jet', '/hype', '/doge', '/docs']) {
+    for (const path of [
+      '/news',
+      '/jet',
+      '/hype',
+      '/doge',
+      '/starlink',
+      '/docs'
+    ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, ribbon: ribbon(page) }).toEqual({
         path,
@@ -460,53 +505,68 @@ describe('topbar', () => {
     expect(ruleBody(css, '.topbar')).not.toContain('overflow');
   });
 
+  it('shows only the brand icon below 520 px, where the name and six links overflow', async () => {
+    const css = await mainCss();
+    const collapse = [
+      ...css.matchAll(
+        /@media \(max-width: ([\d.]+)rem\) \{\s*\.brand__name \{/g
+      )
+    ].map(([, rem]) => Number(rem) * 16);
+    expect(collapse).toHaveLength(1);
+    expect(collapse[0]).toBeGreaterThanOrEqual(519);
+    expect(collapse[0]).toBeLessThan(520);
+  });
+
   it('keeps the brand name for screen readers when only the icon shows', () => {
     const brand = html.match(/<a class="brand"[\s\S]*?<\/a>/)?.[0] ?? '';
     expect(accessibleName(brand)).toBe('elonmu.sh');
   });
 
-  it('tightens the topbar gaps and nav text below 336 px', async () => {
-    const css = await Bun.file(
-      `${import.meta.dir}/../src/public/static/css/main.css`
-    ).text();
-    const declaration = (scope: string, selector: string, prop: string) =>
-      scope.match(
-        new RegExp(`(?:^|\\n)\\s*${selector} \\{[^}]*\\s${prop}: ([^;]+);`)
-      )?.[1] ?? '';
-    const smallestPx = (value: string): number => {
-      const token = value.match(/^var\((--[\w-]+)\)$/)?.[1];
-      if (token) return smallestPx(declaration(css, ':root', token));
-      const rem = value.match(/^(?:clamp\()?([\d.]+)rem/)?.[1];
-      return rem ? Number(rem) * 16 : Number.NaN;
-    };
-    const narrow = [
-      ...css.matchAll(/@media \(max-width: ([\d.]+)rem\) \{([\s\S]*?)\n\}/g)
-    ].find(([, maxWidth]) => {
-      const upToPx = Number(maxWidth) * 16;
-      return upToPx >= 335 && upToPx < 336;
-    })?.[2];
-    expect(narrow).toBeDefined();
+  it('tightens the topbar gaps and nav text on narrow screens', async () => {
+    const css = await mainCss();
     for (const [selector, prop] of [
-      ['\\.topbar', 'gap'],
-      ['\\.topbar__actions', 'gap'],
-      ['\\.topbar__actions', 'font-size']
+      ['.topbar', 'gap'],
+      ['.topbar__actions', 'gap'],
+      ['.topbar__actions', 'font-size']
     ] as const) {
-      const tight = smallestPx(declaration(narrow ?? '', selector, prop));
-      const base = smallestPx(declaration(css, selector, prop));
-      expect({ selector, prop, tighter: tight < base }).toEqual({
+      const value = declared(css, selector, prop);
+      expect({
         selector,
         prop,
-        tighter: true
-      });
+        tighter: pxAt(css, value, 320) < pxAt(css, value, 480)
+      }).toEqual({ selector, prop, tighter: true });
     }
+  });
+
+  it('fits six nav links beside the brand icon from 320 px: 11.5 px text and 4.8 px gaps there, full size from 400 px', async () => {
+    const css = await mainCss();
+    const font = declared(css, '.topbar__actions', 'font-size');
+    const gap = declared(css, '.topbar__actions', 'gap');
+    const sixLinks = SERVICES.length + 1;
+    expect(sixLinks).toBe(6);
+    expect(pxAt(css, font, 320)).toBeCloseTo(11.5, 2);
+    expect(pxAt(css, gap, 320)).toBeCloseTo(4.8, 2);
+    expect(pxAt(css, declared(css, '.topbar', 'gap'), 320)).toBeCloseTo(6, 2);
+    expect(pxAt(css, font, 400)).toBeCloseTo(14, 2);
+  });
+
+  it('never squeezes the brand icon to make room for the nav', async () => {
+    expect(ruleBody(await mainCss(), '.brand')).toContain('flex-shrink: 0;');
   });
 
   it('opens no nav link in a new tab', () => {
     expect(topbarNav(html)).not.toContain('target="_blank"');
   });
 
-  it('renders the same nav on /, /news, /jet, /hype, /doge and /docs', async () => {
-    for (const path of ['/news', '/jet', '/hype', '/doge', '/docs']) {
+  it('renders the same nav on /, /news, /jet, /hype, /doge, /starlink and /docs', async () => {
+    for (const path of [
+      '/news',
+      '/jet',
+      '/hype',
+      '/doge',
+      '/starlink',
+      '/docs'
+    ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
@@ -520,7 +580,7 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
-    expect(hrefs.length).toBe(13);
+    expect(hrefs.length).toBe(16);
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
@@ -674,6 +734,11 @@ describe('services section', () => {
         cls: 'service',
         links: ['/doge', '/docs#doge-since-snl']
       },
+      {
+        tag: 'article',
+        cls: 'service',
+        links: ['/starlink', '/docs#starlink-globe']
+      },
       { tag: 'div', cls: 'service service--soon', links: [] }
     ]);
     const section = servicesSection(html);
@@ -689,6 +754,9 @@ describe('services section', () => {
       'DOGE since SNL',
       'What your Dogecoin from the night he hosted SNL is worth today.',
       'Check the damage',
+      'Starlink globe',
+      'Every Starlink satellite in orbit right now, and obituaries for the ones that burned up this year.',
+      'Pay your respects',
       'More soon',
       'Shipping next quarter. Which quarter is unspecified.'
     ]) {

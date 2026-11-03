@@ -153,13 +153,14 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: clamp(0.375rem, 5vw - 0.625rem, 1rem);
   height: var(--topbar);
   padding: 0 var(--margin);
   background: var(--bg);
 }
 
 .brand {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -169,9 +170,9 @@ pre {
 .topbar__actions {
   display: flex;
   align-items: center;
-  gap: clamp(0.5rem, 6.5vw - 1rem, 1.5rem);
+  gap: clamp(0.25rem, 6.5vw - 1rem, 1.5rem);
   padding-inline-end: calc(var(--ribbon) * 0.8 - 0.625rem - var(--margin));
-  font-size: var(--step-small);
+  font-size: clamp(0.71875rem, 3.125vw + 0.09375rem, var(--step-small));
 }
 
 .topbar__actions a {
@@ -953,7 +954,7 @@ a.card__link[href]:focus-visible {
   }
 }
 
-@media (max-width: 28.74rem) {
+@media (max-width: 32.49rem) {
   .brand__name {
     position: absolute;
     width: 1px;
@@ -961,17 +962,6 @@ a.card__link[href]:focus-visible {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-}
-
-@media (max-width: 20.99rem) {
-  .topbar {
-    gap: 0.5rem;
-  }
-
-  .topbar__actions {
-    gap: 0.375rem;
-    font-size: 0.8125rem;
   }
 }
 

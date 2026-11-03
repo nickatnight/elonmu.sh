@@ -381,6 +381,15 @@ describe('starlink.css', () => {
   });
 });
 
+describe('starlink topbar', () => {
+  it('marks Starlink, and only Starlink, as the current page', () => {
+    expect(html.ok).toContain(
+      '<a href="/starlink" aria-current="page">Starlink</a>'
+    );
+    expect(html.ok.match(/aria-current="page"/g)).toHaveLength(1);
+  });
+});
+
 describe('the page template', () => {
   const view = readFileSync(
     path.join(import.meta.dir, '../../src/views/starlink.ejs'),
