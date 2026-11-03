@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { statSync } from 'node:fs';
+import path from 'node:path';
 import { createApp } from '../../src/app';
 import type { Satellite } from '../../src/starlink/domain';
 import { InMemoryOrbitSource } from '../../src/starlink/sources/memory/in-memory-orbit-source';
@@ -107,5 +109,18 @@ describe('response budgets at the 2026-10-30 Starlink volume', () => {
     expect(await gzippedSize(`${server.url}/api/starlink`)).toBeLessThanOrEqual(
       340 * KB
     );
+  });
+});
+
+const scriptSize = (file: string): number =>
+  statSync(path.join(import.meta.dir, '../../src/public/static/js', file)).size;
+
+describe('script budgets', () => {
+  it('keeps starlink.js at or under 8 KB', () => {
+    expect(scriptSize('starlink.js')).toBeLessThanOrEqual(8 * KB);
+  });
+
+  it('keeps orbits.js at or under 4 KB', () => {
+    expect(scriptSize('orbits.js')).toBeLessThanOrEqual(4 * KB);
   });
 });

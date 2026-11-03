@@ -1,0 +1,224 @@
+{
+  "madeWith": "Python 3.14.7, sgp4 2.27, skyfield 1.55",
+  "method": "Each record in tests/fixtures/celestrak-starlink-gp.json was loaded with skyfield EarthSatellite.from_omm (Vallado SGP4, WGS72, BSTAR drag) and propagated to its epoch, rounded to the millisecond, plus 0, 6 and 24 hours. itrsKm is the Earth-fixed ITRS position from frame_xyz(itrs), with UT1 from skyfield's built-in IERS table (load.timescale(builtin=True)). geodetic is the WGS84 sub-point, for reading only.",
+  "script": [
+    "import json, sys",
+    "from datetime import datetime, timedelta, timezone",
+    "import sgp4, skyfield",
+    "from skyfield.api import load, EarthSatellite, wgs84",
+    "from skyfield.framelib import itrs",
+    "",
+    "fixture, out = sys.argv[1], sys.argv[2]",
+    "IDS = [45368, 48881, 49133, 54820, 44714]",
+    "HOURS = [0, 6, 24]",
+    "ts = load.timescale(builtin=True)",
+    "records = {r['NORAD_CAT_ID']: r for r in json.load(open(fixture))}",
+    "positions = []",
+    "for norad in IDS:",
+    "    r = records[norad]",
+    "    sat = EarthSatellite.from_omm(ts, {k: str(v) for k, v in r.items()})",
+    "    epoch = datetime.fromisoformat(r['EPOCH']).replace(tzinfo=timezone.utc)",
+    "    epoch_ms = epoch.replace(microsecond=round(epoch.microsecond / 1000) * 1000) if epoch.microsecond < 999500 else epoch.replace(microsecond=0) + timedelta(seconds=1)",
+    "    for h in HOURS:",
+    "        at = epoch_ms + timedelta(hours=h)",
+    "        g = sat.at(ts.from_datetime(at))",
+    "        x, y, z = g.frame_xyz(itrs).km",
+    "        p = wgs84.geographic_position_of(g)",
+    "        positions.append({",
+    "            'id': norad, 'name': r['OBJECT_NAME'], 'hoursFromEpoch': h,",
+    "            'at': at.isoformat(timespec='milliseconds').replace('+00:00', 'Z'),",
+    "            'itrsKm': [round(x, 3), round(y, 3), round(z, 3)],",
+    "            'geodetic': {'lat': round(p.latitude.degrees, 4), 'lng': round(p.longitude.degrees, 4), 'altKm': round(p.elevation.km, 3)},",
+    "        })",
+    "doc = {",
+    "    'madeWith': f'Python {sys.version.split()[0]}, sgp4 {sgp4.__version__}, skyfield {skyfield.__version__}',",
+    "    'method': 'Each record in tests/fixtures/celestrak-starlink-gp.json was loaded with skyfield EarthSatellite.from_omm (Vallado SGP4, WGS72, BSTAR drag) and propagated to its epoch, rounded to the millisecond, plus 0, 6 and 24 hours. itrsKm is the Earth-fixed ITRS position from frame_xyz(itrs), with UT1 from skyfield\\'s built-in IERS table (load.timescale(builtin=True)). geodetic is the WGS84 sub-point, for reading only.',",
+    "    'script': open(__file__).read().splitlines(),",
+    "    'positions': positions,",
+    "}",
+    "json.dump(doc, open(out, 'w'), indent=2)",
+    "print(len(positions), 'positions', doc['madeWith'])"
+  ],
+  "positions": [
+    {
+      "id": 45368,
+      "name": "STARLINK-1276",
+      "hoursFromEpoch": 0,
+      "at": "2026-10-29T09:51:30.612Z",
+      "itrsKm": [6880.782, -311.043, 0.006],
+      "geodetic": {
+        "lat": 0.0001,
+        "lng": -2.5883,
+        "altKm": 509.672
+      }
+    },
+    {
+      "id": 45368,
+      "name": "STARLINK-1276",
+      "hoursFromEpoch": 6,
+      "at": "2026-10-29T15:51:30.612Z",
+      "itrsKm": [-4073.775, -1890.894, -5228.52],
+      "geodetic": {
+        "lat": -49.5135,
+        "lng": -155.101,
+        "altKm": 526.836
+      }
+    },
+    {
+      "id": 45368,
+      "name": "STARLINK-1276",
+      "hoursFromEpoch": 24,
+      "at": "2026-10-30T09:51:30.612Z",
+      "itrsKm": [2549.294, 3629.069, 5256.746],
+      "geodetic": {
+        "lat": 50.022,
+        "lng": 54.9133,
+        "altKm": 512.055
+      }
+    },
+    {
+      "id": 48881,
+      "name": "STARLINK-3005",
+      "hoursFromEpoch": 0,
+      "at": "2026-10-29T13:34:06.234Z",
+      "itrsKm": [-6943.644, 113.891, -0.002],
+      "geodetic": {
+        "lat": -0.0,
+        "lng": 179.0603,
+        "altKm": 566.441
+      }
+    },
+    {
+      "id": 48881,
+      "name": "STARLINK-3005",
+      "hoursFromEpoch": 6,
+      "at": "2026-10-29T19:34:06.234Z",
+      "itrsKm": [-880.862, 66.548, -6892.715],
+      "geodetic": {
+        "lat": -82.741,
+        "lng": 175.6796,
+        "altKm": 591.995
+      }
+    },
+    {
+      "id": 48881,
+      "name": "STARLINK-3005",
+      "hoursFromEpoch": 24,
+      "at": "2026-10-30T13:34:06.234Z",
+      "itrsKm": [-6941.613, 137.475, 139.675],
+      "geodetic": {
+        "lat": 1.1596,
+        "lng": 178.8654,
+        "altKm": 566.251
+      }
+    },
+    {
+      "id": 49133,
+      "name": "STARLINK-3077",
+      "hoursFromEpoch": 0,
+      "at": "2026-10-29T22:00:02.000Z",
+      "itrsKm": [-4025.961, -2575.548, 4935.935],
+      "geodetic": {
+        "lat": 46.1018,
+        "lng": -147.3915,
+        "altKm": 503.533
+      }
+    },
+    {
+      "id": 49133,
+      "name": "STARLINK-3077",
+      "hoursFromEpoch": 6,
+      "at": "2026-10-30T04:00:02.000Z",
+      "itrsKm": [3906.487, -312.523, 5641.84],
+      "geodetic": {
+        "lat": 55.382,
+        "lng": -4.574,
+        "altKm": 505.71
+      }
+    },
+    {
+      "id": 49133,
+      "name": "STARLINK-3077",
+      "hoursFromEpoch": 24,
+      "at": "2026-10-30T22:00:02.000Z",
+      "itrsKm": [-2580.149, -5274.103, -3580.746],
+      "geodetic": {
+        "lat": -31.5362,
+        "lng": -116.0684,
+        "altKm": 504.821
+      }
+    },
+    {
+      "id": 54820,
+      "name": "STARLINK-5382",
+      "hoursFromEpoch": 0,
+      "at": "2026-10-29T13:29:17.810Z",
+      "itrsKm": [6631.643, 1757.463, -0.001],
+      "geodetic": {
+        "lat": -0.0,
+        "lng": 14.8429,
+        "altKm": 482.429
+      }
+    },
+    {
+      "id": 54820,
+      "name": "STARLINK-5382",
+      "hoursFromEpoch": 6,
+      "at": "2026-10-29T19:29:17.810Z",
+      "itrsKm": [-3687.447, -3990.586, -4193.326],
+      "geodetic": {
+        "lat": -37.8326,
+        "lng": -132.7391,
+        "altKm": 493.251
+      }
+    },
+    {
+      "id": 54820,
+      "name": "STARLINK-5382",
+      "hoursFromEpoch": 24,
+      "at": "2026-10-30T13:29:17.810Z",
+      "itrsKm": [-2487.843, 4528.335, 4507.049],
+      "geodetic": {
+        "lat": 41.276,
+        "lng": 118.7842,
+        "altKm": 487.415
+      }
+    },
+    {
+      "id": 44714,
+      "name": "STARLINK-1008",
+      "hoursFromEpoch": 0,
+      "at": "2026-10-28T20:33:11.108Z",
+      "itrsKm": [-6022.347, 3035.354, 0.002],
+      "geodetic": {
+        "lat": 0.0,
+        "lng": 153.2512,
+        "altKm": 365.901
+      }
+    },
+    {
+      "id": 44714,
+      "name": "STARLINK-1008",
+      "hoursFromEpoch": 6,
+      "at": "2026-10-29T02:33:11.108Z",
+      "itrsKm": [4483.435, 4372.025, -2509.481],
+      "geodetic": {
+        "lat": -21.9634,
+        "lng": 44.2792,
+        "altKm": 371.187
+      }
+    },
+    {
+      "id": 44714,
+      "name": "STARLINK-1008",
+      "hoursFromEpoch": 24,
+      "at": "2026-10-29T20:33:11.108Z",
+      "itrsKm": [4047.7, 1905.182, -5049.683],
+      "geodetic": {
+        "lat": -48.6416,
+        "lng": 25.2055,
+        "altKm": 380.193
+      }
+    }
+  ]
+}
