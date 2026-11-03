@@ -206,6 +206,15 @@ $ bun run format          # apply Biome formatting
 $ bun run check           # format check, lint, typecheck, tests (what CI runs)
 ```
 
+`bun run dev` restarts on every save. It sets `SKIP_STARLINK_WARM_UP=1`, so a
+restart does not download the Starlink catalogues (about 9 MB from CelesTrak);
+`bun start` does. The cache lives in the process, though, so the first visit
+to `/starlink` after each restart still downloads them. CelesTrak answers
+repeat downloads inside its 2-hour window with a 403 and blocks heavy users,
+so avoid reloading `/starlink` in a loop while editing. Running
+`bun --watch src/index.ts` yourself does warm the cache, unless you set
+`SKIP_STARLINK_WARM_UP=1` too.
+
 Two scripts are run by hand, offline:
 
 ```shell

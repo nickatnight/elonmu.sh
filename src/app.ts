@@ -14,6 +14,8 @@ import { securityHeaders } from './middleware/security-headers';
 import { createNewsModule } from './news';
 import type { NewsQuery } from './news/ports';
 import * as routes from './routes';
+import { createStarlinkModule } from './starlink';
+import type { StarlinkQuery } from './starlink/ports';
 
 const publicDir = path.join(__dirname, 'public');
 const CRAWLER_FILES = new Set(
@@ -38,6 +40,7 @@ export type AppDeps = {
   hype?: HypeQuery;
   doge?: DogeQuery;
   news?: NewsQuery;
+  starlink?: StarlinkQuery;
   services?: readonly Service[];
 };
 
@@ -46,6 +49,7 @@ export const createApp = ({
   hype = createHypeModule(),
   doge = createDogeModule(),
   news = createNewsModule(),
+  starlink = createStarlinkModule(),
   services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
@@ -74,7 +78,7 @@ export const createApp = ({
     })
   );
 
-  routes.register(app, { jet, hype, doge, news });
+  routes.register(app, { jet, hype, doge, news, starlink });
 
   app.use((_req, res) => {
     res.status(404).send('does not compute...');

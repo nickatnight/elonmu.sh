@@ -5,14 +5,17 @@ bundler. Bun runs the TypeScript directly.
 
 ## App
 
-- `src/index.ts` starts the server and warms the jet cache. `src/app.ts`
-  exports `createApp({ jet, hype, doge, news, services })`, so tests can inject
-  fakes and start the app on a random port with `startTestServer`
-  (`tests/helpers.ts`).
+- `src/index.ts` starts the server and warms the jet and Starlink caches
+  through `warmUpCaches()` (`src/warm-up.ts`), passing it `process.env`. It
+  skips the Starlink warm-up when `SKIP_STARLINK_WARM_UP` is `1`, which
+  `bun run dev` sets. `tests/index.test.ts` tests it and the two scripts.
+  `src/app.ts` exports `createApp({ jet, hype, doge, news, starlink,
+  services })`, so tests can inject fakes and start the app on a random port
+  with `startTestServer` (`tests/helpers.ts`).
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
-  (NewsAPI, Bluesky, Wikimedia, CoinGecko) fails, the route returns **200 with `{ error }`** through
-  `upstreamFailure()`. Only our own bugs return 500. The README documents
-  this contract.
+  (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) fails, the route
+  returns **200 with `{ error }`** through `upstreamFailure()`. Only our own
+  bugs return 500. The README documents this contract.
 - `src/catalog.ts` (`SERVICES`) lists the public tools. Each entry has a page
   (`href`) and an endpoint (`api`); its id is also its block's anchor on
   `/docs`. The nav, the home page's service cards, and the endpoint links on
@@ -51,7 +54,10 @@ changed, which shows the move kept its behaviour.
   `retryAfterMs` is opt-in: after a failed load, no new load starts for that
   long, whatever the key, and callers get the fallback (or the same error)
   without a new warning. Jet leaves it unset, so every miss while Bluesky is
-  down tries again. Hype, DOGE and news set it to a minute.
+  down tries again. Hype, DOGE and news set it to a minute. It can also be
+  a function of the failed load's error, so the wait can depend on how the
+  upstream failed: Starlink waits 2 hours after a refusal and a minute
+  after anything else.
 - `tests/fakes.ts` provides `FakeClock`, `FakeLogger` and `fakeHttpGet`.
 
 ## News roulette (`src/news/`)
@@ -329,3 +335,88 @@ is `start()`, behind `typeof document !== 'undefined'`. Module-level
   - `doge.js` is 3,719 bytes, which leaves about 377 bytes. Trim the
     script rather than raise the budget; CONSTRAINTS.md does not allow
     raising a budget to make a change pass.
+
+## Starlink globe (`src/starlink/`)
+
+Every Starlink satellite in orbit, moving on a 3D globe, with this year's
+re-entries listed as obituaries. Same layout as DOGE: `ports.ts` defines
+`OrbitSource`, `ReentrySource` and `StarlinkQuery`, and
+`createStarlinkModule()` in `index.ts` is the only place that wires axios, the
+clock and the logger:
+
+```
+CelesTrakOrbitSource   → CachedOrbitSource   (6 h TTL, one key, 1 min or 2 h retry) ┐
+CelesTrakReentrySource → CachedReentrySource (12 h TTL, one key, 1 min or 2 h retry) ┴→ StarlinkService → StarlinkQuery
+```
+
+- `createStarlinkModule()` gives axios a 10 s timeout, a 16 MB response cap,
+  no redirects and the shared `User-Agent`. The GP group is 4.7 MB and the
+  catalogue 4.3 MB. CelesTrak asks clients not to fetch a group more than
+  once every 2 hours and blocks heavy users, so the TTLs are 6 and 12 hours.
+  A repeat download inside CelesTrak's window can come back as a 403.
+- `createStarlinkModule()` turns an axios error with a 403 or 429 response
+  into `UpstreamRefusedError` (`ports.ts`), as the news module classifies
+  its errors, so no axios type gets past `index.ts`. `retry-delay.ts` gives
+  both cached sources their `retryAfterMs`: 2 hours after a refusal, which
+  waits out CelesTrak's window, and a minute after any other failure
+  (a 500, a timeout, a body with nothing usable). Stale data is served
+  while they wait, and a cold cache fails fast with the same error. Each
+  failure picks its own wait, so a timeout after a refusal waits a minute.
+  CelesTrak's `Retry-After` header is not read; no captured 403 shows
+  whether it sends one.
+- `src/index.ts` warms both caches at start. `bun run dev` sets
+  `SKIP_STARLINK_WARM_UP=1`, so a restart after a save makes no CelesTrak
+  request; the first `/starlink` or `/api/starlink` request after a restart
+  still downloads both catalogues, because the cache lives in the process.
+  The 2-hour wait lives there too, so a restart or a crash forgets it, and
+  each start inside a refusal makes one request per catalogue.
+  If CelesTrak refuses the GP group at start, `/starlink` shows the
+  re-entries without dots until the first request after the 2-hour wait.
+- `sources/celestrak/parse-gp.ts` reads the Starlink GP group (OMM JSON).
+  `EPOCH` has no zone suffix and is UTC; it is rounded to the millisecond.
+  `MEAN_MOTION_DOT` is kept as CelesTrak gives it, half the rate of change of
+  mean motion in rev/day², and becomes `meanMotionDot`.
+  `parse-satcat.ts` reads the satellite catalogue. An empty `DECAY_DATE` means
+  the satellite is still in orbit, so it is left out; a record without a valid
+  `LAUNCH_DATE` is skipped. Both parsers skip a record with a missing field or
+  a non-finite number, keep the first of a repeated id, and throw when nothing
+  usable is left, so an empty list is never cached. No CelesTrak field name
+  reaches `domain.ts` or the JSON.
+- Each source stamps its result with `readAt` from the clock. The caches keep
+  that stamp when they serve stale data, so `updatedAt` (the older of the two)
+  says how old the data really is.
+- `StarlinkService` asks both caches with `Promise.allSettled`. If one fails,
+  its half of the snapshot is `null` and the route sends `no-store`. If both
+  fail, it throws and `/api/starlink` answers `200 { error }`. The re-entry
+  count is the decay dates in the clock's UTC year, so it rolls over at
+  midnight UTC on 1 January from the cached catalogue. `recent` is that
+  year's latest 12, newest first, ties by ascending id. The count includes the
+  catalogue's two `STARLINK-34343 DEB` debris records.
+- The cached sources return the same objects until they reload, so the service
+  keeps its last snapshot and returns it while both loads and the UTC year are
+  unchanged. The route keeps each snapshot's JSON string in a `WeakMap`. Per
+  `/api/starlink` request that leaves the gzip (about 14 ms of the 16 ms
+  median on the full catalogue) and Express's ETag hash.
+- The service rounds elements to 5 decimals (`meanMotion`), 6
+  (`meanMotionDot`), 4 (`eccentricity`) and 2 (angles). Unrounded, the
+  2026-10-30 catalogue gzips to 469 KB; rounded, to 321 KB, under the 340 KB
+  budget in `tests/starlink/budgets.test.ts`. Measured over all 11,130
+  satellites at read time, the rounding moves a satellite by 0.55 km at the
+  median, 1.52 km at p99 and 2.08 km at most, growing slowly with epoch age
+  (2.36 km a day later). That is under a pixel on the globe. The budget test
+  builds 11,130 satellites from the fixture with the capture's clustering
+  (46% of epochs on 16 SpaceX epochs, one mean motion per shell, planes
+  shared within a launch), which gzips to 327.6 KB, a little above the real
+  321 KB.
+- Every source must satisfy its contract in `ports.ts`.
+  `tests/starlink/orbit-source.contract.ts` and `reentry-source.contract.ts`
+  run on the CelesTrak sources (through `fakeHttpGet` and the trimmed real
+  captures in `tests/fixtures/celestrak-starlink-*.json`), the in-memory
+  sources and the cached sources.
+- `bun test` runs in UTC, where local time and UTC agree, so a test that
+  only checks UTC handling can't fail. The New Year, epoch and obituary-date
+  tests run inside `inTimeZone()` (`tests/fakes.ts`) under Los Angeles or
+  Kiritimati time. The helper saves the zone in effect and always assigns it
+  back, so later tests stay in UTC (`tests/fakes.test.ts`). The obituary
+  formatter is built when `format.ts` loads, so its test re-imports the
+  module fresh (`?los-angeles`) inside the zone.

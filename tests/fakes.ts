@@ -40,3 +40,17 @@ export const fakeHttpGet = (
   };
   return { get, calls };
 };
+
+export const inTimeZone = async <T>(
+  timeZone: string,
+  run: () => T | Promise<T>
+): Promise<T> => {
+  const before =
+    process.env.TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  process.env.TZ = timeZone;
+  try {
+    return await run();
+  } finally {
+    process.env.TZ = before;
+  }
+};
