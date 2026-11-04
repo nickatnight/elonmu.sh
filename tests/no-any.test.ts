@@ -11,7 +11,10 @@ const ANY_TYPE = [
   /@\w+\s*\{[^}]*\bany\b/,
   /:\s*any\b(?!\s*[\w.(])/,
   /\bas\s+any\b(?!\s*[\w.(])/,
-  /[<,]\s*any\s*(?:\[\])?\s*[,>]/
+  /=>\s*any\b(?!\s*[\w.(])/,
+  /(?<![|&])[|&]\s*any\b(?!\s*[\w.(])/,
+  /(?<!\.)\bany\s*[|&](?![|&])/,
+  /[<,[]\s*any\s*(?:\[\])?\s*[,>\]]/
 ];
 
 const usesAny = (line: string): boolean =>
@@ -35,7 +38,15 @@ describe('the any check', () => {
     'let rows: any[] = [];',
     'const body = res as any;',
     'const map: Map<string, any> = new Map();',
-    'const g = <any>value;'
+    'const g = <any>value;',
+    ' *   cb: () => any,',
+    ' *   (n: number) => any> & {',
+    ' *   string | any',
+    'let x: string | any;',
+    'type Maybe = any | null;',
+    'type Both = Base & any;',
+    'const t: [any, string] = [a, b];',
+    'const t: [string, any] = [a, b];'
   ])('flags %s', (line) => {
     expect(usesAny(line)).toBe(true);
   });
@@ -46,7 +57,8 @@ describe('the any check', () => {
     '// fails like any other upstream error',
     ' * Works for any tail, such as any other jet.',
     '/** @type {unknown} */',
-    "if (!rows.some((r) => r.any)) return 'many';"
+    "if (!rows.some((r) => r.any)) return 'many';",
+    'if (a.any || b.any) return;'
   ])('ignores %s', (line) => {
     expect(usesAny(line)).toBe(false);
   });
