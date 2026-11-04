@@ -7,7 +7,6 @@ import { isBiomeTarget, isEslintTarget } from '../../.claude/hooks/lib';
 import { runHook } from './run-hook';
 
 const projectDir = path.join(import.meta.dir, '../..');
-// Unique per run, so concurrent `bun test` runs in one checkout don't collide.
 const fixtureName = `tmp-format-fixture-${crypto.randomUUID()}`;
 // Lives in the repo so Biome applies biome.json.
 const fixture = path.join(import.meta.dir, `${fixtureName}.ts`);

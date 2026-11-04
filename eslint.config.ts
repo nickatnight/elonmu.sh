@@ -51,7 +51,6 @@ export default defineConfig(
   // ignore files.
   includeIgnoreFile(gitignores, { gitignoreResolution: true }),
   includeIgnoreFile(localExcludes),
-  // Repeats .gitignore entries so they hold without git or a .gitignore.
   globalIgnores([
     'src/public/static/vendor/',
     '.claude/worktrees/',
