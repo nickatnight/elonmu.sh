@@ -54,6 +54,12 @@ bundler. Bun runs the TypeScript directly.
   no inline scripts or styles). The vendored globe.gl injects `<style>` tags
   at runtime, which are allowed by sha256 hash. Upgrading globe.gl means
   recomputing those hashes.
+- `bun run typecheck` checks the browser JS in `src/public/static/js/`
+  against its JSDoc types (`checkJs`), with one `tsconfig.json` for the
+  whole program. Its `lib` includes `DOM` and `DOM.Iterable`, so server code
+  that names `document` or `window` is not a type error; it fails at
+  runtime. The vendored globe.gl is excluded and has no types, and `jet.js`
+  types its calls into it as `any`.
 
 ## Shared ports and cache
 
@@ -197,7 +203,7 @@ BlueskyFlightSource â†’ CachedFlightSource (5 min TTL, serves stale on error) â†
   `scripts/render-teaser-earth.ts` from the same `TEASER_VIEW` and
   `TEASER_SIZE`. A test checks that they match.
 - On the client, `src/public/static/js/jet.js` is a vanilla ES module with
-  JSDoc types, which tsc does not check (no `checkJs`). It is unit-tested in
+  JSDoc types, which tsc checks. It is unit-tested in
   `tests/jet/scene.test.ts`. It lazy-loads the vendored globe.gl and fetches
   `/api/jet/flights`.
 - `tests/jet/budgets.test.ts` caps the size of the vendored script and the
