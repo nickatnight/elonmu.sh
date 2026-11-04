@@ -1,4 +1,4 @@
-import { afterEach } from 'bun:test';
+import { afterAll, afterEach } from 'bun:test';
 import net from 'node:net';
 
 export type BlockedAttempt = { api: string; host: string };
@@ -42,12 +42,10 @@ const guardFetch = (real: typeof fetch): typeof fetch =>
 const socketHost = (args: unknown[]): string => {
   const [first, second] = Array.isArray(args[0]) ? args[0] : args;
   if (typeof first === 'object' && first !== null) {
-    if ('path' in first && first.path) return '';
     return 'host' in first && typeof first.host === 'string'
       ? first.host
       : 'localhost';
   }
-  if (typeof first === 'string' && !/^\d+$/.test(first)) return '';
   return typeof second === 'string' ? second : 'localhost';
 };
 
@@ -83,11 +81,14 @@ Object.assign(Bun.dns, {
   }
 });
 
-afterEach(() => {
+const failIfLeaked = (culprit: string): void => {
   const leaked = takeBlockedAttempts();
   if (leaked.length === 0) return;
   const list = leaked.map(({ api, host }) => `${api} ${host}`).join(', ');
   throw new Error(
-    `This test tried to reach the network (${list}). Pass the module's fake to createApp.`
+    `${culprit} tried to reach the network (${list}). Pass the module's fake to createApp.`
   );
-});
+};
+
+afterEach(() => failIfLeaked('This test'));
+afterAll(() => failIfLeaked('An afterAll hook or late callback'));

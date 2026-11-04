@@ -15,6 +15,16 @@ describe('the network guard', () => {
   it.each([
     ['fetch', 'fetch', () => fetch(`https://${HOST}/api/v3/ping`)],
     [
+      'fetch with a URL',
+      'fetch',
+      () => fetch(new URL(`https://${HOST}/api/v3/ping`))
+    ],
+    [
+      'fetch with a Request',
+      'fetch',
+      () => fetch(new Request(`https://${HOST}/api/v3/ping`))
+    ],
+    [
       'axios GET',
       'net.Socket#connect',
       () => axios.get(`https://${HOST}/api/v3/ping`, { timeout: 1000 })
@@ -72,20 +82,35 @@ describe('the network guard', () => {
     expect(takeBlockedAttempts()).toEqual([{ api: 'dns lookup', host: HOST }]);
   });
 
-  it('fails the test even when the caller swallows the error', async () => {
-    const fixture = path.join(import.meta.dir, 'fixtures/swallowed-leak.ts');
-    const proc = Bun.spawn(['bun', 'test', fixture], {
-      cwd: path.join(import.meta.dir, '..'),
-      stdout: 'ignore',
-      stderr: 'pipe'
-    });
+  const runFixture = async (name: string) => {
+    const proc = Bun.spawn(
+      ['bun', 'test', path.join(import.meta.dir, 'fixtures', name)],
+      {
+        cwd: path.join(import.meta.dir, '..'),
+        stdout: 'ignore',
+        stderr: 'pipe'
+      }
+    );
     const [exitCode, stderr] = await Promise.all([
       proc.exited,
       new Response(proc.stderr).text()
     ]);
+    return { exitCode, stderr };
+  };
+
+  it('fails the test even when the caller swallows the error', async () => {
+    const { exitCode, stderr } = await runFixture('swallowed-leak.ts');
     expect(exitCode).toBe(1);
     expect(stderr).toContain(`fetch ${HOST}`);
     expect(stderr).toContain('(fail) answers "unavailable" when CoinGecko');
+  });
+
+  it('fails the run when an afterAll hook reaches the network', async () => {
+    const { exitCode, stderr } = await runFixture('after-all-leak.ts');
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain(
+      `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
+    );
   });
 });
 
@@ -138,18 +163,23 @@ describe('loopback', () => {
   });
 
   it.each([
-    ['localhost', true],
-    ['LOCALHOST', true],
-    ['127.0.0.1', true],
-    ['127.255.0.9', true],
-    ['::1', true],
-    ['[::1]', true],
-    ['api.coingecko.com', false],
-    ['localhost.example.com', false],
-    ['128.0.0.1', false],
-    ['10.0.0.1', false],
-    ['1.127.0.0.1', false]
-  ])('treats %s as loopback: %p', (host, want) => {
-    expect(isLoopback(host)).toBe(want);
+    'localhost',
+    'LOCALHOST',
+    '127.0.0.1',
+    '127.255.0.9',
+    '::1',
+    '[::1]'
+  ])('treats %s as loopback', (host) => {
+    expect(isLoopback(host)).toBe(true);
+  });
+
+  it.each([
+    'api.coingecko.com',
+    'localhost.example.com',
+    '128.0.0.1',
+    '10.0.0.1',
+    '1.127.0.0.1'
+  ])('treats %s as an outside host', (host) => {
+    expect(isLoopback(host)).toBe(false);
   });
 });
