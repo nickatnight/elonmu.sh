@@ -36,6 +36,11 @@ export const createNewsModule = ({
   logger?: Logger;
   random?: () => number;
 } = {}): NewsQuery => {
+  if (apiKey === '')
+    logger.warn(
+      'news: NEWS_API_KEY is not set, so NewsAPI will refuse requests'
+    );
+
   const config: HttpConfig = {
     timeout: 10_000,
     maxRedirects: 0,

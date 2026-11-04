@@ -55,6 +55,32 @@ describe('createNewsModule', () => {
     ]);
   });
 
+  it('warns once, when it is created, that NEWS_API_KEY is missing', async () => {
+    const logger = new FakeLogger();
+    const news = createNewsModule({
+      logger,
+      apiKey: '',
+      get: async () => ({ data: { articles: [newsApiArticle] } })
+    });
+    const oneWarning = [{ msg: expect.stringContaining('NEWS_API_KEY') }];
+
+    expect(logger.warnings).toEqual(oneWarning);
+    await news.random();
+    await news.random();
+    expect(logger.warnings).toEqual(oneWarning);
+  });
+
+  it('logs nothing at creation when it has a key', () => {
+    const logger = new FakeLogger();
+
+    createNewsModule({
+      logger,
+      apiKey: 'k-123',
+      get: async () => ({ data: {} })
+    });
+    expect(logger.warnings).toEqual([]);
+  });
+
   it('reports a NewsAPI redirect as an error response and never follows it', async () => {
     const upstream = serveRedirect({ articles: [newsApiArticle] });
 
