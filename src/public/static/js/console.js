@@ -1,5 +1,28 @@
 /** @typedef {'key' | 'str' | 'num' | 'lit' | 'more'} TokenKind */
 /** @typedef {{ kind: TokenKind | null, text: string }} Token */
+/**
+ * @typedef {{ textContent: string }} HasText
+ * @typedef {{
+ *   createElement(tagName: 'span'): HasText & { className?: string },
+ *   createTextNode(data: string): HasText,
+ *   querySelector(selectors: '.announce'): HasText | null
+ * }} Page
+ * @typedef {{
+ *   ownerDocument: Page, replaceChildren(...nodes: HasText[]): void
+ * }} Code
+ * @typedef {HasText & {
+ *   hidden: boolean, dataset: DOMStringMap, style: { minHeight: string },
+ *   getBoundingClientRect(): { height: number },
+ *   querySelector(selectors: 'code'): Code | null
+ * }} Part
+ * @typedef {EventTarget & HasText & {
+ *   hidden: boolean, ownerDocument: Page,
+ *   closest(selectors: 'figure'): {
+ *     querySelector(selectors: string): Part | null
+ *   } | null
+ * }} CopyButton
+ * @typedef {CopyButton & { disabled: boolean, dataset: DOMStringMap }} SendButton
+ */
 
 const KEEP = 3;
 
@@ -108,7 +131,7 @@ export const tokenize = (value) => {
 };
 
 /**
- * @param {Document} doc
+ * @param {Page} doc
  * @param {string} text
  */
 const announce = (doc, text) => {
@@ -118,7 +141,7 @@ const announce = (doc, text) => {
 };
 
 /**
- * @param {Element} code
+ * @param {Code} code
  * @param {unknown} body
  */
 const renderJson = (code, body) => {
@@ -139,19 +162,15 @@ const renderJson = (code, body) => {
 };
 
 /**
- * @param {HTMLButtonElement} send
+ * @param {SendButton} send
  * @param {{ fetch: (url: string, init: RequestInit) => Promise<Response> }} deps
  */
 export const startSend = (send, { fetch }) => {
   const figure = send.closest('figure');
-  const pre = /** @type {HTMLElement | null | undefined} */ (
-    figure?.querySelector('pre')
-  );
+  const pre = figure?.querySelector('pre');
   const code = pre?.querySelector('code');
   const label = figure?.querySelector('.code__label');
-  const full = /** @type {HTMLElement | null | undefined} */ (
-    figure?.querySelector('.code__full')
-  );
+  const full = figure?.querySelector('.code__full');
   const api = send.dataset.api;
 
   if (!pre || !code || !label || !full || !api) return;
@@ -208,16 +227,14 @@ export const startSend = (send, { fetch }) => {
 };
 
 /**
- * @param {HTMLButtonElement} button
+ * @param {CopyButton} button
  * @param {{
  *   clipboard: Pick<Clipboard, 'writeText'>,
  *   later: (fn: () => void, ms: number) => unknown
  * }} deps
  */
 export const startCopy = (button, { clipboard, later }) => {
-  const pre = /** @type {HTMLElement | null | undefined} */ (
-    button.closest('figure')?.querySelector('pre')
-  );
+  const pre = button.closest('figure')?.querySelector('pre');
 
   if (!pre) return;
 
