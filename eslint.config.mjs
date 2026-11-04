@@ -4,20 +4,21 @@ import { parser } from 'typescript-eslint';
 
 const BLOCKS = ['if', 'for', 'while', 'do', 'try', 'switch'];
 const DECLARATIONS = ['const', 'let', 'var'];
+const GITIGNORED_DIRS = [
+  '.claude/worktrees/',
+  '.emgee/',
+  '.playwright-mcp/',
+  '.taste-skill/',
+  'dist/',
+  'docs/',
+  'files/'
+];
+const BIOME_EXCLUDED_DIRS = ['src/public/static/vendor/'];
 
 // ESLint only loads a default export.
 export default defineConfig(
   // Flat config reads no ignore files.
-  globalIgnores([
-    '.claude/worktrees/',
-    '.emgee/',
-    '.playwright-mcp/',
-    '.taste-skill/',
-    'dist/',
-    'docs/',
-    'files/',
-    'src/public/static/vendor/'
-  ]),
+  globalIgnores([...GITIGNORED_DIRS, ...BIOME_EXCLUDED_DIRS]),
   {
     files: ['**/*.ts', '**/*.js', '**/*.mjs'],
     plugins: { '@stylistic': stylistic },
