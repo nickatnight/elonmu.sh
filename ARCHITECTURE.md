@@ -93,12 +93,13 @@ defines `ArticleSource` and `NewsQuery`, and `createNewsModule()` in
 NewsApiArticleSource → CachedArticleSource (15 min TTL, one key, 1 min retry) → NewsService → NewsQuery
 ```
 
-- `createNewsModule()` gives axios a 10 s timeout. It turns an `AxiosError`
-  into a `NewsUpstreamError` whose `failure` is `error-response`,
-  `no-response` or `not-sent`, so nothing past the composition root sees
-  axios. `src/routes/news.ts` maps each failure to the error body
-  `/api/news` has always sent, through a lookup table. Any other error is a
-  500.
+- `createNewsModule()` gives axios a 10 s timeout and no redirects, and
+  sends the key in the `X-Api-Key` header, so it never appears in a URL. It
+  turns an `AxiosError` into a `NewsUpstreamError` whose `failure` is
+  `error-response` (a 3xx counts as one), `no-response` or `not-sent`, so
+  nothing past the composition root sees axios. `src/routes/news.ts` maps
+  each failure to the error body `/api/news` has always sent, through a
+  lookup table. Any other error is a 500.
 - `sources/newsapi/parse.ts` turns NewsAPI's `articles` into `Article`s
   (`source`, `title`, `description`, `url`, `urlImage`, `publishDate`).
   NewsAPI field names (`urlToImage`, `publishedAt`, `source.name`) stay in
@@ -177,6 +178,8 @@ place that wires real adapters:
 BlueskyFlightSource → CachedFlightSource (5 min TTL, serves stale on error) → JetService → JetQuery
 ```
 
+- `createJetModule()` gives axios a 10 s timeout and no redirects, so a 3xx
+  from Bluesky is an upstream failure like any other.
 - `sources/bluesky/` reads @elonjet.net's posts. `feed-client` pages through
   the feed, `parse` turns posts into events, and `pair` joins each takeoff to
   its landing to make a flight. Fuel replies add the cost and CO₂.

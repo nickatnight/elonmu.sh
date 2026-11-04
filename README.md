@@ -260,7 +260,7 @@ Example 200 response (`satellites` and `recent` shortened):
 
 ## Development
 
-Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key.
+Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key. The server sends the key in the `X-Api-Key` header, never in the URL.
 
 ```shell
 $ bun install
