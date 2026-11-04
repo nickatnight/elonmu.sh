@@ -13,12 +13,6 @@ type HttpConfig = {
 
 type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
-const newsApiConfig = (apiKey: string): HttpConfig => ({
-  timeout: 10_000,
-  maxRedirects: 0,
-  headers: { 'X-Api-Key': apiKey }
-});
-
 const systemClock: Clock = { now: () => new Date() };
 
 const consoleLogger: Logger = {
@@ -49,7 +43,11 @@ export const createNewsModule = ({
   logger?: Logger;
   random?: () => number;
 } = {}): NewsQuery => {
-  const config = newsApiConfig(apiKey);
+  const config: HttpConfig = {
+    timeout: 10_000,
+    maxRedirects: 0,
+    headers: { 'X-Api-Key': apiKey }
+  };
   const http: HttpGet = async <T>(url: string) => {
     try {
       return (await get(url, config)).data as T;
