@@ -8,18 +8,14 @@ import { newsApiArticle } from '../fixtures';
 import { describeArticleSource } from './article-source.contract';
 import { article, InMemoryArticleSource } from './fakes';
 
-const KEY = 'test-key';
-
 describeArticleSource('NewsApiArticleSource', {
   make: () =>
     new NewsApiArticleSource({
       http: fakeHttpGet({
-        [newsUrl(KEY)]: { status: 'ok', articles: [newsApiArticle] }
-      }).get,
-      apiKey: KEY
+        [newsUrl()]: { status: 'ok', articles: [newsApiArticle] }
+      }).get
     }),
-  makeFailing: () =>
-    new NewsApiArticleSource({ http: fakeHttpGet({}).get, apiKey: KEY })
+  makeFailing: () => new NewsApiArticleSource({ http: fakeHttpGet({}).get })
 });
 
 describeArticleSource('InMemoryArticleSource', {
@@ -29,12 +25,12 @@ describeArticleSource('InMemoryArticleSource', {
 });
 
 describe('NewsApiArticleSource', () => {
-  it('asks NewsAPI for English Elon Musk articles with the key', async () => {
+  it('asks NewsAPI for English Elon Musk articles, with no key in the URL', async () => {
     const http = fakeHttpGet({
-      [newsUrl(KEY)]: { articles: [newsApiArticle] }
+      [newsUrl()]: { articles: [newsApiArticle] }
     });
 
-    await new NewsApiArticleSource({ http: http.get, apiKey: KEY }).latest();
+    await new NewsApiArticleSource({ http: http.get }).latest();
 
     const url = new URL(http.calls[0] ?? '');
 
@@ -42,28 +38,27 @@ describe('NewsApiArticleSource', () => {
     expect(url.origin + url.pathname).toBe('https://newsapi.org/v2/everything');
     expect(Object.fromEntries(url.searchParams)).toEqual({
       q: 'elon musk',
-      language: 'en',
-      apiKey: KEY
+      language: 'en'
     });
   });
 
   it('maps a NewsAPI article to the public article', async () => {
     const http = fakeHttpGet({
-      [newsUrl(KEY)]: { articles: [newsApiArticle] }
+      [newsUrl()]: { articles: [newsApiArticle] }
     });
 
-    expect(
-      await new NewsApiArticleSource({ http: http.get, apiKey: KEY }).latest()
-    ).toEqual([
-      {
-        source: 'Business Insider',
-        title: newsApiArticle.title,
-        description: newsApiArticle.description,
-        url: newsApiArticle.url,
-        urlImage: newsApiArticle.urlToImage,
-        publishDate: newsApiArticle.publishedAt
-      }
-    ]);
+    expect(await new NewsApiArticleSource({ http: http.get }).latest()).toEqual(
+      [
+        {
+          source: 'Business Insider',
+          title: newsApiArticle.title,
+          description: newsApiArticle.description,
+          url: newsApiArticle.url,
+          urlImage: newsApiArticle.urlToImage,
+          publishDate: newsApiArticle.publishedAt
+        }
+      ]
+    );
   });
 
   it('passes the error through when NewsAPI fails', async () => {
@@ -72,8 +67,8 @@ describe('NewsApiArticleSource', () => {
       throw failure;
     };
 
-    await expect(
-      new NewsApiArticleSource({ http, apiKey: KEY }).latest()
-    ).rejects.toBe(failure);
+    await expect(new NewsApiArticleSource({ http }).latest()).rejects.toBe(
+      failure
+    );
   });
 });

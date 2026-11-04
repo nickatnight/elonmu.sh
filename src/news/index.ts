@@ -5,11 +5,19 @@ import { NewsService } from './news.service';
 import { type NewsQuery, NewsUpstreamError } from './ports';
 import { NewsApiArticleSource } from './sources/newsapi/newsapi-article-source';
 
-type HttpConfig = { timeout: number; maxRedirects: number };
+type HttpConfig = {
+  timeout: number;
+  maxRedirects: number;
+  headers: Record<string, string>;
+};
 
 type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
-const NEWSAPI_CONFIG: HttpConfig = { timeout: 10_000, maxRedirects: 0 };
+const newsApiConfig = (apiKey: string): HttpConfig => ({
+  timeout: 10_000,
+  maxRedirects: 0,
+  headers: { 'X-Api-Key': apiKey }
+});
 
 const systemClock: Clock = { now: () => new Date() };
 
@@ -41,20 +49,17 @@ export const createNewsModule = ({
   logger?: Logger;
   random?: () => number;
 } = {}): NewsQuery => {
+  const config = newsApiConfig(apiKey);
   const http: HttpGet = async <T>(url: string) => {
     try {
-      return (await get(url, NEWSAPI_CONFIG)).data as T;
+      return (await get(url, config)).data as T;
     } catch (err) {
       throw classify(err);
     }
   };
 
   return new NewsService(
-    new CachedArticleSource(
-      new NewsApiArticleSource({ http, apiKey }),
-      clock,
-      logger
-    ),
+    new CachedArticleSource(new NewsApiArticleSource({ http }), clock, logger),
     random
   );
 };

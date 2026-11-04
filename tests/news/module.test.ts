@@ -9,35 +9,50 @@ import { serveRedirect } from '../helpers';
 const quiet = { logger: new FakeLogger() };
 
 describe('createNewsModule', () => {
-  it('asks NewsAPI with the key it is given, and returns its article', async () => {
-    const urls: string[] = [];
+  it('sends the key in the X-Api-Key header and never in the URL', async () => {
+    const requests: { url: string; config: unknown }[] = [];
     const news = createNewsModule({
       ...quiet,
       apiKey: 'k-123',
-      get: async (url) => {
-        urls.push(url);
+      get: async (url, config) => {
+        requests.push({ url, config });
 
         return { data: { articles: [newsApiArticle] } };
       }
     });
 
     expect((await news.random()).title).toBe(newsApiArticle.title);
-    expect(new URL(urls[0] ?? '').searchParams.get('apiKey')).toBe('k-123');
+    expect(requests.map(({ config }) => config)).toEqual([
+      expect.objectContaining({ headers: { 'X-Api-Key': 'k-123' } })
+    ]);
+    expect(requests.map(({ url }) => url)).toEqual([
+      expect.not.stringMatching(/apiKey|k-123/)
+    ]);
   });
 
-  it('gives NewsAPI 10 s to answer and follows no redirects', async () => {
-    const configs: unknown[] = [];
+  it('calls NewsAPI with the key header, a 10 s timeout and no redirects', async () => {
+    const requests: { url: string; config: unknown }[] = [];
     const news = createNewsModule({
       ...quiet,
-      get: async (_url, config) => {
-        configs.push(config);
+      apiKey: 'k-123',
+      get: async (url, config) => {
+        requests.push({ url, config });
 
         return { data: { articles: [newsApiArticle] } };
       }
     });
 
     await news.random();
-    expect(configs).toEqual([{ timeout: 10_000, maxRedirects: 0 }]);
+    expect(requests).toEqual([
+      {
+        url: 'https://newsapi.org/v2/everything?q=elon%20musk&language=en',
+        config: {
+          timeout: 10_000,
+          maxRedirects: 0,
+          headers: { 'X-Api-Key': 'k-123' }
+        }
+      }
+    ]);
   });
 
   it('reports a NewsAPI redirect as an error response and never follows it', async () => {
