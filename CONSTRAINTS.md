@@ -25,7 +25,7 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 | ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | --------------------- |
 | Format           | Zero diffs from Biome and ESLint's padding rule                        | `bun run format:check`                            | edit hook (Biome), CI |
 | Lint             | Zero errors or warnings                                                | `bun run lint`                                    | every edit (hook), CI |
-| Types            | Zero type errors, strict mode                                          | `bun run typecheck`                               | task end, CI          |
+| Types            | Zero type errors, strict mode, client JS included (`checkJs`)          | `bun run typecheck`                               | task end, CI          |
 | Tests            | All pass, none skipped                                                 | `bun test`                                        | task end, CI          |
 | Security headers | CSP and headers unchanged unless a spec says so                        | `tests/security-headers.test.ts`                  | task end, CI          |
 | Page weight      | Per-asset and per-page budgets hold                                    | `tests/jet/budgets.test.ts` and page budget tests | task end, CI          |
