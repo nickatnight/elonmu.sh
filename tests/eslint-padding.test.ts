@@ -131,6 +131,75 @@ describe('padding-line-between-statements', () => {
   });
 });
 
+describe('inline ESLint config comments', () => {
+  const { scripts } = JSON.parse(
+    readFileSync(path.join(projectDir, 'package.json'), 'utf8')
+  );
+  const formatCheckEslintArgs: string[] = scripts['format:check']
+    .split(' && ')
+    .find((step: string) => step.startsWith('eslint '))
+    .split(' ')
+    .slice(1)
+    .filter((arg: string) => arg !== '.');
+  const eslintBin = path.join(
+    path.dirname(Bun.resolveSync('eslint/package.json', projectDir)),
+    'bin/eslint.js'
+  );
+
+  const formatCheckExitCode = (code: string): Promise<number> =>
+    Bun.spawn(
+      [
+        process.execPath,
+        eslintBin,
+        ...formatCheckEslintArgs,
+        '--stdin',
+        '--stdin-filename',
+        path.join(projectDir, 'src/example.ts')
+      ],
+      {
+        cwd: projectDir,
+        stdin: Buffer.from(code),
+        stdout: 'ignore',
+        stderr: 'ignore'
+      }
+    ).exited;
+
+  it('passes format:check on a file without one', async () => {
+    expect(await formatCheckExitCode(lines('const a = 1;', '', 'a();'))).toBe(
+      0
+    );
+  });
+
+  it.each([
+    [
+      'an eslint-disable-next-line that hides a padding error',
+      lines(
+        'const a = 1;',
+        '// eslint-disable-next-line @stylistic/padding-line-between-statements',
+        'a();'
+      )
+    ],
+    [
+      'an eslint-disable block that hides a padding error',
+      lines('/* eslint-disable */', 'const a = 1;', 'a();')
+    ],
+    [
+      'an eslint rule comment that hides a padding error',
+      lines(
+        '/* eslint @stylistic/padding-line-between-statements: "off" */',
+        'const a = 1;',
+        'a();'
+      )
+    ],
+    [
+      'an eslint-disable with nothing to hide',
+      lines('/* eslint-disable */', 'const a = 1;', '', 'a();')
+    ]
+  ])('fails format:check on %s', async (_case, code) => {
+    expect(await formatCheckExitCode(code)).not.toBe(0);
+  });
+});
+
 describe('files ESLint checks', () => {
   it.each([
     'src/app.ts',

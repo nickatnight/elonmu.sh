@@ -19,6 +19,7 @@ const BIOME_EXCLUDED_DIRS = ['src/public/static/vendor/'];
 export default defineConfig(
   // Flat config reads no ignore files.
   globalIgnores([...GITIGNORED_DIRS, ...BIOME_EXCLUDED_DIRS]),
+  { linterOptions: { noInlineConfig: true } },
   {
     files: ['**/*.ts', '**/*.js', '**/*.mjs'],
     plugins: { '@stylistic': stylistic },
