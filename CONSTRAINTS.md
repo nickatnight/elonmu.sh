@@ -1,6 +1,6 @@
 # Constraints
 
-Last reviewed: 2026-11-03 by @nickatnight
+Last reviewed: 2026-11-04 by @nickatnight
 
 Read this before writing code. Do not weaken it to make a change pass.
 CLAUDE.md holds the conventions; this file holds the bar a change must clear.
@@ -35,8 +35,8 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 | Dependencies     | No advisory at moderate or above, except those listed under Exceptions | `bun run audit`                                   | CI                    |
 | Commits          | Conventional Commit subject                                            | `.claude/hooks/commit-msg-guard.ts`               | every commit          |
 
-`bun run check` runs the first four rows plus every test. It takes about one
-second today. Run it before every commit. `bun run audit` stays out of it
+`bun run check` runs the first four rows plus every test. It takes about five
+seconds today. Run it before every commit. `bun run audit` stays out of it
 because it needs the network and the suite runs offline.
 
 ## Measured, not yet enforced
