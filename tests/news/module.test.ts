@@ -90,9 +90,10 @@ describe('createNewsModule', () => {
         apiKey: 'k-123',
         get: (_url, config) => axios.get(upstream.url, config)
       });
-      const thrown = await news.random().catch((err: unknown) => err);
+      const failed = news.random();
 
-      expect((thrown as NewsUpstreamError).failure).toBe('error-response');
+      await expect(failed).rejects.toBeInstanceOf(NewsUpstreamError);
+      await expect(failed).rejects.toMatchObject({ failure: 'error-response' });
       expect(upstream.hits).toEqual(['/moved']);
     } finally {
       await upstream.stop();
