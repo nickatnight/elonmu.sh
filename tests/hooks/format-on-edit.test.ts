@@ -7,11 +7,13 @@ import { isBiomeTarget, isEslintTarget } from '../../.claude/hooks/lib';
 import { runHook } from './run-hook';
 
 const projectDir = path.join(import.meta.dir, '../..');
+// Unique per run, so concurrent `bun test` runs in one checkout don't collide.
+const fixtureName = `tmp-format-fixture-${crypto.randomUUID()}`;
 // Lives in the repo so Biome applies biome.json.
-const fixture = path.join(import.meta.dir, 'tmp-format-fixture.ts');
+const fixture = path.join(import.meta.dir, `${fixtureName}.ts`);
 const vendorFixture = path.join(
   projectDir,
-  'src/public/static/vendor/tmp-format-fixture.js'
+  `src/public/static/vendor/${fixtureName}.js`
 );
 
 const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
@@ -231,6 +233,10 @@ describe('format-on-edit hook', () => {
   const withBiomeOnly = (run: (dir: string) => Promise<void>) =>
     withTempDir(async (dir) => {
       await mkdir(path.join(dir, 'node_modules/.bin'), { recursive: true });
+      await Bun.write(
+        path.join(dir, 'biome.json'),
+        '{ "formatter": { "indentStyle": "space" } }'
+      );
       await symlink(
         path.join(projectDir, 'node_modules/.bin/biome'),
         path.join(dir, 'node_modules/.bin/biome')
@@ -250,7 +256,7 @@ describe('format-on-edit hook', () => {
 
       expect(exitCode).toBe(0);
       expect(stderr).toContain('ESLint not found');
-      expect(await Bun.file(file).text()).toBe(packed.replaceAll('  ', '\t'));
+      expect(await Bun.file(file).text()).toBe(packed);
     });
   });
 

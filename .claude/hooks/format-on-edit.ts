@@ -5,7 +5,7 @@ import { isBiomeTarget, isEslintTarget, readToolInput } from './lib';
 const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 const filePath = await readToolInput('file_path');
 
-// The installed devDependency, found the way `bun run` finds bins: in the
+// Installed devDependencies, found the way `bun run` finds bins: in the
 // nearest node_modules/.bin up the tree (worktrees under .claude/worktrees/
 // use the main checkout's). Never `bun x`, which could fetch another version.
 const findBin = (name: string, from: string): string | null => {

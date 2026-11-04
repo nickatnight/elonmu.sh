@@ -145,7 +145,9 @@ describe('files ESLint checks', () => {
     'node_modules/eslint/lib/api.js',
     '.claude/worktrees/feature/src/app.ts',
     'docs/plans/sketch.ts',
-    'dist/index.js'
+    'dist/index.js',
+    'files/x.js',
+    '.playwright-mcp/x.js'
   ])('ignores %p', async (file) => {
     expect(await eslint.isPathIgnored(path.join(projectDir, file))).toBe(true);
   });
