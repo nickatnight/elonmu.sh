@@ -229,9 +229,9 @@ describe('files ESLint checks', () => {
   const isAnchored = (entry: string): boolean =>
     entry.slice(0, -1).includes('/');
   const atRoot = (entry: string): string =>
-    path.join(projectDir, entry.replace(/^\//, ''), 'a.ts');
+    path.join(projectDir, entry, 'a.ts');
   const nested = (entry: string): string =>
-    path.join(projectDir, 'src', entry.replace(/^\//, ''), 'a.ts');
+    path.join(projectDir, 'src', entry, 'a.ts');
 
   it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (entry) => {
     expect(await eslint.isPathIgnored(atRoot(entry))).toBe(true);
