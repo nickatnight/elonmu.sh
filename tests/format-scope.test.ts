@@ -18,6 +18,7 @@ const skippedBecause: Record<string, string> = {
   'ignored/a.ts': 'listed in .gitignore',
   'excluded/a.ts': 'listed in .git/info/exclude',
   'nested/a.ts': 'listed in nested/.gitignore',
+  'café/a.ts': 'listed in a .gitignore that git quotes the path of',
   'src/public/static/vendor/a.js': 'vendored'
 };
 const skipped = Object.keys(skippedBecause);
@@ -69,6 +70,7 @@ beforeAll(async () => {
   appendFileSync(path.join(main, '.gitignore'), 'ignored/\n');
   appendFileSync(path.join(main, '.git/info/exclude'), 'excluded/\n');
   await Bun.write(path.join(main, 'nested/.gitignore'), 'a.ts\n');
+  await Bun.write(path.join(main, 'café/.gitignore'), 'a.ts\n');
   await symlink(
     path.join(projectDir, 'node_modules'),
     path.join(main, 'node_modules')
@@ -164,6 +166,107 @@ describe.each([
     expect(await contents(checkout, files)).toEqual({
       ...each(checked, formatted),
       ...each(skipped, unformatted)
+    });
+  }, 20_000);
+});
+
+describe('with a tracked .gitignore deleted from the working tree', () => {
+  it('format:check and the edit hook still run', async () => {
+    const nestedIgnore = path.join(main, 'nested/.gitignore');
+
+    rmSync(nestedIgnore);
+    rmSync(path.join(main, 'nested/a.ts'), { force: true });
+    await write(main, checked, formatted);
+
+    try {
+      expect(run(main, 'format:check')).toMatchObject({ exitCode: 0 });
+      expect(await editHook(main, checked[0])).toEqual({
+        exitCode: 0,
+        stderr: ''
+      });
+    } finally {
+      await Bun.write(nestedIgnore, 'a.ts\n');
+    }
+  }, 20_000);
+});
+
+describe('without git', () => {
+  const eslintBin = path.join(projectDir, 'node_modules/.bin/eslint');
+  const floor = ['docs/a.ts', 'dist/a.ts', '.claude/worktrees/x/a.ts'];
+  const gitignored = ['files/a.js', '.playwright-mcp/a.js'];
+
+  const lintOutsideGit = async (
+    copyGitignore: boolean,
+    runEnv: Record<string, string | undefined>
+  ) => {
+    const dir = await realpath(
+      await mkdtemp(path.join(tmpdir(), 'format-scope-no-git-'))
+    );
+
+    try {
+      await cp(
+        path.join(projectDir, 'eslint.config.ts'),
+        path.join(dir, 'eslint.config.ts')
+      );
+
+      if (copyGitignore) {
+        await cp(
+          path.join(projectDir, '.gitignore'),
+          path.join(dir, '.gitignore')
+        );
+      }
+
+      await symlink(
+        path.join(projectDir, 'node_modules'),
+        path.join(dir, 'node_modules')
+      );
+
+      const files = [...checked, ...floor, ...gitignored];
+
+      await write(dir, files, packed);
+
+      const { exitCode, stderr } = Bun.spawnSync(
+        [process.execPath, eslintBin, '--fix', '.'],
+        { cwd: dir, env: runEnv }
+      );
+
+      return {
+        exitCode,
+        stderr: `${stderr}`,
+        files: await contents(dir, files)
+      };
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+
+  it.each([
+    ['outside a git repo', env],
+    ['with git missing from PATH', { ...env, PATH: '' }]
+  ])(
+    '%s, ESLint still skips what the root .gitignore lists',
+    async (_case, runEnv) => {
+      expect(await lintOutsideGit(true, runEnv)).toEqual({
+        exitCode: 0,
+        stderr: '',
+        files: {
+          ...each(checked, formatted),
+          ...each([...floor, ...gitignored], packed)
+        }
+      });
+    },
+    20_000
+  );
+
+  it('without a .gitignore either, ESLint still skips docs, dist and worktrees', async () => {
+    expect(await lintOutsideGit(false, env)).toEqual({
+      exitCode: 0,
+      stderr: '',
+      files: {
+        ...each(checked, formatted),
+        ...each(floor, packed),
+        ...each(gitignored, formatted)
+      }
     });
   }, 20_000);
 });
