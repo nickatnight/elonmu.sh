@@ -15,10 +15,19 @@ export const ARC_OLDER = 'rgba(255, 169, 77, 0.32)';
 const inRange = (/** @type {unknown} */ v, /** @type {number} */ max) =>
   typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= max;
 
-const isPlace = (/** @type {any} */ p) =>
+/**
+ * @param {unknown} v
+ * @returns {v is Record<string, unknown>}
+ */
+const isRecord = (v) => typeof v === 'object' && v !== null;
+
+/**
+ * @param {unknown} p
+ * @returns {p is Place | null}
+ */
+const isPlace = (p) =>
   p === null ||
-  (typeof p === 'object' &&
-    p !== null &&
+  (isRecord(p) &&
     typeof p.name === 'string' &&
     inRange(p.lat, 90) &&
     inRange(p.lon, 180));
@@ -28,32 +37,33 @@ const isPlace = (/** @type {any} */ p) =>
  * @returns {Snapshot}
  */
 export const parseSnapshot = (data) => {
-  const s = /** @type {any} */ (data);
-
   if (
-    !s ||
-    typeof s !== 'object' ||
-    typeof s.year !== 'number' ||
-    !Array.isArray(s.flights) ||
-    typeof s.attribution !== 'object' ||
-    typeof s.totals !== 'object'
+    !isRecord(data) ||
+    typeof data.year !== 'number' ||
+    !Array.isArray(data.flights) ||
+    typeof data.attribution !== 'object' ||
+    typeof data.totals !== 'object'
   ) {
     throw new Error('jet: not a flight snapshot');
   }
 
-  for (const f of s.flights) {
+  /** @type {unknown[]} */
+  const flights = data.flights;
+
+  for (const f of flights) {
     const ok =
-      f &&
+      isRecord(f) &&
       typeof f.id === 'string' &&
       typeof f.tail === 'string' &&
       isPlace(f.from) &&
       isPlace(f.to) &&
       (f.status === 'landed' || f.status === 'airborne');
 
-    if (!ok) throw new Error(`jet: bad flight ${f?.id}`);
+    if (!ok)
+      throw new Error(`jet: bad flight ${isRecord(f) ? f.id : undefined}`);
   }
 
-  return s;
+  return /** @type {Snapshot} */ (data);
 };
 
 const samePlace = (/** @type {Place} */ a, /** @type {Place} */ b) =>

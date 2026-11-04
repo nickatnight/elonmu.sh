@@ -294,4 +294,50 @@ describe('parseSnapshot', () => {
     expect(() => parseSnapshot(null)).toThrow();
     expect(() => parseSnapshot('[]')).toThrow();
   });
+
+  const base = snap([flights[3]]);
+  const withFlight = (changes: Record<string, unknown>) => ({
+    ...base,
+    flights: [{ ...base.flights[0], ...changes }]
+  });
+
+  it.each([
+    ['a year that is not a number', { ...base, year: '2026' }],
+    ['flights that are not a list', { ...base, flights: {} }],
+    ['no attribution', { ...base, attribution: undefined }],
+    ['totals that are not an object', { ...base, totals: 0 }],
+    ['a flight that is not an object', { ...base, flights: ['a-sj'] }],
+    ['a null flight', { ...base, flights: [null] }],
+    ['a flight whose id is not a string', withFlight({ id: 7 })],
+    ['a flight without a tail', withFlight({ tail: undefined })],
+    ['an unknown status', withFlight({ status: 'cancelled' })],
+    ['a place that is not an object', withFlight({ from: 'Austin' })],
+    [
+      'a place whose lat is a string',
+      withFlight({ from: { ...places.austin, lat: '30.27' } })
+    ],
+    [
+      'a place without a name',
+      withFlight({ to: { lat: places.sanJose.lat, lon: places.sanJose.lon } })
+    ],
+    [
+      'a place whose lon is past 180',
+      withFlight({ to: { ...places.sanJose, lon: 180.5 } })
+    ],
+    [
+      'a place whose lat is not finite',
+      withFlight({ to: { ...places.sanJose, lat: Number.NaN } })
+    ]
+  ])('rejects a snapshot with %s', (_, data) => {
+    expect(() => parseSnapshot(data)).toThrow();
+  });
+
+  it('accepts places on a pole and on the antimeridian', () => {
+    const edge = withFlight({
+      from: { name: 'North Pole', lat: 90, lon: 0 },
+      to: { name: 'Fiji', lat: -17, lon: -180 }
+    });
+
+    expect(parseSnapshot(edge)).toEqual(edge);
+  });
 });
