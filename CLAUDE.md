@@ -8,10 +8,10 @@ Development section. How the code fits together is in
 
 Read CONSTRAINTS.md before writing code. Do not weaken it to make a change pass.
 
-Project hooks in `.claude/settings.json` run Biome, then ESLint's blank-line
-rule, on every file you edit (formatting plus safe fixes; anything left comes
-back as an error) and block `git commit` unless the subject is a Conventional
-Commit (see below). The hooks are tested in `tests/hooks/`.
+Project hooks in `.claude/settings.json` run Biome on every file you edit
+(formatting plus safe fixes; anything left comes back as an error) and block
+`git commit` unless the subject is a Conventional Commit (see below). The
+hooks are tested in `tests/hooks/`.
 
 ## Conventions
 
@@ -19,20 +19,15 @@ Commit (see below). The hooks are tested in `tests/hooks/`.
 
 - Biome decides formatting: 2 spaces, single quotes, no trailing commas,
   80 columns. Don't hand-format; the edit hook and `format:check` enforce it.
-- ESLint (`eslint.config.ts`) runs one rule,
+- ESLint (`eslint.config.mjs`) runs one rule,
   `@stylistic/padding-line-between-statements`: a blank line before `return`
   (unless it opens its block), around `if`, `for`, `while`, `do`, `try` and
-  `switch`, and after a group of `const`/`let`/`var` declarations. The edit
-  hook and `bun run format` add them; `format:check` fails without them. Run
-  it as `bun --bun eslint`, since ESLint under Node needs `jiti` to load the
-  TypeScript config. It checks the files Biome checks: the config asks git for
-  every `.gitignore` and `.git/info/exclude`, as Biome's `vcs.useIgnoreFile`
-  does, and reads the `!` exclusions in `biome.json`'s `files.includes`. Add
-  ignores to those files, not to `eslint.config.ts`
-  (`tests/format-scope.test.ts` holds the two tools to this). Its one list,
-  `IGNORED_WITHOUT_GITIGNORE`, copies `.gitignore` entries that must hold when
-  neither git nor a `.gitignore` is present.
-- Named exports only, no default exports (except `eslint.config.ts`, because
+  `switch`, and after a group of `const`/`let`/`var` declarations.
+  `bun run format` adds them and `format:check` fails without them; the edit
+  hook runs only Biome. ESLint reads no ignore files, so a directory added to
+  `.gitignore` also goes in the config's `globalIgnores`
+  (`tests/eslint-padding.test.ts` checks this).
+- Named exports only, no default exports (except `eslint.config.mjs`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
 - Inject dependencies through the constructor or `deps` objects. Wire concrete

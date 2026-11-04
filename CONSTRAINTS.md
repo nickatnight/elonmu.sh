@@ -23,7 +23,7 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 
 | Dimension        | Rule                                            | Checked by                                        | Runs at               |
 | ---------------- | ----------------------------------------------- | ------------------------------------------------- | --------------------- |
-| Format           | Zero diffs from Biome and ESLint's padding rule | `bun run format:check`                            | every edit (hook), CI |
+| Format           | Zero diffs from Biome and ESLint's padding rule | `bun run format:check`                            | edit hook (Biome), CI |
 | Lint             | Zero errors or warnings                         | `bun run lint`                                    | every edit (hook), CI |
 | Types            | Zero type errors, strict mode                   | `bun run typecheck`                               | task end, CI          |
 | Tests            | All pass, none skipped                          | `bun test`                                        | task end, CI          |
