@@ -8,10 +8,10 @@ Development section. How the code fits together is in
 
 Read CONSTRAINTS.md before writing code. Do not weaken it to make a change pass.
 
-Project hooks in `.claude/settings.json` run Biome on every file you edit
-(formatting plus safe fixes; anything left comes back as an error) and block
-`git commit` unless the subject is a Conventional Commit (see below). The
-hooks are tested in `tests/hooks/`.
+Project hooks in `.claude/settings.json` run Biome, then ESLint's blank-line
+rule, on every file you edit (formatting plus safe fixes; anything left comes
+back as an error) and block `git commit` unless the subject is a Conventional
+Commit (see below). The hooks are tested in `tests/hooks/`.
 
 ## Conventions
 
@@ -19,7 +19,15 @@ hooks are tested in `tests/hooks/`.
 
 - Biome decides formatting: 2 spaces, single quotes, no trailing commas,
   80 columns. Don't hand-format; the edit hook and `format:check` enforce it.
-- Named exports only, no default exports. Prefer `const` arrow functions;
+- ESLint (`eslint.config.ts`) runs one rule,
+  `@stylistic/padding-line-between-statements`: a blank line before `return`
+  (unless it opens its block), around `if`, `for`, `while`, `do`, `try` and
+  `switch`, and after a group of `const`/`let`/`var` declarations. The edit
+  hook and `bun run format` add them; `format:check` fails without them. Run
+  it as `bun --bun eslint`, since ESLint under Node needs `jiti` to load the
+  TypeScript config.
+- Named exports only, no default exports (except `eslint.config.ts`, because
+  ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
 - Inject dependencies through the constructor or `deps` objects. Wire concrete
   adapters (axios, the system clock, `console`) only in a composition root
