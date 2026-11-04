@@ -11,6 +11,7 @@ export class CelesTrakOrbitSource implements OrbitSource {
 
   async fetchOrbits(): Promise<OrbitCatalog> {
     const satellites = parseGp(await this.deps.http<unknown>(GP_URL));
+
     return { readAt: this.deps.clock.now().toISOString(), satellites };
   }
 }

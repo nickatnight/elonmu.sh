@@ -35,9 +35,11 @@ const LINE_BREAK = { tagName: 'WBR' };
 
 const asMarkup = (node: unknown): string => {
   if (node === LINE_BREAK) return '<wbr>';
+
   if (typeof node === 'string') {
     return node.replaceAll('&', '&amp;').replaceAll('<', '&lt;');
   }
+
   return '<?>';
 };
 
@@ -84,7 +86,9 @@ const setup = (
     new FakeOutput({ out: 'atShowtime', wrap: 'commas' }, '$1,000.00'),
     new FakeOutput({ out: 'today', wrap: 'commas' }, '$118.03')
   ];
+
   startHeldControl({ held, field, range, outputs });
+
   return { held, field, range, outputs };
 };
 
@@ -94,6 +98,7 @@ const shown = (outputs: FakeOutput[]): string[] =>
 describe('the DOGE-held control in the page', () => {
   it('reveals the control once the script has both prices', () => {
     const { held } = setup();
+
     expect(held.hidden).toBe(false);
   });
 
@@ -105,6 +110,7 @@ describe('the DOGE-held control in the page', () => {
     ['a price is not a number', { snlUsd: 'abc', nowUsd: String(NOW_USD) }]
   ])('leaves the control hidden when %s', (_name, dataset) => {
     const { held, range, field, outputs } = setup(dataset);
+
     range.input('1000');
     expect(held.hidden).toBe(true);
     expect(field.value).toBe('1484.94');
@@ -160,6 +166,7 @@ describe('the DOGE-held control in the page', () => {
 
   it('lets a long amount break after its commas only where the markup allows it', () => {
     const { field, outputs } = setup();
+
     field.input('1000000000000');
     expect(outputs.map((output) => output.markup)).toEqual([
       '1,000,000,000,000',
@@ -172,12 +179,14 @@ describe('the DOGE-held control in the page', () => {
 
   it('typing an empty, negative or non-numeric amount leaves the last good output and slider position', () => {
     const { range, field, outputs } = setup();
+
     field.input('2000');
     const lastGood = {
       range: range.value,
       outputs: shown(outputs),
       valuetext: range.attributes.get('aria-valuetext')
     };
+
     expect(lastGood.outputs[0]).toBe('doge=2,000');
 
     for (const text of ['', '-5', 'lots']) {

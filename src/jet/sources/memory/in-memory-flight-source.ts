@@ -20,8 +20,10 @@ export class InMemoryFlightSource implements FlightSource {
 
   async fetchFlights(since: Date): Promise<Flight[]> {
     if (this.error) throw this.error;
+
     return this.flights.filter((f) => {
       const at = flightTime(f);
+
       return at !== null && Date.parse(at) >= since.getTime();
     });
   }

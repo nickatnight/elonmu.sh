@@ -63,6 +63,7 @@ describe('trim', () => {
     (n, more) => {
       const days = Array.from({ length: n }, (_, i) => i);
       const out = lines({ days });
+
       expect(out.filter((l) => /^ {4}\d+,?$/.test(l))).toHaveLength(
         Math.min(n, 3)
       );
@@ -72,6 +73,7 @@ describe('trim', () => {
 
   it('marks the cut line as its own token, without quotes or a trailing comma', () => {
     const tokens = tokenize(trim({ a: [1, 2, 3, 4, 5] }));
+
     expect(tokens).toContainEqual({ kind: 'more', text: '… 2 more' });
     expect(text(trim({ a: [1, 2, 3, 4, 5] }))).toBe(
       '{\n  "a": [\n    1,\n    2,\n    3,\n    … 2 more\n  ]\n}'
@@ -81,12 +83,14 @@ describe('trim', () => {
   it('trims arrays nested inside kept items too', () => {
     const value = { flights: [{ legs: [1, 2, 3, 4] }, 2, 3, 4] };
     const out = text(trim(value));
+
     expect(out).toContain('… 1 more');
     expect(out.match(/… 1 more/g)).toHaveLength(2);
   });
 
   it('leaves objects, strings, numbers and null as they are', () => {
     const value = { a: { b: null }, s: 'x', n: 2.5 };
+
     expect(text(trim(value))).toBe(JSON.stringify(value, null, 2));
   });
 });

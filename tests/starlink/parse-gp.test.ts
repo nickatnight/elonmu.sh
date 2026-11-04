@@ -4,6 +4,7 @@ import { inTimeZone } from '../fakes';
 import capture from '../fixtures/celestrak-starlink-gp.json';
 
 const STARLINK_1008 = capture.find((r) => r.NORAD_CAT_ID === 44714);
+
 if (!STARLINK_1008) throw new Error('fixture lost STARLINK-1008');
 
 const without = (field: string): Record<string, unknown> =>
@@ -112,6 +113,7 @@ describe('parseGp skips a bad record and keeps the rest', () => {
     'skips %s',
     (_name, record) => {
       const parsed = parseGp([record, ...capture.slice(1, 3)]);
+
       expect(parsed.map((s) => s.id)).toEqual(
         capture.slice(1, 3).map((r) => r.NORAD_CAT_ID)
       );
@@ -121,6 +123,7 @@ describe('parseGp skips a bad record and keeps the rest', () => {
   it('keeps the first record when an id repeats', () => {
     const again = { ...capture[1], OBJECT_NAME: 'STARLINK-AGAIN' };
     const parsed = parseGp([capture[1], again]);
+
     expect(parsed.map((s) => s.name)).toEqual([capture[1].OBJECT_NAME]);
   });
 });

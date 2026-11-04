@@ -47,6 +47,7 @@ describe('WikimediaPageviewSource', () => {
 
   it('asks for daily user views of the Elon Musk article over the range', async () => {
     const http = fakeHttpGet({ [rangeUrl(YEAR_FROM, YEAR_TO)]: capture });
+
     await new WikimediaPageviewSource({ http: http.get }).fetchDays(
       YEAR_FROM,
       YEAR_TO
@@ -61,6 +62,7 @@ describe('WikimediaPageviewSource', () => {
     const days = await new WikimediaPageviewSource({
       http: http.get
     }).fetchDays(YEAR_FROM, YEAR_TO);
+
     expect(days).toHaveLength(365);
     expect(days[0]).toEqual(day('2025-10-27', 19194));
   });
@@ -69,6 +71,7 @@ describe('WikimediaPageviewSource', () => {
     const notLoaded = async <T>(): Promise<T> => {
       throw new Error('Request failed with status code 404');
     };
+
     await expect(
       new WikimediaPageviewSource({ http: notLoaded }).fetchDays(TO, TO)
     ).rejects.toThrow('404');
@@ -76,6 +79,7 @@ describe('WikimediaPageviewSource', () => {
 
   it('throws on a body without items', async () => {
     const http = fakeHttpGet({ [rangeUrl(FROM, TO)]: { detail: 'nope' } });
+
     await expect(
       new WikimediaPageviewSource({ http: http.get }).fetchDays(FROM, TO)
     ).rejects.toThrow();
@@ -90,6 +94,7 @@ describe('InMemoryPageviewSource', () => {
       day('2026-06-30', 3),
       day('2026-07-01', 4)
     ]);
+
     expect(await source.fetchDays(FROM, TO)).toEqual([
       day('2026-06-01', 2),
       day('2026-06-30', 3)

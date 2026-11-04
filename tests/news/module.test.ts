@@ -15,6 +15,7 @@ describe('createNewsModule', () => {
       apiKey: 'k-123',
       get: async (url) => {
         urls.push(url);
+
         return { data: { articles: [newsApiArticle] } };
       }
     });
@@ -29,9 +30,11 @@ describe('createNewsModule', () => {
       ...quiet,
       get: async (_url, config) => {
         configs.push(config);
+
         return { data: { articles: [newsApiArticle] } };
       }
     });
+
     await news.random();
     expect(configs).toEqual([{ timeout: 10_000 }]);
   });
@@ -49,6 +52,7 @@ describe('createNewsModule', () => {
       }
     });
     const thrown = await news.random().catch((err: unknown) => err);
+
     expect((thrown as NewsUpstreamError).failure).toBe('no-response');
   });
 
@@ -60,6 +64,7 @@ describe('createNewsModule', () => {
       clock,
       get: async () => {
         calls++;
+
         return { data: { articles: [newsApiArticle] } };
       }
     });
@@ -86,6 +91,7 @@ describe('createNewsModule', () => {
         }
       })
     });
+
     expect((await news.random()).title).toBe('last');
   });
 
@@ -113,6 +119,7 @@ describe('createNewsModule', () => {
         }
       });
       const thrown = await news.random().catch((err: unknown) => err);
+
       expect(thrown).toBeInstanceOf(NewsUpstreamError);
       expect((thrown as NewsUpstreamError).failure).toBe(failure);
     }
@@ -126,6 +133,7 @@ describe('createNewsModule', () => {
         throw error;
       }
     });
+
     await expect(news.random()).rejects.toBe(error);
   });
 });

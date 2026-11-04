@@ -24,12 +24,15 @@ export class CachedValue<T> {
     const { clock, ttlMs, staleAcrossKeys = false } = this.options;
     const now = clock.now().getTime();
     const sameKey = this.last?.key === key ? this.last : null;
+
     if (sameKey && now - sameKey.at < ttlMs)
       return Promise.resolve(sameKey.value);
+
     if (this.inFlight?.key === key) return this.inFlight.promise;
 
     const fallback = staleAcrossKeys ? this.last : sameKey;
     const failure = this.recentFailure(now);
+
     if (failure)
       return fallback
         ? Promise.resolve(fallback.value)
@@ -39,13 +42,16 @@ export class CachedValue<T> {
       (value) => {
         this.last = { key, at: now, value };
         this.failure = null;
+
         return value;
       },
       (err: unknown) => {
         this.failure = this.backOffAfter(err);
+
         return this.recover(err, fallback);
       }
     );
+
     this.inFlight = { key, promise };
     // Not .finally(): that returns a second promise which would reject,
     // unhandled, whenever a cold load fails.
@@ -53,14 +59,18 @@ export class CachedValue<T> {
       () => this.clearInFlight(promise),
       () => this.clearInFlight(promise)
     );
+
     return promise;
   }
 
   private backOffAfter(error: unknown): Failure | null {
     const { clock, retryAfterMs } = this.options;
+
     if (retryAfterMs === undefined) return null;
+
     const wait =
       typeof retryAfterMs === 'number' ? retryAfterMs : retryAfterMs(error);
+
     return { until: clock.now().getTime() + wait, error };
   }
 
@@ -71,13 +81,16 @@ export class CachedValue<T> {
   private recover(err: unknown, fallback: Entry<T> | null): T {
     const { logger, messages } = this.options;
     const error = err instanceof Error ? err.message : String(err);
+
     if (fallback) {
       logger.warn(messages.stale, {
         error,
         staleSince: new Date(fallback.at).toISOString()
       });
+
       return fallback.value;
     }
+
     logger.warn(messages.empty, { error });
     throw err;
   }

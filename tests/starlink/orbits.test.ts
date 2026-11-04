@@ -22,6 +22,7 @@ const earthFixedKm = ({
   const r = EARTH_RADIUS_KM + altKm;
   const φ = (lat * Math.PI) / 180;
   const λ = (lng * Math.PI) / 180;
+
   return [
     r * Math.cos(φ) * Math.cos(λ),
     r * Math.cos(φ) * Math.sin(λ),
@@ -53,7 +54,9 @@ describe('positionAt against an independent SGP4 run', () => {
 
   it('covers at least 3 satellites at epoch + 0, 6 and 24 hours', () => {
     const ids = new Set(reference.positions.map((p) => p.id));
+
     expect(ids.size).toBeGreaterThanOrEqual(3);
+
     for (const id of ids)
       expect(
         reference.positions
@@ -66,15 +69,20 @@ describe('positionAt against an independent SGP4 run', () => {
     const satellites = await served();
     const errors = reference.positions.map((ref) => {
       const sat = satellites.find((s) => s.id === ref.id);
+
       if (!sat) throw new Error(`no served satellite ${ref.id}`);
+
       const at = positionAt(sat, new Date(ref.at));
+
       return {
         name: ref.name,
         hours: ref.hoursFromEpoch,
         km: Math.round(distanceKm(earthFixedKm(at), ref.itrsKm) * 10) / 10
       };
     });
+
     if (process.env.PRINT_ERRORS) console.table(errors);
+
     for (const error of errors)
       expect({ ...error, within50: error.km <= 50 }).toEqual({
         ...error,
@@ -89,6 +97,7 @@ describe('positionAt', () => {
     const drag = positionAt(equatorial(0.01), day);
     const none = positionAt(equatorial(0), day);
     const ahead = (((drag.lng - none.lng) % 360) + 360) % 360;
+
     expect(ahead).toBeCloseTo(3.6, 6);
   });
 
@@ -97,15 +106,18 @@ describe('positionAt', () => {
     const drag = positionAt(equatorial(0.01), halfDay);
     const none = positionAt(equatorial(0), halfDay);
     const ahead = (((drag.lng - none.lng) % 360) + 360) % 360;
+
     expect(ahead).toBeCloseTo(0.9, 6);
   });
 
   it('keeps latitude within the inclination and longitude in [-180, 180)', async () => {
     const satellites = await served();
     const at = new Date('2026-10-30T04:30:00.000Z');
+
     for (const sat of satellites) {
       const { lat, lng } = positionAt(sat, at);
       const limit = Math.min(sat.inclination, 180 - sat.inclination) + 0.01;
+
       expect({ id: sat.id, ok: Math.abs(lat) <= limit }).toEqual({
         id: sat.id,
         ok: true
@@ -121,9 +133,12 @@ describe('positionAt', () => {
     const operational = satellites.filter(
       (s) => Math.abs(s.meanMotionDot) < 0.0002
     );
+
     expect(operational.length).toBeGreaterThan(100);
+
     for (const sat of operational) {
       const { altKm } = positionAt(sat, at);
+
       expect({ id: sat.id, ok: altKm > 300 && altKm < 600 }).toEqual({
         id: sat.id,
         ok: true
@@ -134,6 +149,7 @@ describe('positionAt', () => {
   it('leaves the satellite it is given unchanged', () => {
     const sat = equatorial(0.01);
     const copy = { ...sat };
+
     positionAt(sat, new Date('2026-10-31T00:00:00.000Z'));
     expect(sat).toEqual(copy);
   });
@@ -147,13 +163,17 @@ describe('positionAt', () => {
     const at = new Date('2026-10-30T04:30:00.000Z');
     const runs = Array.from({ length: 5 }, () => {
       const start = performance.now();
+
       for (const sat of fleet) positionAt(sat, at);
+
       return performance.now() - start;
     });
+
     if (process.env.PRINT_ERRORS)
       console.log(
         `11,130 positions: ${runs.map((ms) => ms.toFixed(2)).join(', ')} ms`
       );
+
     expect(Math.min(...runs)).toBeLessThan(8);
   });
 });

@@ -34,8 +34,10 @@ const CELESTRAK_CONFIG: HttpConfig = {
 
 const classify = (err: unknown): unknown => {
   const status = err instanceof AxiosError ? err.response?.status : undefined;
+
   if (status === 403 || status === 429)
     return new UpstreamRefusedError(status, { cause: err });
+
   return err;
 };
 
@@ -55,6 +57,7 @@ export const createStarlinkModule = ({
       throw classify(err);
     }
   };
+
   return new StarlinkService({
     orbits: new CachedOrbitSource(
       new CelesTrakOrbitSource({ http, clock }),

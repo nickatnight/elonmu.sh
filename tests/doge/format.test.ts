@@ -4,7 +4,9 @@ import { NOW_QUOTE, sampleDoge } from './fakes';
 
 const loaded = async (usd = NOW_QUOTE.usd, at = NOW_QUOTE.at) => {
   const page = dogePage(await sampleDoge({ at, usd }).comparison());
+
   if (page.state !== 'loaded') throw new Error('expected a loaded page');
+
   return page as LoadedDogePage;
 };
 
@@ -26,6 +28,7 @@ describe('dogePage when the price has fallen since showtime', () => {
 
   it('gives the showtime price to four decimals, dated in Eastern time', async () => {
     const { snl } = await loaded();
+
     expect(snl.price).toBe('$0.6734');
     expect(snl.datetime).toBe('2021-05-09T03:30:00.000Z');
     expect(snl.date).toBe('8 May 2021');
@@ -34,6 +37,7 @@ describe('dogePage when the price has fallen since showtime', () => {
 
   it('gives the live price to four decimals with its UTC time', async () => {
     const { now } = await loaded();
+
     expect(now.price).toBe('$0.0795');
     expect(now.datetime).toBe('2026-10-28T04:30:56.000Z');
     expect(now.date).toBe('28 Oct 2026');
@@ -42,6 +46,7 @@ describe('dogePage when the price has fallen since showtime', () => {
 
   it('credits CoinGecko for the live price and Binance for the showtime price', async () => {
     const page = await loaded();
+
     expect(page.attribution).toEqual({
       label: 'Data provided by CoinGecko',
       url: 'https://www.coingecko.com/en/coins/dogecoin'

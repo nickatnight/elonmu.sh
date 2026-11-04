@@ -42,11 +42,13 @@ describe('extractSubject', () => {
       'EOF',
       ')"'
     ].join('\n');
+
     expect(extractSubject(command)).toBe('feat(hero): fill the first screen');
   });
 
   it('reads an unquoted heredoc delimiter too', () => {
     const command = 'git commit -m "$(cat <<EOF\nfix: y\nEOF\n)"';
+
     expect(extractSubject(command)).toBe('fix: y');
   });
 
@@ -102,7 +104,9 @@ describe('checkSubject', () => {
     [`feat: ${'a'.repeat(67)}`, '72']
   ])('rejects %p', (subject, reason) => {
     const verdict = checkSubject(subject);
+
     expect(verdict.ok).toBe(false);
+
     if (!verdict.ok) expect(verdict.reason).toContain(reason);
   });
 });

@@ -29,8 +29,11 @@ class ScriptedSource implements PriceSource {
 
   async fetchPrice(): Promise<PriceQuote> {
     this.calls++;
+
     if (this.gate) await this.gate;
+
     if (this.failing) throw new Error('coingecko down');
+
     return this.quote;
   }
 }
@@ -39,6 +42,7 @@ const setup = () => {
   const inner = new ScriptedSource();
   const clock = new FakeClock('2026-10-28T04:31:00.000Z');
   const logger = new FakeLogger();
+
   return {
     inner,
     clock,
@@ -65,6 +69,7 @@ describePriceSource('CachedPriceSource around InMemoryPriceSource', {
 describe('CachedPriceSource', () => {
   it('serves a second call within 5 minutes without asking CoinGecko', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchPrice();
     clock.advance(TTL - 1);
     await cached.fetchPrice();
@@ -73,6 +78,7 @@ describe('CachedPriceSource', () => {
 
   it('asks again once 5 minutes have passed', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchPrice();
     clock.advance(TTL);
     inner.quote = { at: '2026-10-28T04:36:00.000Z', usd: 0.08 };
@@ -85,10 +91,13 @@ describe('CachedPriceSource', () => {
 
   it('shares one upstream call between concurrent cold requests', async () => {
     const { inner, cached } = setup();
+
     inner.hold();
     const both = Promise.all([cached.fetchPrice(), cached.fetchPrice()]);
+
     inner.release();
     const [a, b] = await both;
+
     expect(inner.calls).toBe(1);
     expect(a).toEqual(b);
   });
@@ -96,6 +105,7 @@ describe('CachedPriceSource', () => {
   it('serves the last good price on failure and warns', async () => {
     const { inner, clock, logger, cached } = setup();
     const good = await cached.fetchPrice();
+
     clock.advance(TTL);
     inner.failing = true;
     expect(await cached.fetchPrice()).toEqual(good);
@@ -112,6 +122,7 @@ describe('CachedPriceSource', () => {
 
   it('throws and warns when the first fetch fails', async () => {
     const { inner, logger, cached } = setup();
+
     inner.failing = true;
     await expect(cached.fetchPrice()).rejects.toThrow('coingecko down');
     expect(logger.warnings[0]?.msg).toBe(
@@ -122,12 +133,15 @@ describe('CachedPriceSource', () => {
   it('waits a minute after a failed refresh before asking CoinGecko again', async () => {
     const { inner, clock, logger, cached } = setup();
     const good = await cached.fetchPrice();
+
     clock.advance(TTL);
     inner.failing = true;
+
     for (let i = 0; i < 6; i++) {
       expect(await cached.fetchPrice()).toEqual(good);
       clock.advance(10_000);
     }
+
     expect(inner.calls).toBe(2);
     expect(logger.warnings).toHaveLength(1);
     await cached.fetchPrice();
@@ -136,6 +150,7 @@ describe('CachedPriceSource', () => {
 
   it('waits a minute after a failed cold fetch too, failing fast meanwhile', async () => {
     const { inner, clock, cached } = setup();
+
     inner.failing = true;
     await expect(cached.fetchPrice()).rejects.toThrow();
     clock.advance(59_000);
@@ -150,10 +165,12 @@ describe('CachedPriceSource', () => {
   it('keeps an hour of steady page loads to 12 CoinGecko calls', async () => {
     const { inner, clock, cached } = setup();
     const doge = new DogeService(cached);
+
     for (let second = 0; second < 3600; second += 10) {
       await doge.comparison();
       clock.advance(10_000);
     }
+
     expect(inner.calls).toBe(12);
   });
 });

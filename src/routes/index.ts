@@ -23,8 +23,10 @@ const teaserWithin = async (
   const timeout = new Promise<null>((resolve) => {
     timer = setTimeout(() => resolve(null), ms);
   });
+
   try {
     const snapshot = await Promise.race([jet.snapshot(), timeout]);
+
     return snapshot ? toTeaser(snapshot) : null;
   } catch {
     return null;

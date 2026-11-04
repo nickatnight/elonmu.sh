@@ -34,10 +34,13 @@ export const fakeHttpGet = (
   const calls: string[] = [];
   const get = async <T>(url: string): Promise<T> => {
     calls.push(url);
+
     if (!(url in responses))
       throw new Error(`fakeHttpGet: no response for ${url}`);
+
     return responses[url] as T;
   };
+
   return { get, calls };
 };
 
@@ -47,7 +50,9 @@ export const inTimeZone = async <T>(
 ): Promise<T> => {
   const before =
     process.env.TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   process.env.TZ = timeZone;
+
   try {
     return await run();
   } finally {

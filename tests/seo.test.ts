@@ -30,6 +30,7 @@ const ONE_DAY = 'public, max-age=86400';
 describe('GET /robots.txt', () => {
   it('serves plain text with a one-day cache', async () => {
     const res = await fetch(`${server.url}/robots.txt`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toMatch(
       /^text\/plain; charset=utf-8$/i
@@ -39,6 +40,7 @@ describe('GET /robots.txt', () => {
 
   it('keeps crawlers off /api and /healthz and points at the sitemap', async () => {
     const body = await (await fetch(`${server.url}/robots.txt`)).text();
+
     expect(body).toMatch(/^User-agent: \*$/m);
     expect(body).toMatch(/^Disallow: \/api$/m);
     expect(body).toMatch(/^Disallow: \/healthz$/m);
@@ -48,6 +50,7 @@ describe('GET /robots.txt', () => {
 
   it('still carries the security headers', async () => {
     const res = await fetch(`${server.url}/robots.txt`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-security-policy')).toBeTruthy();
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
@@ -57,6 +60,7 @@ describe('GET /robots.txt', () => {
 describe('GET /sitemap.xml', () => {
   it('serves XML with a one-day cache', async () => {
     const res = await fetch(`${server.url}/sitemap.xml`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toMatch(/^application\/xml/);
     expect(res.headers.get('cache-control')).toBe(ONE_DAY);
@@ -67,6 +71,7 @@ describe('GET /sitemap.xml', () => {
     const body = await (await fetch(`${server.url}/sitemap.xml`)).text();
     const locs = [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     const canonicals: string[] = [];
+
     for (const path of [
       '/',
       '/news',
@@ -78,12 +83,14 @@ describe('GET /sitemap.xml', () => {
     ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+
       expect({ path, canonical }).toEqual({
         path,
         canonical: expect.any(String)
       });
       canonicals.push(canonical as string);
     }
+
     expect(locs).toEqual(canonicals);
   });
 });
@@ -101,10 +108,12 @@ describe('share tag URLs', () => {
     ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
       const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+
       expect({ path, canonical }).toEqual({
         path,
         canonical: expect.any(String)
       });
+
       for (const attr of ['property="og:url"', 'property="twitter:url"']) {
         expect({ path, attr, url: metaContent(page, attr) }).toEqual({
           path,
@@ -118,6 +127,7 @@ describe('share tag URLs', () => {
 
 describe('/jet share tags', () => {
   let jet: string;
+
   beforeAll(async () => {
     jet = await (await fetch(`${server.url}/jet`)).text();
   });
@@ -131,6 +141,7 @@ describe('/jet share tags', () => {
   it('shares its own title and description', () => {
     const title = jet.match(/<title>([^<]+)<\/title>/)?.[1] ?? '';
     const description = meta('name="description"');
+
     expect(description).toBeTruthy();
     expect(meta('property="og:title"')).toBe(title);
     expect(meta('name="twitter:title"')).toBe(title);
@@ -151,6 +162,7 @@ describe('/jet share tags', () => {
         value: metaContent(html, attr)
       });
     }
+
     expect(meta('name="twitter:card"')).toBe('summary_large_image');
     expect(meta('property="og:type"')).toBe('website');
   });
@@ -161,8 +173,11 @@ describe('static asset caching', () => {
     const href = html.match(
       /href="(\/static\/css\/main\.css\?v=[0-9a-f]+)"/
     )?.[1];
+
     if (!href) throw new Error('main.css link not found');
+
     const res = await fetch(`${server.url}${href}`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('public, max-age=31536000');
   });

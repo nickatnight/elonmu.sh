@@ -29,6 +29,7 @@ const isPlace = (/** @type {any} */ p) =>
  */
 export const parseSnapshot = (data) => {
   const s = /** @type {any} */ (data);
+
   if (
     !s ||
     typeof s !== 'object' ||
@@ -39,6 +40,7 @@ export const parseSnapshot = (data) => {
   ) {
     throw new Error('jet: not a flight snapshot');
   }
+
   for (const f of s.flights) {
     const ok =
       f &&
@@ -47,8 +49,10 @@ export const parseSnapshot = (data) => {
       isPlace(f.from) &&
       isPlace(f.to) &&
       (f.status === 'landed' || f.status === 'airborne');
+
     if (!ok) throw new Error(`jet: bad flight ${f?.id}`);
   }
+
   return s;
 };
 
@@ -60,6 +64,7 @@ const samePlace = (/** @type {Place} */ a, /** @type {Place} */ b) =>
  */
 export const routeColor = (count) => {
   const alpha = Math.min(0.75, 0.32 + 0.11 * Math.log2(Math.max(1, count)));
+
   return `rgba(255, 169, 77, ${Math.round(alpha * 100) / 100})`;
 };
 
@@ -79,21 +84,28 @@ export const toScene = (snapshot, tail) => {
   /** @type {Map<string, (typeof scene.arcs)[number]>} */
   const routes = new Map();
   const flights = snapshot.flights.filter((f) => !tail || f.tail === tail);
+
   flights.forEach((f, i) => {
     const latest = i === 0;
     const color = latest ? ARC_LATEST : ARC_OLDER;
+
     if (f.status === 'airborne') {
       if (f.from)
         scene.rings.push({ id: f.id, lat: f.from.lat, lng: f.from.lon });
+
       return;
     }
+
     if (f.from && f.to && !samePlace(f.from, f.to)) {
       const key = [f.from.name, f.to.name].sort().join('\n');
       const seen = routes.get(key);
+
       if (seen) {
         seen.count++;
+
         return;
       }
+
       const arc = {
         id: f.id,
         startLat: f.from.lat,
@@ -104,11 +116,15 @@ export const toScene = (snapshot, tail) => {
         color,
         count: 1
       };
+
       routes.set(key, arc);
       scene.arcs.push(arc);
+
       return;
     }
+
     const end = f.to ?? f.from;
+
     if (end)
       scene.points.push({
         id: f.id,
@@ -118,9 +134,11 @@ export const toScene = (snapshot, tail) => {
         color
       });
   });
+
   for (const arc of scene.arcs) {
     if (!arc.latest) arc.color = routeColor(arc.count);
   }
+
   return scene;
 };
 
@@ -133,6 +151,7 @@ const deg = (/** @type {number} */ r) => (r * 180) / Math.PI;
  */
 export const focusPoint = (flight) => {
   const { from, to } = flight;
+
   if (from && to && !samePlace(from, to)) {
     const v = (/** @type {Place} */ p) => [
       Math.cos(rad(p.lat)) * Math.cos(rad(p.lon)),
@@ -140,12 +159,15 @@ export const focusPoint = (flight) => {
       Math.sin(rad(p.lat))
     ];
     const [x, y, z] = v(from).map((c, i) => c + v(to)[i]);
+
     return {
       lat: deg(Math.atan2(z, Math.hypot(x, y))),
       lng: deg(Math.atan2(y, x))
     };
   }
+
   const end = to ?? from;
+
   return end ? { lat: end.lat, lng: end.lon } : null;
 };
 
@@ -158,6 +180,7 @@ export const PAGE_SIZE = 25;
  */
 export const pageOf = (rows, tail, limit) => {
   const matching = rows.filter((r) => !tail || r.tail === tail);
+
   return {
     shown: matching.slice(0, limit).map((r) => r.id),
     total: matching.length
@@ -174,7 +197,9 @@ export const limitToReveal = (rows, tail, id, limit) => {
   const index = rows
     .filter((r) => !tail || r.tail === tail)
     .findIndex((r) => r.id === id);
+
   if (index < limit) return limit;
+
   return Math.ceil((index + 1) / PAGE_SIZE) * PAGE_SIZE;
 };
 
@@ -220,6 +245,7 @@ export const createGlobeView = (
   const byId = (/** @type {any} */ d) => label(d.id, d.count) ?? '';
   const select = (/** @type {any} */ d) => onSelect(d.id);
   const mount = document.createElement('div');
+
   mount.className = 'jet__canvas';
   pane.prepend(mount);
 
@@ -260,6 +286,7 @@ export const createGlobeView = (
     .onGlobeReady(() => pane.classList.add('has-globe'));
 
   const controls = globe.controls();
+
   controls.autoRotate = !reducedMotion;
   controls.autoRotateSpeed = 0.3;
   controls.addEventListener('start', () => {
@@ -270,6 +297,7 @@ export const createGlobeView = (
   const resize = new ResizeObserver(() =>
     globe.width(pane.clientWidth).height(pane.clientHeight)
   );
+
   resize.observe(pane);
 
   return {
@@ -281,6 +309,7 @@ export const createGlobeView = (
         color: ARC_LATEST
       }));
       const pulses = reducedMotion ? [] : scene.arcs.map(pulseArc);
+
       globe
         .arcsData([...scene.arcs.map(solidArc), ...pulses])
         .pointsData([...scene.points, ...origins])
@@ -303,6 +332,7 @@ export const createGlobeView = (
 const hasWebGL = () => {
   try {
     const canvas = document.createElement('canvas');
+
     return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
   } catch {
     return false;
@@ -311,6 +341,7 @@ const hasWebGL = () => {
 
 const showFallback = (/** @type {HTMLElement} */ pane) => {
   const note = document.createElement('p');
+
   note.className = 'jet__fallback';
   note.textContent =
     'This browser can’t show the 3D globe. Every flight is in the list.';
@@ -339,31 +370,39 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
   let limit = PAGE_SIZE;
 
   const more = document.createElement('div');
+
   more.className = 'flights__more';
   const moreButton = document.createElement('button');
+
   moreButton.type = 'button';
   moreButton.className = 'button';
   const moreCount = document.createElement('span');
+
   more.append(moreButton, moreCount);
   list?.after(more);
 
   const apply = () => {
     const page = pageOf(meta, tail, limit);
     const shown = new Set(page.shown);
+
     rows.forEach((row, i) => {
       row.hidden = !shown.has(meta[i].id);
     });
     const left = page.total - page.shown.length;
+
     more.hidden = left <= 0;
     moreButton.textContent = `Show ${Math.min(left, PAGE_SIZE)} more`;
     moreCount.textContent = `${page.shown.length} of ${page.total}`;
+
     return page;
   };
 
   const announce = (/** @type {{ shown: string[], total: number }} */ page) => {
     if (!status) return;
+
     const n = page.shown.length;
     const of = n < page.total ? ` of ${page.total}` : '';
+
     status.textContent = `Showing ${n}${of} flight${page.total === 1 ? '' : 's'}${tail ? ` by ${tail}` : ''}.`;
   };
 
@@ -371,17 +410,23 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
   const select = (id, { scroll = false } = {}) => {
     if (id) {
       const needed = limitToReveal(meta, tail, id, limit);
+
       if (needed !== limit) {
         limit = needed;
         announce(apply());
       }
     }
+
     let row = null;
+
     for (const r of rows) {
       const on = r.dataset.flight === id;
+
       r.classList.toggle('is-selected', on);
+
       if (on) row = r;
     }
+
     if (row && scroll && !row.hidden) {
       row.scrollIntoView({
         block: 'nearest',
@@ -392,13 +437,17 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
 
   moreButton.addEventListener('click', () => {
     const before = pageOf(meta, tail, limit).shown.length;
+
     limit += PAGE_SIZE;
     const page = apply();
+
     announce(page);
     const first = rows.find((r) => r.dataset.flight === page.shown[before]);
     const target = first?.querySelector('.flight__show') ?? first;
+
     if (target instanceof HTMLElement) {
       if (target === first) target.tabIndex = -1;
+
       target.focus();
     }
   });
@@ -406,14 +455,18 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
   const chips = /** @type {HTMLElement | null} */ (
     panel.querySelector('.chips')
   );
+
   if (chips) {
     chips.hidden = false;
     chips.addEventListener('click', (event) => {
       const chip = /** @type {HTMLElement} */ (event.target).closest('.chip');
+
       if (!(chip instanceof HTMLElement)) return;
+
       for (const c of chips.querySelectorAll('.chip')) {
         c.setAttribute('aria-pressed', String(c === chip));
       }
+
       tail = chip.dataset.tail ?? '';
       limit = PAGE_SIZE;
       select(null);
@@ -428,10 +481,13 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
     for (const row of rows) {
       const route = row.querySelector('.flight__route');
       const id = row.dataset.flight;
+
       if (!route || !id) continue;
+
       const text = route.textContent?.trim() ?? '';
       const date = row.querySelector('time')?.textContent?.trim() ?? '';
       const button = document.createElement('button');
+
       button.type = 'button';
       button.className = 'flight__show';
       button.textContent = text;
@@ -439,6 +495,7 @@ const enhancePanel = (panel, { reducedMotion, onFilter, onShow }) => {
       route.replaceChildren(button);
       row.addEventListener('click', (event) => {
         if (/** @type {HTMLElement} */ (event.target).closest('a')) return;
+
         select(id);
         onShow(id);
       });
@@ -454,9 +511,13 @@ const tooltipFor = (
   /** @type {number} */ count = 1
 ) => {
   const row = panel.querySelector(`.flight[data-flight="${CSS.escape(id)}"]`);
+
   if (!row) return null;
+
   const tip = document.createElement('div');
+
   tip.className = 'jet-tip';
+
   for (const part of ['.flight__route', '.flight__meta', '.flight__detail']) {
     const el = row.querySelector(part);
     const pieces = part === '.flight__meta' && el ? [...el.children] : [el];
@@ -464,16 +525,22 @@ const tooltipFor = (
       .map((p) => p?.textContent?.replace(/\s+/g, ' ').trim())
       .filter(Boolean)
       .join(' · ');
+
     if (!text) continue;
+
     const line = document.createElement('p');
+
     line.textContent = text;
     tip.append(line);
   }
+
   if (count > 1) {
     const line = document.createElement('p');
+
     line.textContent = `${count} flights on this route`;
     tip.append(line);
   }
+
   return tip;
 };
 
@@ -484,7 +551,9 @@ const start = async () => {
   const pane = /** @type {HTMLElement | null} */ (
     document.querySelector('.jet__globe')
   );
+
   if (!panel) return;
+
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /** @type {Snapshot | null} */
@@ -500,6 +569,7 @@ const start = async () => {
     onShow: (id) => {
       const flight = snapshot?.flights.find((f) => f.id === id);
       const at = flight ? focusPoint(flight) : null;
+
       if (view && at) view.focus(at);
     }
   });
@@ -508,24 +578,31 @@ const start = async () => {
   const small = matchMedia('(max-width: 56rem)').matches;
   const texture =
     (small && pane?.dataset.textureSmall) || pane?.dataset.texture;
+
   if (!pane || !globeSrc || !texture) return;
+
   if (!hasWebGL()) {
     showFallback(pane);
+
     return;
   }
 
   await afterLoad();
+
   try {
     const [, res] = await Promise.all([
       loadScript(globeSrc),
       fetch('/api/jet/flights')
     ]);
+
     snapshot = parseSnapshot(await res.json());
   } catch {
     return;
   }
+
   if (typeof (/** @type {any} */ (window).Globe) !== 'function') {
     showFallback(pane);
+
     return;
   }
 
@@ -549,6 +626,7 @@ const afterLoad = () =>
 const loadScript = (/** @type {string} */ src) =>
   new Promise((resolve, reject) => {
     const script = document.createElement('script');
+
     script.src = src;
     script.async = true;
     script.onload = resolve;

@@ -29,6 +29,7 @@ describePriceSource('InMemoryPriceSource', {
 describe('CoinGeckoPriceSource', () => {
   it("asks CoinGecko's keyless endpoint for Dogecoin in US dollars with its update time", async () => {
     const http = fakeHttpGet({ [SIMPLE_PRICE_URL]: capture });
+
     await new CoinGeckoPriceSource({ http: http.get }).fetchPrice();
     expect(http.calls).toEqual([
       'https://api.coingecko.com/api/v3/simple/price?ids=dogecoin&vs_currencies=usd&include_last_updated_at=true'
@@ -37,6 +38,7 @@ describe('CoinGeckoPriceSource', () => {
 
   it('reads the captured response as $0.079636 at 04:49:11 UTC on 28 Oct 2026', async () => {
     const http = fakeHttpGet({ [SIMPLE_PRICE_URL]: capture });
+
     expect(
       await new CoinGeckoPriceSource({ http: http.get }).fetchPrice()
     ).toEqual({ usd: 0.079636, at: '2026-10-28T04:49:11.000Z' });
@@ -44,6 +46,7 @@ describe('CoinGeckoPriceSource', () => {
 
   it('throws on a body without Dogecoin in it', async () => {
     const http = fakeHttpGet({ [SIMPLE_PRICE_URL]: {} });
+
     await expect(
       new CoinGeckoPriceSource({ http: http.get }).fetchPrice()
     ).rejects.toThrow();

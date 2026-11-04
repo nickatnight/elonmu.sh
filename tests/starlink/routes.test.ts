@@ -28,6 +28,7 @@ beforeAll(async () => {
     orbitsDown: orbitsDownStarlink(),
     reentriesDown: reentriesDownStarlink()
   };
+
   for (const name of Object.keys(starlinks) as Name[])
     servers[name] = await startTestServer(
       createApp({ jet: sampleJet(), starlink: starlinks[name] })
@@ -43,9 +44,11 @@ const get = (name: Name) => fetch(`${servers[name].url}/api/starlink`);
 describe('GET /api/starlink', () => {
   it('returns the snapshot as JSON with exactly the documented fields', async () => {
     const res = await get('ok');
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('application/json');
     const body = (await res.json()) as StarlinkSnapshot;
+
     expect(Object.keys(body)).toEqual([
       'updatedAt',
       'inOrbit',
@@ -83,17 +86,20 @@ describe('GET /api/starlink', () => {
 
   it('carries no CelesTrak field names', async () => {
     const text = await (await get('ok')).text();
+
     expect(text).not.toMatch(/[A-Z]{2,}_[A-Z]/);
   });
 
   it('lets browsers and proxies cache it for an hour', async () => {
     const res = await get('ok');
+
     await res.arrayBuffer();
     expect(res.headers.get('cache-control')).toBe('public, max-age=3600');
   });
 
   it('answers 200 with an error body, uncached, when CelesTrak has never answered', async () => {
     const res = await get('down');
+
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
     expect(await res.json()).toEqual({
@@ -103,9 +109,11 @@ describe('GET /api/starlink', () => {
 
   it('serves the re-entries with null orbits, uncached, when only the orbits failed', async () => {
     const res = await get('orbitsDown');
+
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
     const body = (await res.json()) as StarlinkSnapshot;
+
     expect(body.inOrbit).toBeNull();
     expect(body.satellites).toBeNull();
     expect(body.reentries?.count).toBe(83);
@@ -113,8 +121,10 @@ describe('GET /api/starlink', () => {
 
   it('serves the orbits with null re-entries, uncached, when only the catalogue failed', async () => {
     const res = await get('reentriesDown');
+
     expect(res.headers.get('cache-control')).toBe('no-store');
     const body = (await res.json()) as StarlinkSnapshot;
+
     expect(body.inOrbit).toBe(200);
     expect(body.reentries).toBeNull();
   });
@@ -123,6 +133,7 @@ describe('GET /api/starlink', () => {
     let failing = false;
     const get = async (url: string, _config: HttpConfig) => {
       if (failing) throw new Error('Request failed with status code 403');
+
       return { data: url === GP_URL ? gpCapture : satcatCapture };
     };
     const clock = new FakeClock('2026-10-30T04:30:00.000Z');
@@ -133,11 +144,14 @@ describe('GET /api/starlink', () => {
         starlink: createStarlinkModule({ get, clock, logger })
       })
     );
+
     try {
       const fresh = await (await fetch(`${server.url}/api/starlink`)).json();
+
       clock.advance(12 * 3_600_000);
       failing = true;
       const res = await fetch(`${server.url}/api/starlink`);
+
       expect(res.headers.get('cache-control')).toBe('public, max-age=3600');
       expect(await res.json()).toEqual(fresh);
       expect(logger.warnings.map((w) => w.msg).sort()).toEqual([
@@ -153,6 +167,7 @@ describe('GET /api/starlink', () => {
 describe('a failing starlink module', () => {
   it('leaves /healthz healthy', async () => {
     const res = await fetch(`${servers.down.url}/healthz`);
+
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ status: 'ok' });
   });

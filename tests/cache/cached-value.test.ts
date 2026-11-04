@@ -28,8 +28,11 @@ class ScriptedLoad {
 
   readonly load = async (): Promise<string> => {
     this.calls++;
+
     if (this.gate) await this.gate;
+
     if (this.failing) throw new Error('upstream down');
+
     return this.value;
   };
 }
@@ -45,6 +48,7 @@ const setup = (staleAcrossKeys?: boolean, retryAfterMs?: number) => {
     staleAcrossKeys,
     retryAfterMs
   });
+
   return { clock, logger, cache, source: new ScriptedLoad() };
 };
 
@@ -53,6 +57,7 @@ const RETRY = 30_000;
 describe('CachedValue', () => {
   it('serves a second call within the TTL without loading again', async () => {
     const { clock, cache, source } = setup();
+
     await cache.get('k', source.load);
     clock.advance(TTL - 1);
     source.value = 'second';
@@ -62,6 +67,7 @@ describe('CachedValue', () => {
 
   it('loads again once the TTL has passed', async () => {
     const { clock, cache, source } = setup();
+
     await cache.get('k', source.load);
     clock.advance(TTL);
     source.value = 'second';
@@ -71,11 +77,13 @@ describe('CachedValue', () => {
 
   it('shares one load between concurrent callers', async () => {
     const { cache, source } = setup();
+
     source.hold();
     const both = Promise.all([
       cache.get('k', source.load),
       cache.get('k', source.load)
     ]);
+
     source.release();
     expect(await both).toEqual(['first', 'first']);
     expect(source.calls).toBe(1);
@@ -83,6 +91,7 @@ describe('CachedValue', () => {
 
   it('serves the last good value on failure and warns, naming when it loaded', async () => {
     const { clock, logger, cache, source } = setup();
+
     await cache.get('k', source.load);
     clock.advance(TTL);
     source.failing = true;
@@ -97,6 +106,7 @@ describe('CachedValue', () => {
 
   it('stays quiet while loads succeed', async () => {
     const { clock, logger, cache, source } = setup();
+
     await cache.get('k', source.load);
     clock.advance(TTL);
     await cache.get('k', source.load);
@@ -106,6 +116,7 @@ describe('CachedValue', () => {
   describe('with nothing loaded yet', () => {
     const unhandled: unknown[] = [];
     const record = (reason: unknown) => unhandled.push(reason);
+
     beforeEach(() => {
       unhandled.length = 0;
       process.on('unhandledRejection', record);
@@ -116,6 +127,7 @@ describe('CachedValue', () => {
 
     it('throws, warns, and leaves no unhandled rejection behind', async () => {
       const { logger, cache, source } = setup();
+
       source.failing = true;
       await expect(cache.get('k', source.load)).rejects.toThrow(
         'upstream down'
@@ -130,6 +142,7 @@ describe('CachedValue', () => {
 
   it('tries the load again on the next call after a failure', async () => {
     const { cache, source } = setup();
+
     source.failing = true;
     await expect(cache.get('k', source.load)).rejects.toThrow();
     source.failing = false;
@@ -139,6 +152,7 @@ describe('CachedValue', () => {
 
   it('never serves a value loaded for a different key by default', async () => {
     const { cache, source } = setup();
+
     await cache.get('2025', source.load);
     source.failing = true;
     await expect(cache.get('2026', source.load)).rejects.toThrow(
@@ -148,6 +162,7 @@ describe('CachedValue', () => {
 
   it('serves the value for the previous key when staleAcrossKeys is on', async () => {
     const { logger, cache, source } = setup(true);
+
     await cache.get('2026-10-25', source.load);
     source.failing = true;
     expect(await cache.get('2026-10-26', source.load)).toBe('first');
@@ -156,6 +171,7 @@ describe('CachedValue', () => {
 
   it('treats a new key as a miss even when staleAcrossKeys is on', async () => {
     const { cache, source } = setup(true);
+
     await cache.get('2026-10-25', source.load);
     source.value = 'second';
     expect(await cache.get('2026-10-26', source.load)).toBe('second');
@@ -165,6 +181,7 @@ describe('CachedValue', () => {
   describe('with retryAfterMs', () => {
     it('serves the last good value without loading or warning again until retryAfterMs has passed', async () => {
       const { clock, logger, cache, source } = setup(false, RETRY);
+
       await cache.get('k', source.load);
       clock.advance(TTL);
       source.failing = true;
@@ -177,6 +194,7 @@ describe('CachedValue', () => {
 
     it('rethrows the failure without loading again when nothing was loaded', async () => {
       const { clock, logger, cache, source } = setup(false, RETRY);
+
       source.failing = true;
       await expect(cache.get('k', source.load)).rejects.toThrow(
         'upstream down'
@@ -191,6 +209,7 @@ describe('CachedValue', () => {
 
     it('loads again once retryAfterMs has passed since the failure', async () => {
       const { clock, cache, source } = setup(false, RETRY);
+
       source.failing = true;
       await expect(cache.get('k', source.load)).rejects.toThrow();
       clock.advance(RETRY);
@@ -201,6 +220,7 @@ describe('CachedValue', () => {
 
     it('backs off for a new key too, serving the previous key when staleAcrossKeys is on', async () => {
       const { clock, cache, source } = setup(true, RETRY);
+
       await cache.get('2026-10-25', source.load);
       clock.advance(TTL);
       source.failing = true;
@@ -211,9 +231,11 @@ describe('CachedValue', () => {
 
     it('counts the wait from when the load failed, not when it started', async () => {
       const { clock, cache, source } = setup(false, RETRY);
+
       source.failing = true;
       source.hold();
       const first = cache.get('k', source.load);
+
       clock.advance(10_000);
       source.release();
       await expect(first).rejects.toThrow();
@@ -244,15 +266,19 @@ describe('CachedValue with retryAfterMs chosen per error', () => {
       error: null as Error | null,
       load: async (): Promise<string> => {
         source.calls++;
+
         if (source.error) throw source.error;
+
         return 'fresh';
       }
     };
+
     return { clock, logger, cache, source };
   };
 
   it('waits as long as the error from the failed load asks before loading again', async () => {
     const { clock, cache, source } = setupByError();
+
     source.error = new Refused('slow down');
     await expect(cache.get('k', source.load)).rejects.toThrow('slow down');
     clock.advance(LONG - 1);
@@ -266,6 +292,7 @@ describe('CachedValue with retryAfterMs chosen per error', () => {
 
   it('waits the shorter delay for an error that asks for it', async () => {
     const { clock, cache, source } = setupByError();
+
     source.error = new Error('upstream down');
     await expect(cache.get('k', source.load)).rejects.toThrow();
     clock.advance(RETRY);
@@ -276,19 +303,23 @@ describe('CachedValue with retryAfterMs chosen per error', () => {
 
   it('serves the last good value through the long wait with one warning', async () => {
     const { clock, logger, cache, source } = setupByError();
+
     await cache.get('k', source.load);
     clock.advance(TTL);
     source.error = new Refused('slow down');
+
     for (let waited = 0; waited < LONG; waited += RETRY) {
       expect(await cache.get('k', source.load)).toBe('fresh');
       clock.advance(RETRY);
     }
+
     expect(source.calls).toBe(2);
     expect(logger.warnings).toHaveLength(1);
   });
 
   it('chooses the delay again for each failure', async () => {
     const { clock, cache, source } = setupByError();
+
     source.error = new Refused('slow down');
     await expect(cache.get('k', source.load)).rejects.toThrow();
     clock.advance(LONG);

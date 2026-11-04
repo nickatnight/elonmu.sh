@@ -4,6 +4,7 @@ import { capturedDays, day, sampleHype } from './fakes';
 
 describe('hypePage on the captured year', async () => {
   const page = hypePage(await sampleHype(capturedDays()).series());
+
   if (page.state !== 'loaded') throw new Error('expected a loaded page');
 
   it('summarises the chart for screen readers', () => {
@@ -59,7 +60,9 @@ describe('hypePage edge cases', () => {
     const page = hypePage(
       await sampleHype([day('2026-10-25', 1), day('2026-10-26', 2)]).series()
     );
+
     if (page.state !== 'loaded') throw new Error('expected a loaded page');
+
     expect(page.stats[0].value).toBe('2');
   });
 
@@ -67,13 +70,17 @@ describe('hypePage edge cases', () => {
     const page = hypePage(
       await sampleHype([day('2026-10-26', 9_000_000)]).series()
     );
+
     if (page.state !== 'loaded') throw new Error('expected a loaded page');
+
     expect(page.stats[2].value).toBe('9.0M');
   });
 
   it('says "view" for a single view', async () => {
     const page = hypePage(await sampleHype([day('2026-10-26', 1)]).series());
+
     if (page.state !== 'loaded') throw new Error('expected a loaded page');
+
     expect(page.spikes[0].views).toBe('1 view');
   });
 });

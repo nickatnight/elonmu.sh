@@ -21,7 +21,9 @@ describe('SERVICES', () => {
 
   it('has unique, kebab-case ids', () => {
     const ids = SERVICES.map((service) => service.id);
+
     expect(new Set(ids).size).toBe(ids.length);
+
     for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
   });
 
@@ -107,6 +109,7 @@ describe('SERVICES over HTTP', () => {
     for (const { api } of SERVICES) {
       const res = await fetch(`${server.url}${api}`);
       const body = (await res.json()) as Record<string, unknown>;
+
       expect({ api, status: res.status, error: body.error }).toEqual({
         api,
         status: 200,

@@ -40,16 +40,20 @@ let seed = 33;
 const rand = () => {
   seed = (seed + 0x6d2b79f5) | 0;
   let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+
   t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+
   return ((t ^ (t >>> 14)) >>> 0) / 2 ** 32;
 };
 
 const fullVolume = (): Satellite[] => {
   const launches = capturedOrbits().satellites.sort((a, b) => a.id - b.id);
+
   return Array.from({ length: IN_ORBIT_2026_10_30 }, (_, i) => {
     const launch =
       launches[Math.floor((i * launches.length) / IN_ORBIT_2026_10_30)];
     const dtc = rand() < SHARE_DIRECT_TO_CELL ? ' [DTC]' : '';
+
     return {
       id: 44_235 + i * 2 + (rand() < 0.15 ? 1 : 0),
       name: `STARLINK-${1000 + i * 3 + Math.floor(rand() * 3)}${dtc}`,
@@ -73,6 +77,7 @@ const fullVolume = (): Satellite[] => {
 };
 
 let server: TestServer;
+
 beforeAll(async () => {
   const starlink = new StarlinkService({
     orbits: new InMemoryOrbitSource({
@@ -82,6 +87,7 @@ beforeAll(async () => {
     reentries: new InMemoryReentrySource(capturedReentries()),
     clock: new FakeClock(STARLINK_NOW)
   });
+
   server = await startTestServer(createApp({ jet: sampleJet(), starlink }));
 });
 afterAll(() => server.close());
@@ -91,12 +97,15 @@ const gzippedSize = async (url: string): Promise<number> => {
     headers: { 'Accept-Encoding': 'gzip' },
     decompress: false
   });
+
   expect(res.headers.get('content-encoding')).toBe('gzip');
   const bytes = (await res.arrayBuffer()).byteLength;
+
   if (process.env.PRINT_BUDGETS)
     console.log(
       `${new URL(url).pathname}: ${(bytes / KB).toFixed(1)} KB gzipped`
     );
+
   return bytes;
 };
 
@@ -105,6 +114,7 @@ describe('response budgets at the 2026-10-30 Starlink volume', () => {
     const body = (await (await fetch(`${server.url}/api/starlink`)).json()) as {
       satellites: unknown[];
     };
+
     expect(body.satellites).toHaveLength(IN_ORBIT_2026_10_30);
     expect(await gzippedSize(`${server.url}/api/starlink`)).toBeLessThanOrEqual(
       340 * KB

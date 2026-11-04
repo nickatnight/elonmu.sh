@@ -31,6 +31,7 @@ const seriesOf = (
 const flatYear = (overrides: Record<string, number> = {}): DayViews[] =>
   Array.from({ length: 365 }, (_, i) => {
     const date = dateAfter('2025-10-27', i);
+
     return day(date, overrides[date] ?? MEDIAN);
   });
 
@@ -43,7 +44,9 @@ const needles = (path: string): Needle[] =>
 
 const gridY = (chart: ChartGeometry, label: string): number => {
   const line = chart.gridlines.find((g) => g.label === label);
+
   if (!line) throw new Error(`no ${label} gridline`);
+
   return line.y;
 };
 
@@ -66,6 +69,7 @@ describe('seismograph scale', () => {
 
   it('draws a normal day as a needle of no height on the 1× baseline', () => {
     const first = needleAt(chart, 0);
+
     expect(first.y0).toBe(chart.baselineY);
     expect(first.y1).toBe(chart.baselineY);
     expect(gridY(chart, '1×')).toBe(chart.baselineY);
@@ -73,11 +77,13 @@ describe('seismograph scale', () => {
 
   it('puts 2× exactly one gridline step above the baseline', () => {
     const step = gridY(chart, '½×') - gridY(chart, '1×');
+
     expect(step).toBeGreaterThan(0);
     expect(gridY(chart, '2×')).toBeCloseTo(chart.baselineY - step, 1);
     const twice = needles(chart.hotPath).find(
       (n) => Math.abs(n.y1 - gridY(chart, '2×')) < 0.11
     );
+
     expect(twice).toBeDefined();
   });
 
@@ -91,6 +97,7 @@ describe('seismograph scale', () => {
       seriesOf(flatYear({ '2026-06-12': peak * MEDIAN })),
       'wide'
     );
+
     expect(c.top).toBe(top);
     expect(c.gridlines.map((g) => g.label)).toEqual(labels);
   });
@@ -100,6 +107,7 @@ describe('seismograph scale', () => {
       seriesOf(flatYear({ '2025-10-27': 10, '2025-10-28': 50 })),
       'wide'
     );
+
     expect(needleAt(c, 0).y1).toBe(gridY(c, '½×'));
     expect(needleAt(c, 1).y1).toBe(gridY(c, '½×'));
   });
@@ -109,7 +117,9 @@ describe('seismograph needles', () => {
   it('draws one needle per day, in date order across the width', () => {
     const chart = seismograph(seriesOf(flatYear()), 'wide');
     const all = needles(chart.normalPath);
+
     expect(all).toHaveLength(365);
+
     for (let i = 1; i < all.length; i++)
       expect(all[i].x).toBeGreaterThan(all[i - 1].x);
   });
@@ -121,6 +131,7 @@ describe('seismograph needles', () => {
       ),
       'wide'
     );
+
     expect(needles(chart.hotPath)).toHaveLength(2);
     expect(needles(chart.normalPath)).toHaveLength(363);
   });
@@ -130,6 +141,7 @@ describe('seismograph needles', () => {
     const chart = seismograph(seriesOf(days), 'wide');
     const xs = needles(chart.normalPath).map((n) => n.x);
     const gaps = xs.slice(1).map((x, i) => Math.round((x - xs[i]) * 10));
+
     expect(Math.max(...gaps)).toBeGreaterThanOrEqual(2 * Math.min(...gaps));
   });
 });
@@ -137,6 +149,7 @@ describe('seismograph needles', () => {
 describe('seismograph labels', () => {
   it('labels every month on the wide chart and only quarter months on the narrow one', () => {
     const series = seriesOf(flatYear());
+
     expect(seismograph(series, 'wide').months.map((m) => m.label)).toEqual([
       'Nov',
       'Dec',
@@ -163,6 +176,7 @@ describe('seismograph labels', () => {
     const series = await sampleHype(capturedDays()).series();
     const wide = seismograph(series, 'wide');
     const narrow = seismograph(series, 'narrow');
+
     expect(wide.spikes.map((s) => s.label.text)).toEqual([
       '12 Jun · 9.3×',
       '1 Dec · 2.9×',
@@ -184,6 +198,7 @@ describe('seismograph labels', () => {
     );
     const [dot] = chart.spikes;
     const tip = needles(chart.hotPath)[0];
+
     expect({ x: dot.x, y: dot.y }).toEqual({ x: tip.x, y: tip.y1 });
   });
 
@@ -197,6 +212,7 @@ describe('seismograph labels', () => {
       'wide'
     );
     const [first, second] = chart.spikes;
+
     expect(first.label.y - second.label.y).toBeGreaterThanOrEqual(
       chart.fontSize
     );
@@ -211,10 +227,13 @@ describe('seismograph labels', () => {
       ]),
       'wide'
     );
+
     for (const s of chart.spikes) expect(s.label.y).toBeLessThan(s.y);
+
     expect(chart.spikes[1].y - chart.spikes[1].label.y).toBe(
       chart.spikes[0].y - chart.spikes[0].label.y
     );
+
     for (const s of chart.spikes) expect(s.label.leader).toBeNull();
   });
 
@@ -244,6 +263,7 @@ describe('seismograph labels', () => {
         y2: expect.any(Number)
       });
       const { y1, y2 } = lower.label.leader ?? { y1: 0, y2: 0 };
+
       expect(y1).toBeGreaterThan(lower.label.y);
       expect(y1).toBeLessThan(lower.y);
       expect(y2).toBeLessThan(y1);
@@ -257,6 +277,7 @@ const labelBox = (chart: ChartGeometry, mark: SpikeMark): Box => {
   const { x, y, text, anchor } = mark.label;
   const w = text.length * chart.fontSize * 0.6;
   const left = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+
   return { left, right: left + w, top: y - chart.fontSize, bottom: y };
 };
 
@@ -270,15 +291,19 @@ describe('seismograph labels on the captured year', () => {
         await sampleHype(capturedDays()).series(),
         frame
       );
+
       for (const mark of chart.spikes) {
         const box = labelBox(chart, mark);
+
         for (const other of chart.spikes) {
           if (other === mark) continue;
+
           const covered =
             other.x >= box.left - CLEARANCE &&
             other.x <= box.right + CLEARANCE &&
             other.y >= box.top - CLEARANCE &&
             other.y <= box.bottom + CLEARANCE;
+
           expect({ label: mark.label.text, dot: other.date, covered }).toEqual({
             label: mark.label.text,
             dot: other.date,
@@ -297,6 +322,7 @@ describe('seismograph labels on the captured year', () => {
         frame
       );
       const boxes = chart.spikes.map((mark) => labelBox(chart, mark));
+
       for (let i = 0; i < boxes.length; i++)
         for (let j = i + 1; j < boxes.length; j++) {
           const [a, b] = [boxes[i], boxes[j]];
@@ -305,6 +331,7 @@ describe('seismograph labels on the captured year', () => {
             b.left < a.right &&
             a.top < b.bottom &&
             b.top < a.bottom;
+
           expect(overlap).toBe(false);
         }
     }
@@ -346,12 +373,16 @@ describe('seismograph bounds', () => {
         expect(y).toBeGreaterThanOrEqual(0);
         expect(y).toBeLessThanOrEqual(c.height);
       };
+
       for (const n of [...needles(c.normalPath), ...needles(c.hotPath)]) {
         inside(n.x, n.y0);
         inside(n.x, n.y1);
       }
+
       for (const g of c.gridlines) inside(c.plot.left, g.y);
+
       for (const m of c.months) inside(m.x, c.height - 1);
+
       for (const s of c.spikes) {
         inside(s.x, s.y);
         inside(s.label.x, s.label.y);
@@ -362,6 +393,7 @@ describe('seismograph bounds', () => {
 
   it('is 720 units wide, or 360 for the narrow frame', () => {
     const series = seriesOf(flatYear());
+
     expect(seismograph(series, 'wide').width).toBe(720);
     expect(seismograph(series, 'narrow').width).toBe(360);
   });

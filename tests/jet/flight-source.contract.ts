@@ -15,21 +15,26 @@ const isIsoDate = (value: string): boolean =>
 
 export const assertFlightShape = (flights: Flight[]): void => {
   expect(new Set(flights.map((f) => f.id)).size).toBe(flights.length);
+
   for (const f of flights) {
     for (const place of [f.from, f.to]) {
       if (!place) continue;
+
       expect(place.lat).toBeGreaterThanOrEqual(-90);
       expect(place.lat).toBeLessThanOrEqual(90);
       expect(place.lon).toBeGreaterThanOrEqual(-180);
       expect(place.lon).toBeLessThanOrEqual(180);
     }
+
     for (const at of [f.departedAt, f.landedAt]) {
       if (at !== null) expect(isIsoDate(at)).toBe(true);
     }
+
     if (f.status === 'airborne') {
       expect(f.to).toBeNull();
       expect(f.landedAt).toBeNull();
     }
+
     if (f.sourceUrl !== null) expect(f.sourceUrl).toStartWith('https://');
   }
 };
@@ -43,10 +48,13 @@ export const describeFlightSource = (
       const { since } = subject;
       const all = await subject.make().fetchFlights(new Date(0));
       const recent = await subject.make().fetchFlights(since);
+
       expect(recent.length).toBeGreaterThan(0);
       expect(recent.length).toBeLessThan(all.length);
+
       for (const f of recent) {
         const at = flightTime(f);
+
         expect(at).not.toBeNull();
         expect(Date.parse(at as string)).toBeGreaterThanOrEqual(
           since.getTime()
@@ -56,6 +64,7 @@ export const describeFlightSource = (
 
     it('2–6. returns unique ids, valid coordinates, ISO times, consistent airborne flights and https links', async () => {
       const flights = await subject.make().fetchFlights(new Date(0));
+
       expect(flights.length).toBeGreaterThan(0);
       assertFlightShape(flights);
     });

@@ -29,6 +29,7 @@ const UNAVAILABLE: NewsPage = { state: 'unavailable' };
 export const register = (app: express.Application, news: NewsQuery) => {
   app.get('/news', async (_req, res) => {
     const page = await news.random().then(newsPage, () => UNAVAILABLE);
+
     res.set('Cache-Control', 'no-store').render('news', { page });
   });
 
@@ -38,9 +39,12 @@ export const register = (app: express.Application, news: NewsQuery) => {
     } catch (err: unknown) {
       if (!(err instanceof NewsUpstreamError)) {
         res.status(500).json({ error: UNKNOWN_ERROR });
+
         return;
       }
+
       const { upstream, error } = FAILURES[err.failure];
+
       if (upstream) upstreamFailure(res, error);
       else res.status(500).json({ error });
     }

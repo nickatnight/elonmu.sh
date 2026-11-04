@@ -22,7 +22,9 @@ export const isBiomeTarget = (
     projectDir,
     path.resolve(projectDir, filePath)
   );
+
   if (relative.startsWith('..') || path.isAbsolute(relative)) return false;
+
   return BIOME_EXTENSIONS.has(path.extname(filePath));
 };
 
@@ -52,22 +54,27 @@ const fail = (reason: string): Verdict => ({ ok: false, reason });
 // Checks a commit subject against the Conventional Commits rules in CLAUDE.md.
 export const checkSubject = (subject: string): Verdict => {
   const summary = SUBJECT.exec(subject)?.[1];
+
   if (summary === undefined) {
     return fail(
       `expected \`<type>(<scope>): <summary>\` with a type from ${COMMIT_TYPES.join(', ')} and a lowercase scope`
     );
   }
+
   if (!/^[a-z]/.test(summary)) {
     return fail('the summary must start with a lowercase letter');
   }
+
   if (summary.endsWith('.')) {
     return fail('the summary must not end with a period');
   }
+
   if (subject.length > MAX_SUBJECT_LENGTH) {
     return fail(
       `the subject is ${subject.length} characters; keep it to ${MAX_SUBJECT_LENGTH}`
     );
   }
+
   return { ok: true };
 };
 
@@ -115,27 +122,40 @@ const firstLine = (text: string): string => text.split('\n')[0].trim();
 // command isn't a commit or its message can't be read from the command line.
 export const extractSubject = (command: string): string | null => {
   const commit = GIT_COMMIT.exec(command);
+
   if (!commit) return null;
+
   const rest = command.slice(commit.index + commit[0].length);
   const span = COMMAND_SPAN.exec(rest)?.[0] ?? '';
   const args = span.replace(QUOTED, '""');
 
   if (GENERATED.test(args)) return null;
+
   if (STDIN_FILE.test(args)) {
     // `-F -` reads stdin; the heredoc body follows the command line.
     const body = STDIN_HEREDOC.exec(rest);
+
     return body ? body[1].trim() : null;
   }
+
   if (FROM_FILE.test(args)) return null;
 
   const heredoc = HEREDOC.exec(span);
+
   if (heredoc) return heredoc[1].trim();
+
   const double = DOUBLE_QUOTED.exec(span);
+
   if (double) return firstLine(unescapeDoubleQuoted(double[1]));
+
   const single = SINGLE_QUOTED.exec(span);
+
   if (single) return firstLine(single[1]);
+
   const bare = BARE.exec(span);
+
   if (bare) return bare[1];
+
   return null;
 };
 
@@ -147,6 +167,7 @@ export const readToolInput = async (field: string): Promise<string | null> => {
     const value: unknown = JSON.parse(await Bun.stdin.text())?.tool_input?.[
       field
     ];
+
     return typeof value === 'string' ? value : null;
   } catch {
     return null;

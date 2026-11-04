@@ -14,6 +14,7 @@ const TIMEUPDATE_INTERVAL_S = 0.25;
 
 const toSeconds = (/** @type {string} */ cssTime) => {
   const value = Number.parseFloat(cssTime);
+
   return cssTime.trim().endsWith('ms') ? value / 1000 : value;
 };
 
@@ -37,6 +38,7 @@ export const startHeroPlayback = ({
 
   const liveClips = () => {
     if (!handedOff) return [launch];
+
     return launch.ended ? [cruise] : [launch, cruise];
   };
 
@@ -47,14 +49,17 @@ export const startHeroPlayback = ({
   const updatePlayback = () => {
     if (userPaused || !onScreen) {
       for (const clip of liveClips()) clip.pause();
+
       return;
     }
+
     // A blocked autoplay (iOS Low Power Mode) leaves the toggle on play.
     // Other rejections, like a pending play() cut short by pause() when the
     // hero scrolls away, are not the viewer's choice and change nothing.
     for (const clip of liveClips()) {
       clip.play().catch((error) => {
         if (error.name !== 'NotAllowedError') return;
+
         userPaused = true;
         syncToggle();
       });
@@ -65,6 +70,7 @@ export const startHeroPlayback = ({
     cruise.preload = 'auto';
     cruise.load();
   };
+
   if (launch.paused) {
     launch.addEventListener('playing', loadCruise, { once: true });
   } else {
@@ -73,6 +79,7 @@ export const startHeroPlayback = ({
 
   const handOff = () => {
     if (handedOff) return;
+
     handedOff = true;
     cruise.addEventListener(
       'playing',
@@ -84,6 +91,7 @@ export const startHeroPlayback = ({
 
   launch.addEventListener('timeupdate', () => {
     const handoffAt = launch.duration - fadeSeconds - TIMEUPDATE_INTERVAL_S;
+
     if (launch.currentTime >= handoffAt) handOff();
   });
   launch.addEventListener('ended', handOff);
@@ -118,6 +126,7 @@ const start = () => {
 
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     abortDownload(launch);
+
     return;
   }
 

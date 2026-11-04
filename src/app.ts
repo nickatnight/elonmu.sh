@@ -30,13 +30,16 @@ const UNHASHED_MODULES = new Set(
 const assetUrls = new Map<string, string>();
 const assetUrl = (file: string): string => {
   let url = assetUrls.get(file);
+
   if (!url) {
     const hash = Bun.hash(readFileSync(path.join(publicDir, file)))
       .toString(16)
       .slice(0, 8);
+
     url = `/${file}?v=${hash}`;
     assetUrls.set(file, url);
   }
+
   return url;
 };
 
@@ -58,6 +61,7 @@ export const createApp = ({
   services = SERVICES
 }: AppDeps = {}): express.Express => {
   const app = express();
+
   app.disable('x-powered-by');
 
   app.use(securityHeaders);
@@ -79,6 +83,7 @@ export const createApp = ({
         if (CRAWLER_FILES.has(filePath)) {
           res.setHeader('Cache-Control', 'public, max-age=86400');
         }
+
         if (UNHASHED_MODULES.has(filePath)) {
           res.setHeader('Cache-Control', 'no-cache');
         }

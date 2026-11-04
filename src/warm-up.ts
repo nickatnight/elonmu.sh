@@ -8,6 +8,8 @@ export const warmUpCaches = async (
   env: Record<string, string | undefined>
 ): Promise<void> => {
   const warming = [warmUpJet(jet)];
+
   if (env.SKIP_STARLINK_WARM_UP !== '1') warming.push(warmUpStarlink(starlink));
+
   await Promise.all(warming);
 };

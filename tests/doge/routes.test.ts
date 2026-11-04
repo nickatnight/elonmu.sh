@@ -29,6 +29,7 @@ afterAll(async () => {
 describe('GET /api/doge', () => {
   it('returns the documented comparison as JSON', async () => {
     const res = await fetch(`${ok.url}/api/doge`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('application/json');
     expect(await res.json()).toEqual({
@@ -54,6 +55,7 @@ describe('GET /api/doge', () => {
   it('has exactly the documented fields, with no CoinGecko ones', async () => {
     const text = await (await fetch(`${ok.url}/api/doge`)).text();
     const body = JSON.parse(text) as DogeComparison;
+
     expect(Object.keys(body)).toEqual([
       'coin',
       'snl',
@@ -69,15 +71,18 @@ describe('GET /api/doge', () => {
 
   it('lets browsers and proxies cache it for 5 minutes', async () => {
     const res = await fetch(`${ok.url}/api/doge`);
+
     await res.arrayBuffer();
     expect(res.headers.get('cache-control')).toBe('public, max-age=300');
   });
 
   it('answers 200 with an error body, uncached, when no price has ever loaded', async () => {
     const res = await fetch(`${down.url}/api/doge`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
     const body = (await res.json()) as { error: string };
+
     expect(Object.keys(body)).toEqual(['error']);
     expect(body.error).toBe(
       'Dogecoin prices are unavailable right now. Please try again later.'
@@ -88,6 +93,7 @@ describe('GET /api/doge', () => {
     let failing = false;
     const get = async (_url: string, _config: HttpConfig) => {
       if (failing) throw new Error('Request failed with status code 429');
+
       return { data: capture };
     };
     const clock = new FakeClock('2026-10-28T04:50:00.000Z');
@@ -99,11 +105,14 @@ describe('GET /api/doge', () => {
         doge: createDogeModule({ get, clock, logger })
       })
     );
+
     try {
       const fresh = await (await fetch(`${server.url}/api/doge`)).json();
+
       clock.advance(5 * 60_000);
       failing = true;
       const res = await fetch(`${server.url}/api/doge`);
+
       expect(res.headers.get('cache-control')).toBe('public, max-age=300');
       expect(await res.json()).toEqual(fresh);
       expect((fresh as DogeComparison).now.usd).toBe(0.079636);
@@ -119,6 +128,7 @@ describe('GET /api/doge', () => {
 describe('a failing doge module', () => {
   it('leaves /healthz healthy', async () => {
     const res = await fetch(`${down.url}/healthz`);
+
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ status: 'ok' });
   });

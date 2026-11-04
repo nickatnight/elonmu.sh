@@ -4,7 +4,9 @@ import capture from '../fixtures/celestrak-starlink-satcat.json';
 
 const byId = (id: number) => {
   const record = capture.find((r) => r.NORAD_CAT_ID === id);
+
   if (!record) throw new Error(`fixture lost ${id}`);
+
   return record;
 };
 
@@ -43,6 +45,7 @@ describe('parseSatcat on the captured Starlink catalogue', () => {
       .filter((r) => r.reentered >= '2025-12-30' && r.reentered <= '2026-01-03')
       .map((r) => r.reentered)
       .sort();
+
     expect(around).toEqual([
       '2025-12-30',
       '2025-12-30',
@@ -110,6 +113,7 @@ describe('parseSatcat skips a record it cannot use and keeps the rest', () => {
 
   it('keeps the first record when an id repeats', () => {
     const again = { ...STARLINK_1309, OBJECT_NAME: 'STARLINK-AGAIN' };
+
     expect(parseSatcat([STARLINK_1309, again]).map((r) => r.name)).toEqual([
       'STARLINK-1309'
     ]);
@@ -117,6 +121,7 @@ describe('parseSatcat skips a record it cannot use and keeps the rest', () => {
 
   it('accepts a satellite that came down the day it launched', () => {
     const sameDay = withField('DECAY_DATE', '2020-03-18');
+
     expect(parseSatcat([sameDay])[0]?.reentered).toBe('2020-03-18');
   });
 });

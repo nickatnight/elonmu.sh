@@ -11,6 +11,7 @@ describe('SNL_SHOWTIME', () => {
 
   it('cites a Binance 1-minute candle that starts at that same minute', () => {
     const url = new URL(SNL_SHOWTIME.source.url);
+
     expect(url.origin).toBe('https://data-api.binance.vision');
     expect(url.searchParams.get('symbol')).toBe('DOGEUSDT');
     expect(url.searchParams.get('interval')).toBe('1m');
@@ -26,6 +27,7 @@ describe('SNL_SHOWTIME', () => {
 describe('DogeService', () => {
   it('compares the live price with showtime: down 88.2%, $1,000 now worth $118.03', async () => {
     const comparison = await sampleDoge().comparison();
+
     expect(comparison.changePercent).toBe(-88.2);
     expect(comparison.thousandDollarsNow).toBe(118.03);
   });
@@ -35,6 +37,7 @@ describe('DogeService', () => {
       at: NOW_QUOTE.at,
       usd: 0.7563
     }).comparison();
+
     expect(comparison.changePercent).toBe(12.3);
     expect(comparison.thousandDollarsNow).toBe(1123.06);
   });
@@ -44,6 +47,7 @@ describe('DogeService', () => {
       at: NOW_QUOTE.at,
       usd: SNL_SHOWTIME.usd
     }).comparison();
+
     expect(comparison.changePercent).toBe(0);
     expect(comparison.thousandDollarsNow).toBe(1000);
   });
@@ -53,6 +57,7 @@ describe('DogeService', () => {
       at: NOW_QUOTE.at,
       usd: 0.08
     }).comparison();
+
     expect(comparison.changePercent).toBe(-88.1);
     expect(comparison.thousandDollarsNow).toBe(118.79);
   });
@@ -90,6 +95,7 @@ describe('DogeService', () => {
     const doge = new DogeService(
       new InMemoryPriceSource(NOW_QUOTE, { error: new Error('down') })
     );
+
     await expect(doge.comparison()).rejects.toThrow('down');
   });
 });

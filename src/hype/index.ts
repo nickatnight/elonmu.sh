@@ -41,6 +41,7 @@ export const createHypeModule = ({
 } = {}): HypeQuery => {
   const http: HttpGet = async <T>(url: string) =>
     (await get(url, WIKIMEDIA_CONFIG)).data as T;
+
   return new HypeService(
     new CachedPageviewSource(
       new WikimediaPageviewSource({ http }),

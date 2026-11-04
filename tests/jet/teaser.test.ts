@@ -40,18 +40,21 @@ const flights: Flight[] = [
 describe('toTeaser', () => {
   it('draws one arc per flight whose arc is visible, oldest first so the latest sits on top', () => {
     const teaser = toTeaser(snap(flights));
+
     expect(teaser.arcs.map((a) => a.id)).toEqual(['oldest', 'newest']);
     expect(teaser.arcs.map((a) => a.latest)).toEqual([false, true]);
   });
 
   it('uses the shared projection for each path, in the image’s coordinates', () => {
     const teaser = toTeaser(snap(flights));
+
     expect(teaser.size).toBe(TEASER_SIZE);
     expect(teaser.arcs[0].d).toBe(arcPath(places.austin, places.sanJose));
   });
 
   it('leaves out local hops, one-ended and far-side flights, but still counts them', () => {
     const teaser = toTeaser(snap(flights));
+
     expect(
       teaser.arcs.some((a) => ['hop', 'arrival', 'far-side'].includes(a.id))
     ).toBe(false);
@@ -61,6 +64,7 @@ describe('toTeaser', () => {
 
   it('describes the newest flight and the year for screen readers', () => {
     const teaser = toTeaser(snap(flights));
+
     expect(teaser.latest).toBe(
       'Latest: Hawthorne → Austin, Oct 22 · 2 h 40 min'
     );
@@ -84,6 +88,7 @@ describe('toTeaser', () => {
       ])
     );
     const austin = orthographic(places.austin);
+
     expect(teaser.origin?.x).toBeCloseTo(austin.x, 1);
     expect(teaser.origin?.y).toBeCloseTo(austin.y, 1);
     expect(teaser.arcs.map((a) => [a.id, a.latest])).toEqual([
@@ -105,11 +110,13 @@ describe('toTeaser', () => {
         })
       ])
     );
+
     expect(teaser.origin).toBeNull();
   });
 
   it('is empty, with no latest line, before the year’s first flight', () => {
     const teaser = toTeaser(snap([], 2027));
+
     expect(teaser.empty).toBe(true);
     expect(teaser.arcs).toEqual([]);
     expect(teaser.origin).toBeNull();

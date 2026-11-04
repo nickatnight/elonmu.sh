@@ -14,6 +14,7 @@ const resolver = new GazetteerPlaceResolver(places);
 describe('GazetteerPlaceResolver', () => {
   it('resolves a place exactly as posted to its name and coordinates', () => {
     const austin = resolver.resolve('Austin, Texas, United States');
+
     expect(austin?.name).toBe('Austin, Texas, United States');
     expect(austin?.lat).toBeCloseTo(30.27, 1);
     expect(austin?.lon).toBeCloseTo(-97.74, 1);
@@ -43,8 +44,10 @@ describe('GazetteerPlaceResolver', () => {
 describe('places.json', () => {
   it('holds only in-range coordinates, keyed in sorted order', () => {
     const keys = Object.keys(places);
+
     expect(keys.length).toBeGreaterThan(40);
     expect(keys).toEqual([...keys].sort());
+
     for (const [lat, lon] of Object.values(places)) {
       expect(Math.abs(lat)).toBeLessThanOrEqual(90);
       expect(Math.abs(lon)).toBeLessThanOrEqual(180);
@@ -62,7 +65,9 @@ describe('places.json', () => {
         )
       )
       .flatMap((event) => (event ? [event.place] : []));
+
     expect(posted.length).toBeGreaterThan(40);
+
     for (const name of posted) {
       expect(resolver.resolve(name)).not.toBeNull();
     }
@@ -71,10 +76,12 @@ describe('places.json', () => {
   it('puts international places where they belong', () => {
     const near = (name: string, lat: number, lon: number) => {
       const p = resolver.resolve(name);
+
       expect(p).not.toBeNull();
       expect(Math.abs((p?.lat ?? 0) - lat)).toBeLessThan(1);
       expect(Math.abs((p?.lon ?? 0) - lon)).toBeLessThan(1);
     };
+
     near('Tokyo, Tōkyō Prefecture, Japan', 35.68, 139.69);
     near('New Delhi, Delhi (National Capital Territory), India', 28.61, 77.21);
     near('Zurich, Zürich, Switzerland', 47.37, 8.54);
@@ -105,6 +112,7 @@ describe('geocode-places helpers', () => {
       'Austin, Texas, United States': [0, 0],
       'Albany, New York, United States': [42.65, -73.76]
     });
+
     expect(merged).toEqual({
       'Albany, New York, United States': [42.65, -73.76],
       'Austin, Texas, United States': [30.27, -97.74]
@@ -117,6 +125,7 @@ describe('geocode-places helpers', () => {
 
   it('is idempotent: merging again with nothing new changes nothing', () => {
     const once = mergePlaces(known, {});
+
     expect(mergePlaces(once, {})).toEqual(once);
     expect(missingPlaces(Object.keys(once), once)).toEqual([]);
   });
@@ -127,6 +136,7 @@ describe('geocode-places helpers', () => {
     );
     const committed = await file.text();
     const known = (await file.json()) as Record<string, [number, number]>;
+
     expect(serializePlaces(mergePlaces(known, {}))).toBe(committed);
   });
 });

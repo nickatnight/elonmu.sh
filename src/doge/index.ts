@@ -41,6 +41,7 @@ export const createDogeModule = ({
 } = {}): DogeQuery => {
   const http: HttpGet = async <T>(url: string) =>
     (await get(url, COINGECKO_CONFIG)).data as T;
+
   return new DogeService(
     new CachedPriceSource(new CoinGeckoPriceSource({ http }), clock, logger)
   );

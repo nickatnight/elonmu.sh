@@ -28,11 +28,13 @@ const pairsWith = (
   next: JetEvent | undefined
 ): next is JetEvent => {
   if (next?.kind !== 'landing') return false;
+
   const gap = gapMs(takeoff, next);
   const fitsPostedTime =
     next.durationMin === null ||
     Math.abs(gapMinutes(takeoff, next) - next.durationMin) <=
       DURATION_TOLERANCE_MIN;
+
   return gap >= 0 && gap <= PAIR_WINDOW_MS && fitsPostedTime;
 };
 
@@ -51,22 +53,27 @@ export const pairFlights = (
   const warned = new Set<string>();
   const place = (name: string): Place | null => {
     const found = resolver.resolve(name);
+
     if (!found && !warned.has(name)) {
       warned.add(name);
       logger.warn('jet: unknown place, add it to places.json', { place: name });
     }
+
     return found;
   };
 
   const byTail = new Map<string, JetEvent[]>();
+
   for (const e of events) {
     const tail = e.tail ?? UNKNOWN_TAIL;
     const list = byTail.get(tail);
+
     if (list) list.push(e);
     else byTail.set(tail, [e]);
   }
 
   const flights: Flight[] = [];
+
   for (const [tail, unsorted] of byTail) {
     const evs = [...unsorted].sort(
       (a, b) => Date.parse(a.at) - Date.parse(b.at)
@@ -93,6 +100,7 @@ export const pairFlights = (
     for (let i = 0; i < evs.length; i++) {
       const e = evs[i];
       const next = evs[i + 1];
+
       if (e.kind === 'landing') {
         flights.push(flight(e, null, e, e.durationMin));
       } else if (pairsWith(e, next)) {
@@ -105,5 +113,6 @@ export const pairFlights = (
       }
     }
   }
+
   return flights;
 };

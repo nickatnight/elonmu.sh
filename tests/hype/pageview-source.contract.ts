@@ -29,10 +29,13 @@ export const describePageviewSource = (
     it('1. returns only days in [from, to], ascending, each date once', async () => {
       const { from, to } = subject;
       const days = await subject.make().fetchDays(from, to);
+
       expect(days.length).toBeGreaterThan(0);
       const dates = days.map((d) => d.date);
+
       expect(dates[0] >= day(from)).toBe(true);
       expect((dates.at(-1) as string) <= day(to)).toBe(true);
+
       for (let i = 1; i < dates.length; i++)
         expect(dates[i] > dates[i - 1]).toBe(true);
     });
@@ -43,6 +46,7 @@ export const describePageviewSource = (
 
     it('3. leaves a day the upstream omitted missing, never zero-filled', async () => {
       const days = await subject.make().fetchDays(subject.from, subject.to);
+
       expect(days.find((d) => d.date === subject.missing)).toBeUndefined();
     });
 

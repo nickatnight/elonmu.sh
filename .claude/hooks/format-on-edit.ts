@@ -14,13 +14,16 @@ const filePath = await readToolInput('file_path');
 const findBiome = (from: string): string | null => {
   for (let dir = from; ; dir = path.dirname(dir)) {
     const bin = path.join(dir, 'node_modules', '.bin', 'biome');
+
     if (existsSync(bin)) return bin;
+
     if (path.dirname(dir) === dir) return null;
   }
 };
 
 if (filePath !== null && isBiomeTarget(filePath, projectDir)) {
   const biome = findBiome(projectDir);
+
   if (biome === null) {
     console.error('format-on-edit: Biome not found; run `bun install`.');
     process.exit(0);

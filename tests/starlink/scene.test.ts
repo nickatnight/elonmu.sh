@@ -21,12 +21,14 @@ const AT = new Date('2026-10-30T04:30:00.000Z');
 describe('parseSatellites', () => {
   it('reads every satellite in the /api/starlink body', async () => {
     const satellites = parseSatellites(await apiBody());
+
     expect(satellites).toHaveLength(200);
     expect(satellites[0]).toMatchObject({ id: 44714, name: 'STARLINK-1008' });
   });
 
   it('gives no satellites when the orbits are unavailable', async () => {
     const body = { ...((await apiBody()) as object), satellites: null };
+
     expect(parseSatellites(body)).toEqual([]);
   });
 
@@ -37,6 +39,7 @@ describe('parseSatellites', () => {
     ['an eccentricity of 1', { eccentricity: 1 }]
   ])('skips a satellite with %s', async (_name, change) => {
     const body = (await apiBody()) as { satellites: object[] };
+
     body.satellites[0] = { ...body.satellites[0], ...change };
     expect(parseSatellites(body)).toHaveLength(199);
   });
@@ -54,8 +57,10 @@ describe('placeParticles', () => {
   it('puts each satellite where orbits.js says, altitude in globe radii', async () => {
     const satellites = parseSatellites(await apiBody());
     const particles = placeParticles(satellites, AT);
+
     expect(particles).toHaveLength(200);
     const where = positionAt(satellites[7], AT);
+
     expect(particles[7]).toEqual({
       lat: where.lat,
       lng: where.lng,
@@ -73,6 +78,7 @@ describe('placeParticles', () => {
       new Date(AT.getTime() + 60_000),
       particles
     );
+
     expect(again).toBe(particles);
     expect(again[0]).toBe(first);
     expect(first.lng).not.toBe(before.lng);
@@ -84,6 +90,7 @@ describe('placeParticles over a slice of the fleet', () => {
     const satellites = parseSatellites(await apiBody());
     const particles = placeParticles(satellites, AT);
     const before = particles.map((p) => p.lng);
+
     placeParticles(
       satellites,
       new Date(AT.getTime() + 60_000),
@@ -94,6 +101,7 @@ describe('placeParticles over a slice of the fleet', () => {
     const moved = particles
       .map((p, i) => (p.lng === before[i] ? null : i))
       .filter((i) => i !== null);
+
     expect(moved).toEqual(Array.from({ length: 50 }, (_, k) => 50 + k));
   });
 });
@@ -102,6 +110,7 @@ describe('placeParticles at the end of the fleet', () => {
   it('stops at the last satellite when the slice runs past it', async () => {
     const satellites = parseSatellites(await apiBody());
     const particles = placeParticles(satellites, AT);
+
     expect(() =>
       placeParticles(satellites, AT, particles, 190, 250)
     ).not.toThrow();
@@ -112,10 +121,12 @@ describe('placeParticles at the end of the fleet', () => {
 const frames = () => {
   const queue: ((t: number) => void)[] = [];
   let requests = 0;
+
   return {
     request: (cb: (t: number) => void) => {
       requests++;
       queue.push(cb);
+
       return queue.length;
     },
     cancel: () => {
@@ -123,6 +134,7 @@ const frames = () => {
     },
     run(at: number) {
       const due = queue.splice(0);
+
       for (const cb of due) cb(at);
     },
     requested: () => requests
@@ -133,8 +145,11 @@ describe('everyInterval', () => {
   it('runs at most once per interval, however fast frames come', () => {
     const f = frames();
     const ticks: number[] = [];
+
     everyInterval(1000, (t) => ticks.push(t), f);
+
     for (let t = 0; t <= 3000; t += 16) f.run(t);
+
     expect(ticks).toEqual([0, 1008, 2016]);
   });
 
@@ -142,6 +157,7 @@ describe('everyInterval', () => {
     const f = frames();
     const ticks: number[] = [];
     const stop = everyInterval(1000, (t) => ticks.push(t), f);
+
     f.run(0);
     stop();
     f.run(2000);
@@ -168,6 +184,7 @@ describe('starlink.js', () => {
 
 const recordingView = () => {
   const shown: { lat: number; lng: number; alt: number }[][] = [];
+
   return {
     shown,
     show: (particles: { lat: number; lng: number; alt: number }[]) => {
@@ -181,6 +198,7 @@ describe('animate', () => {
     const satellites = parseSatellites(await apiBody());
     const f = frames();
     const view = recordingView();
+
     animate(view, satellites, {
       reducedMotion: true,
       frames: f,
@@ -196,18 +214,22 @@ describe('animate', () => {
     const f = frames();
     const view = recordingView();
     let now = AT;
+
     animate(view, satellites, {
       reducedMotion: false,
       frames: f,
       now: () => now
     });
     now = new Date(AT.getTime() + 60_000);
+
     for (const t of [0, 250, 500]) f.run(t);
+
     expect(view.shown).toHaveLength(1);
     f.run(750);
     expect(view.shown).toHaveLength(2);
     const [first, second] = view.shown;
     const moved = second.filter((p, i) => p.lng !== first[i].lng);
+
     expect(moved).toHaveLength(200);
     expect(second).toEqual(placeParticles(satellites, now));
   });

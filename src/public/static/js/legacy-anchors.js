@@ -15,5 +15,6 @@ export const docsTarget = (hash) =>
 
 if (typeof location !== 'undefined') {
   const target = docsTarget(location.hash);
+
   if (target) location.replace(target);
 }

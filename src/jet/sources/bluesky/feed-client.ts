@@ -42,19 +42,26 @@ export class BlueskyFeedClient {
       }`;
       const { feed, cursor: next } = await this.http<FeedPage>(url);
       let done = !next;
+
       for (const item of feed) {
         if (item.reason) continue;
+
         const createdMs = Date.parse(item.post.record.createdAt);
+
         if (createdMs < sinceMs) done = true;
         else if (this.known.has(item.post.uri) && canStopAtKnown) done = true;
         else fresh.push(item);
       }
+
       if (done) break;
+
       cursor = next;
     }
 
     for (const item of fresh) this.known.set(item.post.uri, item);
+
     this.coveredSince = Math.min(this.coveredSince, sinceMs);
+
     return [...this.known.values()]
       .filter((item) => Date.parse(item.post.record.createdAt) >= sinceMs)
       .sort(

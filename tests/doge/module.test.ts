@@ -9,6 +9,7 @@ describe('createDogeModule', () => {
     const requests: { url: string; config: HttpConfig }[] = [];
     const get = async (url: string, config: HttpConfig) => {
       requests.push({ url, config });
+
       return { data: capture };
     };
     const doge = createDogeModule({
@@ -41,6 +42,7 @@ describe('createDogeModule', () => {
     let calls = 0;
     const get = async () => {
       calls++;
+
       return { data: capture };
     };
     const clock = new FakeClock('2026-10-28T04:50:00.000Z');

@@ -25,6 +25,7 @@ export const createJetModule = (): JetQuery => {
     logger,
     clock: systemClock
   });
+
   return new JetService(
     new CachedFlightSource(source, systemClock, CACHE_TTL_MS, logger),
     systemClock

@@ -26,6 +26,7 @@ beforeAll(async () => {
     down: createApp({ jet: failingJet() }),
     nasty: createApp({ jet: sampleJet([nasty]) })
   };
+
   for (const [name, app] of Object.entries(apps) as [
     keyof typeof servers,
     (typeof apps)['full']
@@ -42,6 +43,7 @@ afterAll(async () => {
 describe('GET /jet', () => {
   it('renders an HTML page with its own title and canonical URL', async () => {
     const res = await fetch(`${servers.full.url}/jet`);
+
     await res.arrayBuffer();
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('text/html');
@@ -55,6 +57,7 @@ describe('GET /jet', () => {
     const totals =
       html.full.match(/<ul class="totals"[\s\S]*?<\/ul>/)?.[0] ?? '';
     const text = totals.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ');
+
     expect(text).toContain('4 flights');
     expect(text).toContain('5 h');
     expect(text).toContain('1,200 gal');
@@ -66,6 +69,7 @@ describe('GET /jet', () => {
     const rows = [
       ...html.full.matchAll(/<li class="flight[^"]*" data-flight="([^"]+)"/g)
     ];
+
     expect(rows.map((m) => m[1])).toEqual([
       'airborne',
       'tokyo-hop',
@@ -95,10 +99,14 @@ describe('GET /jet', () => {
 
   it('renders tail chips as pressed-state buttons, hidden until the script runs', () => {
     const chips = html.full.match(/<div class="chips"[^>]*>/)?.[0] ?? '';
+
     expect(chips).toContain('hidden');
     const buttons = html.full.match(/<button[^>]*class="chip"[^>]*>/g) ?? [];
+
     expect(buttons).toHaveLength(4);
+
     for (const b of buttons) expect(b).toMatch(/aria-pressed="(true|false)"/);
+
     expect(buttons[0]).toContain('aria-pressed="true"');
   });
 
@@ -112,6 +120,7 @@ describe('GET /jet', () => {
     const globe =
       html.full.match(/<div\s+class="jet__globe"[^>]*>[\s\S]*?<\/div>/)?.[0] ??
       '';
+
     expect(globe).toContain('aria-hidden="true"');
     expect(globe).toMatch(
       new RegExp(
@@ -124,6 +133,7 @@ describe('GET /jet', () => {
     const sheets = [
       ...html.full.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
+
     expect(sheets).toHaveLength(2);
     expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
     expect(sheets[1]).toMatch(/^\/static\/css\/jet\.css\?v=\w+$/);
@@ -137,6 +147,7 @@ describe('GET /jet', () => {
 
   it('still renders, with a short note, when flight data has never loaded', async () => {
     const res = await fetch(`${servers.down.url}/jet`);
+
     await res.arrayBuffer();
     expect(res.status).toBe(200);
     expect(html.down).toContain('Flight data is unavailable right now');
@@ -176,6 +187,7 @@ describe('the live globe', () => {
     const items = [...legend.matchAll(/<li[^>]*>[\s\S]*?<\/li>/g)].map((m) =>
       m[0].replace(/<[^>]+>/g, '').trim()
     );
+
     expect(items).toEqual([
       'Latest flight',
       'Earlier flights',
@@ -191,6 +203,7 @@ describe('the live globe', () => {
 
   it('never loads globe.gl or jet.js on the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
+
     expect(home).not.toContain('globe.gl');
     expect(home).not.toContain('jet.js');
     expect(home).not.toContain('three');
@@ -201,12 +214,14 @@ describe('the live globe', () => {
     const sheets = [
       ...home.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
+
     expect(sheets).toHaveLength(1);
     expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
   });
 
   it('fetches the still Earth (the page’s LCP) ahead of the globe library', () => {
     const still = html.full.match(/<img\s+class="jet__still"[^>]*>/)?.[0] ?? '';
+
     expect(still).toContain('fetchpriority="high"');
     expect(still).not.toContain('loading="lazy"');
   });
@@ -223,6 +238,7 @@ describe('the live globe', () => {
           !['/', '/jet', '/hype', '/api/news'].includes(url) &&
           !url.startsWith('/#')
       );
+
     for (const want of [
       'globe.gl.min.js',
       'jet.js',
@@ -232,8 +248,10 @@ describe('the live globe', () => {
     ]) {
       expect(urls.some((u) => u.includes(want))).toBe(true);
     }
+
     for (const url of new Set(urls)) {
       const res = await fetch(`${servers.full.url}${url}`);
+
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
@@ -248,6 +266,7 @@ describe('the live globe', () => {
       decompress: false
     });
     const body = await res.arrayBuffer();
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-encoding')).toBe('gzip');
     expect(body.byteLength).toBeLessThanOrEqual(530 * 1024);
@@ -257,6 +276,7 @@ describe('the live globe', () => {
 describe('topbar', () => {
   it('links to /jet from the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
+
     expect(home).toMatch(/<a href="\/jet"[^>]*>Jet<\/a>/);
   });
 
@@ -292,6 +312,7 @@ describe('stylesheets', () => {
         .match(jetOnly)
         ?.map((s) => s.replace(/s$/, ''))
     );
+
     expect([...found].sort()).toEqual([
       '.chip',
       '.flight',
@@ -309,6 +330,7 @@ describe('stylesheets', () => {
 
   it('removes the browser underline from every link', () => {
     const base = css('main.css').match(/(?:^|\n)a\s*\{([^}]*)\}/)?.[1];
+
     expect(base).toMatch(/text-decoration:\s*none/);
   });
 });

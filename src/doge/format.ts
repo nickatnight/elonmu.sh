@@ -21,8 +21,11 @@ type Change = { text: string; words: string };
 
 const change = (percent: number): Change => {
   const size = `${oneDecimal.format(Math.abs(percent))}%`;
+
   if (percent > 0) return { text: `+${size}`, words: `Up ${size}` };
+
   if (percent < 0) return { text: `${MINUS}${size}`, words: `Down ${size}` };
+
   return { text: size, words: size };
 };
 
@@ -51,6 +54,7 @@ type Moment = { datetime: IsoTimestamp; date: string; time: string };
 
 const easternMoment = (at: IsoTimestamp): Moment => {
   const p = partsIn(at, 'America/New_York', 'h12');
+
   return {
     datetime: at,
     date: `${p.day} ${p.month} ${p.year}`,
@@ -60,6 +64,7 @@ const easternMoment = (at: IsoTimestamp): Moment => {
 
 const utcMoment = (at: IsoTimestamp): Moment => {
   const p = partsIn(at, 'UTC', 'h23');
+
   return {
     datetime: at,
     date: `${p.day} ${p.month} ${p.year}`,
@@ -84,6 +89,7 @@ export type DogePage = LoadedDogePage | { state: 'unavailable' };
 export const dogePage = (comparison: DogeComparison): DogePage => {
   const { snl, now } = comparison;
   const thousandDollarsOfDoge = 1000 / snl.usd;
+
   return {
     state: 'loaded',
     change: change(comparison.changePercent),

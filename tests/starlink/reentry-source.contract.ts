@@ -21,24 +21,29 @@ export const describeReentrySource = (
   describe(`${name} meets the ReentrySource contract`, () => {
     it('1. returns at least one re-entry', async () => {
       const { reentries } = await subject.make().fetchReentries();
+
       expect(reentries.length).toBeGreaterThan(0);
     });
 
     it('2. gives each re-entry a unique positive integer id', async () => {
       const { reentries } = await subject.make().fetchReentries();
       const ids = reentries.map((r) => r.id);
+
       for (const id of ids)
         expect(Number.isSafeInteger(id) && id > 0).toBe(true);
+
       expect(new Set(ids).size).toBe(ids.length);
     });
 
     it('3. names every satellite', async () => {
       const { reentries } = await subject.make().fetchReentries();
+
       for (const { name } of reentries) expect(name.trim()).not.toBe('');
     });
 
     it('4. dates the launch and the re-entry as YYYY-MM-DD, in that order', async () => {
       const { reentries } = await subject.make().fetchReentries();
+
       for (const r of reentries) {
         expect({
           id: r.id,
@@ -56,7 +61,9 @@ export const describeReentrySource = (
 
     it('5. carries only the domain fields', async () => {
       const log = await subject.make().fetchReentries();
+
       expect(Object.keys(log).sort()).toEqual(['readAt', 'reentries']);
+
       for (const r of log.reentries)
         expect(Object.keys(r).sort()).toEqual([
           'id',
@@ -68,6 +75,7 @@ export const describeReentrySource = (
 
     it('6. says when the catalogue was read, as an ISO 8601 UTC timestamp', async () => {
       const { readAt } = await subject.make().fetchReentries();
+
       expect(isIsoUtc(readAt)).toBe(true);
     });
 

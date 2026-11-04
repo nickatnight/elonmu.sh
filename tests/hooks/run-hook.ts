@@ -22,5 +22,6 @@ export const runHook = async (
     proc.exited,
     new Response(proc.stderr).text()
   ]);
+
   return { exitCode, stderr };
 };

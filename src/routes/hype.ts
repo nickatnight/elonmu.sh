@@ -7,6 +7,7 @@ export const register = (app: express.Application, hype: HypeQuery) => {
   app.get('/api/hype', async (_req, res) => {
     try {
       const series = await hype.series();
+
       res.set('Cache-Control', 'public, max-age=3600').json(series);
     } catch {
       res.set('Cache-Control', 'no-store');
@@ -19,11 +20,13 @@ export const register = (app: express.Application, hype: HypeQuery) => {
 
   app.get('/hype', async (_req, res) => {
     let page: HypePage = { state: 'unavailable' };
+
     try {
       page = hypePage(await hype.series());
     } catch {
       res.set('Cache-Control', 'no-store');
     }
+
     res.render('hype', { page });
   });
 };

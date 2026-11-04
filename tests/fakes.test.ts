@@ -7,6 +7,7 @@ const zoneInEffect = (): string =>
 describe('inTimeZone', () => {
   it('puts the local zone back, even when the run throws', async () => {
     const before = zoneInEffect();
+
     await expect(
       inTimeZone('Pacific/Kiritimati', () => {
         throw new Error('boom');

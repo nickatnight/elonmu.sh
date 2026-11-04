@@ -32,6 +32,7 @@ export const mergePlaces = (
   found: Gazetteer
 ): Record<string, Coords> => {
   const all = { ...found, ...known };
+
   return Object.fromEntries(
     Object.keys(all)
       .sort()
@@ -45,21 +46,26 @@ export const serializePlaces = (places: Gazetteer): string => {
   const lines = Object.entries(places).map(
     ([name, [lat, lon]]) => `  ${JSON.stringify(name)}: [${lat}, ${lon}]`
   );
+
   return `{\n${lines.join(',\n')}\n}\n`;
 };
 
 const httpGet = async <T>(url: string): Promise<T> => {
   const res = await fetch(url);
+
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+
   return (await res.json()) as T;
 };
 
 // Every place named in bot posts since `since`, via the adapter's own client.
 const postedPlaces = async (since: Date): Promise<string[]> => {
   const posts = await new BlueskyFeedClient(httpGet).postsSince(since);
+
   return posts.flatMap(({ post }) => {
     const { text, createdAt } = post.record;
     const event = parseElonJetPost(text, createdAt, post.uri);
+
     return event ? [event.place] : [];
   });
 };
@@ -67,8 +73,11 @@ const postedPlaces = async (since: Date): Promise<string[]> => {
 const geocode = async (name: string): Promise<Coords | null> => {
   const url = `${NOMINATIM_URL}?format=jsonv2&limit=1&q=${encodeURIComponent(name)}`;
   const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
+
   if (!res.ok) throw new Error(`nominatim: HTTP ${res.status} for ${name}`);
+
   const [hit] = (await res.json()) as { lat: string; lon: string }[];
+
   return hit
     ? [Number(Number(hit.lat).toFixed(4)), Number(Number(hit.lon).toFixed(4))]
     : null;
@@ -80,28 +89,34 @@ if (import.meta.main) {
     sinceArg > 0
       ? new Date(process.argv[sinceArg + 1])
       : new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1));
+
   if (Number.isNaN(since.getTime())) throw new Error('bad --since date');
 
   const known = (await Bun.file(PLACES_FILE).json()) as Gazetteer;
   const missing = missingPlaces(await postedPlaces(since), known);
+
   console.log(
     `${missing.length} new place(s) since ${since.toISOString().slice(0, 10)}`
   );
 
   const found: Gazetteer = {};
   const failed: string[] = [];
+
   for (const name of missing) {
     const coords = await geocode(name);
+
     if (coords) {
       found[name] = coords;
       console.log(`  ${name} → ${coords.join(', ')}`);
     } else {
       failed.push(name);
     }
+
     await Bun.sleep(1100);
   }
 
   await Bun.write(PLACES_FILE, serializePlaces(mergePlaces(known, found)));
+
   if (failed.length) {
     console.warn(`no match (add by hand): ${failed.join(' | ')}`);
     process.exitCode = 1;

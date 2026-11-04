@@ -10,7 +10,9 @@ export class NewsService implements NewsQuery {
   async random(): Promise<Article> {
     const articles = await this.source.latest();
     const picked = articles[Math.floor(this.draw() * articles.length)];
+
     if (!picked) throw new Error('news: no article to pick');
+
     return picked;
   }
 }

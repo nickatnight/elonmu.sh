@@ -13,6 +13,7 @@ export class InMemoryArticleSource implements ArticleSource {
 
   async latest(): Promise<Article[]> {
     if (this.error) throw this.error;
+
     return this.articles.map((article) => ({ ...article }));
   }
 }

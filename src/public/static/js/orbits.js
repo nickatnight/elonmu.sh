@@ -24,6 +24,7 @@ const gmst = (ms) => {
     (876600 * 3600 + 8640184.812866) * t +
     0.093104 * t * t -
     6.2e-6 * t * t * t;
+
   return (((seconds % 86400) + 86400) % 86400) * (TWO_PI / 86400);
 };
 
@@ -47,7 +48,9 @@ const orbits = new WeakMap();
  */
 const orbitOf = (sat) => {
   const known = orbits.get(sat);
+
   if (known) return known;
+
   const e = sat.eccentricity;
   const i = sat.inclination * RAD;
   const cosI = Math.cos(i);
@@ -75,7 +78,9 @@ const orbitOf = (sat) => {
     perigeeRate: -0.5 * j2Rate * (1 - 5 * theta2),
     nodeRate: -j2Rate * cosI
   };
+
   orbits.set(sat, orbit);
+
   return orbit;
 };
 
@@ -101,8 +106,10 @@ export const positionAt = (sat, date) => {
   const node = sat.raan * RAD + orbit.nodeRate * minutes;
 
   let ecc = m;
+
   for (let k = 0; k < 3; k++)
     ecc -= (ecc - e * Math.sin(ecc) - m) / (1 - e * Math.cos(ecc));
+
   const cosE = Math.cos(ecc);
   const trueAnomaly = Math.atan2(orbit.beta * Math.sin(ecc), cosE - e);
   const u = omega + trueAnomaly;

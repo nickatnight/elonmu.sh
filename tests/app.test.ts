@@ -44,12 +44,14 @@ const LAUNCH_MOTION_ENDS_S = 6.5;
 
 const videoTag = (cls: string): string => {
   const tag = new RegExp(`<video\\s+class="hero__video ${cls}"[^>]*>`);
+
   return html.match(tag)?.[0] ?? '';
 };
 
 describe('GET /', () => {
   it('renders the landing page', async () => {
     const res = await fetch(`${server.url}/`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('text/html');
     expect(html).toContain('<title>MaaS | Musk as a Service</title>');
@@ -57,6 +59,7 @@ describe('GET /', () => {
 
   it('has a heading and the page landmarks', () => {
     expect(html).toMatch(/<h1[\s>]/);
+
     for (const tag of ['header', 'main', 'footer']) {
       expect(html).toContain(`<${tag}`);
     }
@@ -65,6 +68,7 @@ describe('GET /', () => {
   it('keeps the canonical URL and the share tags', () => {
     expect(html).toContain('<link rel="canonical" href="https://elonmu.sh/"');
     expect(html).toContain('<meta name="description"');
+
     for (const tag of [
       'property="og:url" content="https://elonmu.sh/"',
       'property="og:title"',
@@ -92,6 +96,7 @@ describe('GET /', () => {
     const match = html.match(
       /<meta property="og:image" content="https:\/\/elonmu\.sh(\/og\.png\?v=[0-9a-f]+)"/
     );
+
     expect(match).not.toBeNull();
     expect(html).toContain(
       `name="twitter:image" content="https://elonmu.sh${match?.[1]}"`
@@ -99,6 +104,7 @@ describe('GET /', () => {
     expect(html).toContain('property="og:image:width" content="1200"');
     expect(html).toContain('property="og:image:height" content="630"');
     const res = await fetch(`${server.url}${match?.[1]}`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('image/png');
   });
@@ -161,6 +167,7 @@ describe('GET /', () => {
     const main = await Bun.file(
       `${import.meta.dir}/../src/public/static/js/main.js`
     ).text();
+
     expect(main).not.toContain('fetch(');
   });
 
@@ -183,6 +190,7 @@ describe('GET /', () => {
       '<section class="praise"',
       '<footer class="footer"'
     ].map(at);
+
     expect(order.every((i) => i > -1)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
   });
@@ -190,6 +198,7 @@ describe('GET /', () => {
   it("quotes Priya's approved four-curl testimonial", () => {
     const lead =
       html.match(/<figure class="praise__lead">[\s\S]*?<\/figure>/)?.[0] ?? '';
+
     expect(lead).toContain(
       '<p>We replaced our news desk, our travel desk, our sentiment analyst and our financial adviser with four curls. Morale is down, but uptime is divine.</p>'
     );
@@ -203,9 +212,11 @@ describe('GET /', () => {
 
   it('plays the launch clip once, behind the hero text', () => {
     const launch = videoTag('hero__video--launch');
+
     for (const attr of ['autoplay', 'muted', 'playsinline']) {
       expect(launch).toMatch(new RegExp(`\\s${attr}[\\s>]`));
     }
+
     expect(launch).not.toMatch(/\sloop[\s>]/);
     expect(launch).toContain('aria-hidden="true"');
     expect(launch).toMatch(
@@ -215,9 +226,11 @@ describe('GET /', () => {
 
   it('loads the cruise loop only on demand, without autoplay', () => {
     const cruise = videoTag('hero__video--cruise');
+
     for (const attr of ['muted', 'loop', 'playsinline']) {
       expect(cruise).toMatch(new RegExp(`\\s${attr}[\\s>]`));
     }
+
     expect(cruise).not.toMatch(/\sautoplay[\s>]/);
     expect(cruise).toContain('preload="none"');
     expect(cruise).toContain('aria-hidden="true"');
@@ -234,10 +247,12 @@ describe('GET /', () => {
       const sources = [
         ...video.matchAll(/<source src="([^"]+)" type="([^"]+)"/g)
       ];
+
       expect(sources.map(([, , type]) => type)).toEqual([
         'video/webm',
         'video/mp4'
       ]);
+
       for (const [, src] of sources) {
         expect(src).toMatch(
           new RegExp(`^/static/video/clown-${name}\\.(webm|mp4)\\?v=\\w+$`)
@@ -250,6 +265,7 @@ describe('GET /', () => {
     const hero =
       html.match(/<section\s+class="hero"[\s\S]*?<\/section>/)?.[0] ?? '';
     const toggle = hero.match(/<button class="hero__toggle"[^>]*>/)?.[0] ?? '';
+
     expect(toggle).toContain('type="button"');
     expect(toggle).toContain('aria-pressed="false"');
     expect(toggle).toContain('aria-label="Pause background"');
@@ -270,6 +286,7 @@ describe('GET /', () => {
   it('cuts the launch clip at 6.5 s, before its frames go still', async () => {
     const mp4 = mp4Duration(await clip('clown-launch.mp4'));
     const webm = webmDuration(await clip('clown-launch.webm'));
+
     expect(mp4).toBeLessThanOrEqual(LAUNCH_MOTION_ENDS_S);
     expect(Math.abs(webm - mp4)).toBeLessThanOrEqual(FRAME_S);
   });
@@ -279,6 +296,7 @@ describe('GET /', () => {
       Bun.file(`${import.meta.dir}/../src/public/static/${path}`).text();
     const css = await source('css/main.css');
     const js = await source('js/hero.js');
+
     expect(css).toMatch(/:root\s*\{[^}]*--hero-handoff:\s*\d+m?s;/);
     expect(css).toMatch(
       /\.hero__video--cruise\s*\{[^}]*transition:\s*opacity var\(--hero-handoff\)/
@@ -299,9 +317,12 @@ describe('GET /', () => {
     const urls = [
       ...html.matchAll(/(\/static\/video\/[^"?)]+\.(webm|mp4|jpg)\?v=\w+)/g)
     ];
+
     expect(new Set(urls.map(([url]) => url)).size).toBe(6);
+
     for (const [url, , ext] of urls) {
       const res = await fetch(`${server.url}${url}`);
+
       // Read the body so the socket closes and server.close() can finish.
       await res.arrayBuffer();
       expect(res.status).toBe(200);
@@ -318,9 +339,12 @@ describe('GET /', () => {
     ]
       .map(([, url]) => url)
       .filter((url) => url !== '/' && url !== '/api/news');
+
     expect(urls.length).toBeGreaterThan(0);
+
     for (const url of new Set(urls)) {
       const res = await fetch(`${server.url}${url}`);
+
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
@@ -368,11 +392,17 @@ const declared = (css: string, selector: string, prop: string): string =>
 const pxAt = (css: string, value: string, viewportPx: number): number => {
   const term = (t: string): number => {
     const token = t.match(/^var\((--[\w-]+)\)$/)?.[1];
+
     if (token) return pxAt(css, declared(css, ':root', token), viewportPx);
+
     const [, n, unit] = t.match(/^(-?[\d.]+)(rem|px|vw)$/) ?? [];
+
     if (unit === 'rem') return Number(n) * 16;
+
     if (unit === 'px') return Number(n);
+
     if (unit === 'vw') return (Number(n) * viewportPx) / 100;
+
     return Number.NaN;
   };
   const sum = (expr: string): number =>
@@ -381,11 +411,15 @@ const pxAt = (css: string, value: string, viewportPx: number): number => {
       .split(/\s+(?=[+-]\s)/)
       .reduce((total, part) => {
         const [, sign, t] = part.match(/^([+-])?\s*(.+)$/) ?? [];
+
         return total + (sign === '-' ? -term(t) : term(t));
       }, 0);
   const clamp = value.match(/^clamp\(([^,]+),([^,]+),([^)]+\)?)\)$/);
+
   if (!clamp) return sum(value);
+
   const [, min, preferred, max] = clamp;
+
   return Math.min(Math.max(sum(min), sum(preferred)), sum(max));
 };
 
@@ -411,6 +445,7 @@ describe('topbar', () => {
   it('links Docs to /docs, after the services, marking it current only there', async () => {
     expect(topbarNav(html)).toMatch(/<a href="\/docs">Docs<\/a>/);
     const docs = await (await fetch(`${server.url}/docs`)).text();
+
     expect(topbarNav(docs)).toMatch(
       /<a href="\/docs" aria-current="page">Docs<\/a>/
     );
@@ -419,6 +454,7 @@ describe('topbar', () => {
 
   it('has no GET /api button', () => {
     const topbar = html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0];
+
     expect(topbar).toBeDefined();
     expect(topbar).not.toContain('class="button"');
   });
@@ -426,6 +462,7 @@ describe('topbar', () => {
   it('carries the fork-me ribbon in the topbar, outside the nav', () => {
     const topbar =
       html.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0] ?? '';
+
     expect(topbar).toContain('<a class="ribbon"');
     expect(topbarNav(html)).not.toContain('ribbon');
     expect(topbarNav(html)).not.toContain('github.com');
@@ -433,6 +470,7 @@ describe('topbar', () => {
 
   it('opens the repo in a new tab, safely', () => {
     const tag = ribbon(html).match(/^<a [^>]*>/)?.[0] ?? '';
+
     expect(tag).toContain('href="https://github.com/nickatnight/elonmu.sh"');
     expect(tag).toContain('target="_blank"');
     expect(tag).toMatch(/rel="noopener noreferrer"/);
@@ -440,6 +478,7 @@ describe('topbar', () => {
 
   it('starts its accessible name with the visible band text, with no aria-label', () => {
     const link = ribbon(html);
+
     expect(link).not.toContain('aria-label');
     expect(accessibleName(link)).toBe(
       'Fork me, Daddy /s (source on GitHub, opens in a new tab)'
@@ -462,17 +501,20 @@ describe('topbar', () => {
       '/docs'
     ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
+
       expect({ path, ribbon: ribbon(page) }).toEqual({
         path,
         ribbon: ribbon(html)
       });
     }
+
     expect(ribbon(html)).not.toBe('');
   });
 
   it('draws the band from tokens, with a focus outline and no motion', async () => {
     const css = await mainCss();
     const band = ruleBody(css, '.ribbon__band');
+
     expect(band).toContain('background: var(--accent);');
     expect(band).toContain('color: var(--accent-ink);');
     expect(band).toContain('rotate(45deg)');
@@ -482,23 +524,27 @@ describe('topbar', () => {
     const ribbonRules = [...css.matchAll(/\.ribbon[\w-]*[^{]*\{([^}]*)\}/g)]
       .map(([, body]) => body)
       .join('');
+
     expect(ribbonRules).not.toMatch(/animation|transition/);
   });
 
   it('sizes the ribbon with a clamp() token and never hides it', async () => {
     const css = await mainCss();
+
     expect(ruleBody(css, ':root')).toMatch(/--ribbon: clamp\(/);
     expect(css).not.toMatch(/\.ribbon[^{]*\{[^}]*display: none/);
   });
 
   it('lets only the band take clicks, not the corner around it', async () => {
     const css = await mainCss();
+
     expect(ruleBody(css, '.ribbon')).toContain('pointer-events: none;');
     expect(ruleBody(css, '.ribbon__band')).toContain('pointer-events: auto;');
   });
 
   it('keeps the nav clear of the band', async () => {
     const css = await mainCss();
+
     expect(ruleBody(css, '.topbar__actions')).toMatch(
       /padding-inline-end: calc\(var\(--ribbon\)/
     );
@@ -512,6 +558,7 @@ describe('topbar', () => {
         /@media \(max-width: ([\d.]+)rem\) \{\s*\.brand__name \{/g
       )
     ].map(([, rem]) => Number(rem) * 16);
+
     expect(collapse).toHaveLength(1);
     expect(collapse[0]).toBeGreaterThanOrEqual(519);
     expect(collapse[0]).toBeLessThan(520);
@@ -519,17 +566,20 @@ describe('topbar', () => {
 
   it('keeps the brand name for screen readers when only the icon shows', () => {
     const brand = html.match(/<a class="brand"[\s\S]*?<\/a>/)?.[0] ?? '';
+
     expect(accessibleName(brand)).toBe('elonmu.sh');
   });
 
   it('tightens the topbar gaps and nav text on narrow screens', async () => {
     const css = await mainCss();
+
     for (const [selector, prop] of [
       ['.topbar', 'gap'],
       ['.topbar__actions', 'gap'],
       ['.topbar__actions', 'font-size']
     ] as const) {
       const value = declared(css, selector, prop);
+
       expect({
         selector,
         prop,
@@ -543,6 +593,7 @@ describe('topbar', () => {
     const font = declared(css, '.topbar__actions', 'font-size');
     const gap = declared(css, '.topbar__actions', 'gap');
     const sixLinks = SERVICES.length + 1;
+
     expect(sixLinks).toBe(6);
     expect(pxAt(css, font, 320)).toBeCloseTo(11.5, 2);
     expect(pxAt(css, gap, 320)).toBeCloseTo(4.8, 2);
@@ -568,6 +619,7 @@ describe('topbar', () => {
       '/docs'
     ]) {
       const page = await (await fetch(`${server.url}${path}`)).text();
+
       expect({ path, nav: navLinks(page) }).toEqual({
         path,
         nav: navLinks(html)
@@ -580,12 +632,16 @@ describe('topbar', () => {
       ...topbarNav(html).matchAll(/href="(\/[^"]*)"/g),
       ...servicesSection(html).matchAll(/href="(\/[^"]*)"/g)
     ].map(([, href]) => href);
+
     expect(hrefs.length).toBe(16);
+
     for (const href of new Set(hrefs)) {
       const [path, fragment] = href.split('#');
       const res = await fetch(`${server.url}${path}`);
       const page = await res.text();
+
       expect({ href, status: res.status }).toEqual({ href, status: 200 });
+
       if (fragment) expect(page).toContain(`id="${fragment}"`);
     }
   });
@@ -593,6 +649,7 @@ describe('topbar', () => {
   it('points News at its own page, current only there', async () => {
     expect(topbarNav(html)).toMatch(/<a href="\/news">News<\/a>/);
     const news = await (await fetch(`${server.url}/news`)).text();
+
     expect(topbarNav(news)).toMatch(
       /<a href="\/news" aria-current="page">News<\/a>/
     );
@@ -604,6 +661,7 @@ describe('topbar', () => {
       const page = await (await fetch(`${server.url}${href}`)).text();
       const link =
         page.match(/<a href="\/docs#[^"]*"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+
       expect({ href, link }).toEqual({
         href,
         link: `<a href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
@@ -618,8 +676,10 @@ describe('topbar', () => {
         services: [testService(1), testService(2), testService(3)]
       })
     );
+
     try {
       const page = await (await fetch(`${three.url}/`)).text();
+
       expect(navLinks(page)).toEqual(['S1', 'S2', 'S3', 'Docs']);
       expect(page).toMatch(/<a href="\/s3"[^>]*>S3<\/a>/);
     } finally {
@@ -632,6 +692,7 @@ const textOf = (page: string, open: RegExp): string => {
   const match = page.match(
     new RegExp(`${open.source}([\\s\\S]*?)</`, open.flags)
   );
+
   return (match?.[1] ?? '').replace(/\s+/g, ' ').trim();
 };
 
@@ -656,6 +717,7 @@ describe('catalog copy', () => {
     const share =
       'Enterprise-grade tools for monitoring our Lord and Savior. Random ' +
       'news as JSON, private-jet emissions on a globe. /s';
+
     expect(metaContent(html, 'property="og:description"')).toBe(share);
     expect(metaContent(html, 'name="twitter:description"')).toBe(share);
   });
@@ -672,6 +734,7 @@ describe('catalog copy', () => {
     const png = new DataView(
       await (await fetch(`${server.url}${src?.[1]}`)).arrayBuffer()
     );
+
     // PNG IHDR: width and height are the big-endian u32s at bytes 16 and 20.
     expect([png.getUint32(16), png.getUint32(20)]).toEqual([1200, 630]);
     expect(png.byteLength).toBeLessThanOrEqual(150 * 1024);
@@ -679,6 +742,7 @@ describe('catalog copy', () => {
 
   it('credits each service data source in the footer', () => {
     const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? '';
+
     expect(footer).toContain('<a href="https://newsapi.org/">NewsAPI.org</a>');
     expect(footer).toMatch(
       /<a href="https:\/\/bsky\.app\/profile\/elonjet\.net"[^>]*>@elonjet\.net<\/a> by Jack Sweeney/
@@ -712,6 +776,7 @@ describe('services section', () => {
     const hero = html.search(/<section\s+class="hero"/);
     const services = html.indexOf('<section class="services" id="services"');
     const teaser = html.indexOf('<section class="teaser"');
+
     expect(hero).toBeGreaterThan(-1);
     expect(services).toBeGreaterThan(hero);
     expect(teaser).toBeGreaterThan(services);
@@ -719,6 +784,7 @@ describe('services section', () => {
 
   it('has the Services heading and its subline', () => {
     const section = servicesSection(html);
+
     expect(section).toContain('aria-labelledby="services-title"');
     expect(section).toMatch(/<h2 id="services-title">Services<\/h2>/);
     expect(section).toContain('Our product suite. All free, all unsolicited.');
@@ -742,6 +808,7 @@ describe('services section', () => {
       { tag: 'div', cls: 'service service--soon', links: [] }
     ]);
     const section = servicesSection(html);
+
     for (const text of [
       'News roulette',
       'One random news article about Elon Musk. Spin again for another.',
@@ -766,12 +833,15 @@ describe('services section', () => {
 
   it('links the name to the page and stretches that link over the card', async () => {
     const section = servicesSection(html);
+
     for (const { name, href } of SERVICES)
       expect(section).toContain(
         `<h3 class="service__name"><a class="service__link" href="${href}">${name}</a></h3>`
       );
+
     const css = await mainCss();
     const stretch = ruleBody(css, '.service__link::after');
+
     expect(stretch).toContain('position: absolute;');
     expect(stretch).toContain('inset: 0;');
     expect(ruleBody(css, '.service')).toContain('position: relative;');
@@ -779,12 +849,15 @@ describe('services section', () => {
 
   it('ends each card with one endpoint link to its docs block, above the stretched link', async () => {
     const section = servicesSection(html);
+
     for (const { id, api } of SERVICES)
       expect(section).toContain(
         `<a class="service__endpoint" href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
       );
+
     const css = await mainCss();
     const row = ruleBody(css, '.service__endpoint');
+
     expect(row).toContain('position: relative;');
     expect(row).toMatch(/z-index: [1-9]/);
     expect(row).toMatch(/border-top: 1px solid /);
@@ -793,8 +866,10 @@ describe('services section', () => {
 
   it('puts the name link before the endpoint link, and never nests links', () => {
     const section = servicesSection(html);
+
     for (const link of section.match(/<a [^>]*>[\s\S]*?<\/a>/g) ?? [])
       expect(link.slice(2)).not.toContain('<a ');
+
     for (const { id, href } of SERVICES)
       expect(section.indexOf(`href="${href}"`)).toBeLessThan(
         section.indexOf(`href="/docs#${id}"`)
@@ -803,6 +878,7 @@ describe('services section', () => {
 
   it('shows a focus ring around the whole card for the name link', async () => {
     const css = await mainCss();
+
     expect(css).toMatch(
       /\.service__link:focus-visible::after \{[^}]*outline: 2px solid var\(--accent\);/
     );
@@ -821,6 +897,7 @@ describe('services section', () => {
         /grid-template-columns: repeat\((\d+), minmax\(0, 1fr\)\);/
       )?.[1]
     );
+
     expect(columns).toBe(2);
     const desktopBlock =
       css.match(/@media \(min-width: 56\.25rem\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
@@ -828,11 +905,13 @@ describe('services section', () => {
       desktopBlock.match(
         /\.services__grid > li:last-child:nth-child\(odd\) \{([^}]*)\}/
       )?.[1] ?? '';
+
     expect(oddLast).toContain('grid-column: 1 / -1;');
     expect(oddLast).toContain('align-self: start;');
     expect(oddLast).not.toContain('min-height');
     expect(desktop).not.toContain('grid-auto-rows');
     const base = css.match(/\n\.services__grid \{([^}]*)\}/)?.[1] ?? '';
+
     expect(base).toContain('grid-template-columns: minmax(0, 1fr);');
     expect(base).not.toContain('grid-auto-rows');
   });
@@ -848,8 +927,10 @@ describe('services section', () => {
         ]
       })
     );
+
     try {
       const page = await (await fetch(`${three.url}/`)).text();
+
       expect(serviceCards(page).map(({ links }) => links)).toEqual([
         ['/s1', '/docs#service-1'],
         ['/s2', '/docs#service-2'],
@@ -868,6 +949,7 @@ describe('services section', () => {
 describe('unknown routes', () => {
   it('returns the 404 message', async () => {
     const res = await fetch(`${server.url}/does-not-exist`);
+
     expect(res.status).toBe(404);
     expect(await res.text()).toBe('does not compute...');
   });

@@ -32,8 +32,11 @@ class ScriptedSource implements PageviewSource {
 
   async fetchDays(): Promise<DayViews[]> {
     this.calls++;
+
     if (this.gate) await this.gate;
+
     if (this.failing) throw new Error('wikimedia down');
+
     return this.days;
   }
 }
@@ -42,6 +45,7 @@ const setup = () => {
   const inner = new ScriptedSource();
   const clock = new FakeClock('2026-10-27T09:00:00.000Z');
   const logger = new FakeLogger();
+
   return {
     inner,
     clock,
@@ -71,6 +75,7 @@ describePageviewSource('CachedPageviewSource around InMemoryPageviewSource', {
 describe('CachedPageviewSource', () => {
   it('serves a second call within 4 hours without asking Wikimedia', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchDays(FROM, TO);
     clock.advance(TTL - 1);
     await cached.fetchDays(FROM, TO);
@@ -79,6 +84,7 @@ describe('CachedPageviewSource', () => {
 
   it('asks again once 4 hours have passed', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchDays(FROM, TO);
     clock.advance(TTL);
     inner.days = [day('2026-10-26', 200)];
@@ -88,13 +94,16 @@ describe('CachedPageviewSource', () => {
 
   it('shares one upstream call between concurrent cold requests', async () => {
     const { inner, cached } = setup();
+
     inner.hold();
     const both = Promise.all([
       cached.fetchDays(FROM, TO),
       cached.fetchDays(FROM, TO)
     ]);
+
     inner.release();
     const [a, b] = await both;
+
     expect(inner.calls).toBe(1);
     expect(a).toEqual(b);
   });
@@ -102,6 +111,7 @@ describe('CachedPageviewSource', () => {
   it('serves the last good series on failure and warns', async () => {
     const { inner, clock, logger, cached } = setup();
     const good = await cached.fetchDays(FROM, TO);
+
     clock.advance(TTL);
     inner.failing = true;
     expect(await cached.fetchDays(FROM, TO)).toEqual(good);
@@ -119,6 +129,7 @@ describe('CachedPageviewSource', () => {
   it('serves yesterday’s series when the first fetch after midnight fails', async () => {
     const { inner, clock, cached } = setup();
     const good = await cached.fetchDays(FROM, TO);
+
     clock.set('2026-10-28T00:05:00.000Z');
     inner.failing = true;
     expect(await cached.fetchDays(FROM, NEXT_TO)).toEqual(good);
@@ -126,6 +137,7 @@ describe('CachedPageviewSource', () => {
 
   it('fetches again for a new day even within 4 hours', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchDays(FROM, TO);
     clock.advance(60_000);
     await cached.fetchDays(FROM, NEXT_TO);
@@ -134,6 +146,7 @@ describe('CachedPageviewSource', () => {
 
   it('throws and warns when the first fetch fails', async () => {
     const { inner, logger, cached } = setup();
+
     inner.failing = true;
     await expect(cached.fetchDays(FROM, TO)).rejects.toThrow('wikimedia down');
     expect(logger.warnings[0]?.msg).toBe(
@@ -144,12 +157,15 @@ describe('CachedPageviewSource', () => {
   it('waits a minute after a failed refresh before asking Wikimedia again', async () => {
     const { inner, clock, logger, cached } = setup();
     const good = await cached.fetchDays(FROM, TO);
+
     clock.advance(TTL);
     inner.failing = true;
+
     for (let i = 0; i < 6; i++) {
       expect(await cached.fetchDays(FROM, TO)).toEqual(good);
       clock.advance(10_000);
     }
+
     expect(inner.calls).toBe(2);
     expect(logger.warnings).toHaveLength(1);
     await cached.fetchDays(FROM, TO);
@@ -159,10 +175,12 @@ describe('CachedPageviewSource', () => {
   it('keeps steady page loads over 4 hours to one Wikimedia call', async () => {
     const { inner, clock, cached } = setup();
     const hype = new HypeService(cached, clock);
+
     for (let i = 0; i < 4; i++) {
       await hype.series();
       clock.advance(TTL / 4 - 1);
     }
+
     expect(inner.calls).toBe(1);
   });
 });

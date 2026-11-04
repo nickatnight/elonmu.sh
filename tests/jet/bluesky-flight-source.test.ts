@@ -61,10 +61,13 @@ describe('BlueskyFlightSource', () => {
 
   it('turns the feed into flights with places, fuel and links to the posts', async () => {
     const flights = await makeSource(fixtureHttp().get).fetchFlights(YEAR);
+
     expect(flights.length).toBeGreaterThan(20);
     expect(flights.some((f) => f.fuel !== null)).toBe(true);
     const tokyo = flights.find((f) => f.to?.name.startsWith('Tokyo'));
+
     expect(tokyo?.to?.lat).toBeCloseTo(35.68, 1);
+
     for (const f of flights) {
       expect(f.sourceUrl).toMatch(
         /^https:\/\/bsky\.app\/profile\/elonjet\.net\/post\/\w+$/
@@ -74,6 +77,7 @@ describe('BlueskyFlightSource', () => {
 
   it('files the older tail-less posts under the Unknown tail', async () => {
     const flights = await makeSource(fixtureHttp().get).fetchFlights(YEAR);
+
     expect(
       flights.some(
         (f) => f.tail === 'Unknown' && f.to?.name.startsWith('Zurich')
@@ -93,6 +97,7 @@ describe('BlueskyFlightSource', () => {
     );
     const { get } = fixtureHttp({ ...page1, feed: [repost, ...page1.feed] });
     const flights = await makeSource(get).fetchFlights(YEAR);
+
     expect(flights.some((f) => f.landedAt === '2026-10-22T22:00:00.000Z')).toBe(
       false
     );
@@ -100,6 +105,7 @@ describe('BlueskyFlightSource', () => {
 
   it('stops paging once posts are older than `since`', async () => {
     const { get, calls } = fixtureHttp();
+
     await makeSource(get).fetchFlights(new Date('2026-10-01T00:00:00.000Z'));
     expect(calls).toEqual([FEED]);
   });
@@ -108,8 +114,10 @@ describe('BlueskyFlightSource', () => {
     const { get, calls } = fixtureHttp();
     const source = makeSource(get);
     const first = await source.fetchFlights(YEAR);
+
     expect(calls).toHaveLength(2);
     const second = await source.fetchFlights(YEAR);
+
     expect(calls).toHaveLength(3);
     expect(second).toEqual(first);
   });
@@ -121,6 +129,7 @@ describe('BlueskyFlightSource', () => {
     };
     const get: HttpGet = async <T>(url: string) => responses[url] as T;
     const source = makeSource(get);
+
     await source.fetchFlights(YEAR);
 
     const takeoff = item(
@@ -128,8 +137,10 @@ describe('BlueskyFlightSource', () => {
       'N8628 Took off from Austin, Texas, United States.',
       '2026-10-23T09:00:00.000Z'
     );
+
     responses[FEED] = { ...page1, feed: [takeoff, ...page1.feed] };
     const flights = await source.fetchFlights(YEAR);
+
     expect(flights.find((f) => f.id === 'new1')).toMatchObject({
       status: 'airborne',
       departedAt: '2026-10-23T09:00:00.000Z'
@@ -139,9 +150,11 @@ describe('BlueskyFlightSource', () => {
   it('pages past known posts when asked to reach further back than before', async () => {
     const { get, calls } = fixtureHttp();
     const source = makeSource(get);
+
     await source.fetchFlights(new Date('2026-10-01T00:00:00.000Z'));
     expect(calls).toEqual([FEED]);
     const flights = await source.fetchFlights(YEAR);
+
     expect(calls).toEqual([FEED, FEED, page2Url]);
     expect(flights.some((f) => f.to?.name.startsWith('Zurich'))).toBe(true);
   });
@@ -151,14 +164,18 @@ describe('BlueskyFlightSource', () => {
     const calls: string[] = [];
     const get: HttpGet = async <T>(url: string) => {
       calls.push(url);
+
       if (url === page2Url && failPage2) throw new Error('bsky down');
+
       return (url === FEED ? page1 : page2) as T;
     };
     const source = makeSource(get);
+
     await expect(source.fetchFlights(YEAR)).rejects.toThrow('bsky down');
 
     failPage2 = false;
     const flights = await source.fetchFlights(YEAR);
+
     expect(calls.slice(2)).toEqual([FEED, page2Url]);
     expect(flights.some((f) => f.to?.name.startsWith('Zurich'))).toBe(true);
   });
@@ -172,11 +189,13 @@ describe('BlueskyFlightSource', () => {
       logger,
       gazetteer: withoutTokyo
     });
+
     await source.fetchFlights(YEAR);
     await source.fetchFlights(YEAR);
     const tokyoWarnings = logger.warnings.filter((w) =>
       (w.meta as { place?: string }).place?.startsWith('Tokyo')
     );
+
     expect(tokyoWarnings).toHaveLength(1);
   });
 });

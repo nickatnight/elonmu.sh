@@ -7,12 +7,15 @@ const mediumUtcDate = new Intl.DateTimeFormat('en-US', {
 
 const httpsOnly = (value: string | null): string | null => {
   if (value === null || !URL.canParse(value)) return null;
+
   const url = new URL(value);
+
   return url.protocol === 'https:' ? url.href : null;
 };
 
 const published = (at: IsoTimestamp) => {
   const date = new Date(at);
+
   return Number.isNaN(date.getTime())
     ? null
     : { datetime: at, text: mediumUtcDate.format(date) };
