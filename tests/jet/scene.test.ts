@@ -267,6 +267,12 @@ describe('list paging', () => {
 });
 
 describe('parseSnapshot', () => {
+  const base = snap([flights[3]]);
+  const withFlight = (changes: Record<string, unknown>) => ({
+    ...base,
+    flights: [{ ...base.flights[0], ...changes }]
+  });
+
   it('accepts the API’s JetSnapshot', () => {
     const s = snap(flights);
 
@@ -293,12 +299,6 @@ describe('parseSnapshot', () => {
   it('rejects anything that is not an object', () => {
     expect(() => parseSnapshot(null)).toThrow();
     expect(() => parseSnapshot('[]')).toThrow();
-  });
-
-  const base = snap([flights[3]]);
-  const withFlight = (changes: Record<string, unknown>) => ({
-    ...base,
-    flights: [{ ...base.flights[0], ...changes }]
   });
 
   it.each([
