@@ -18,8 +18,20 @@ const ANY_TYPE = [
   /[<,[]\s*any\s*(?:\[\])?\s*[,>\]]/
 ];
 
-const usesAny = (line: string): boolean =>
-  ANY_TYPE.some((pattern) => pattern.test(line));
+const JSDOC_LINE = /^\s*(?:\/\*\*|\*)/;
+const STRING = /(['"`])(?:\\.|(?!\1).)*\1/g;
+const LINE_COMMENT = /\/\/.*/;
+
+const codeOf = (line: string): string =>
+  JSDOC_LINE.test(line)
+    ? line
+    : line.replace(STRING, "''").replace(LINE_COMMENT, '');
+
+const usesAny = (line: string): boolean => {
+  const code = codeOf(line);
+
+  return ANY_TYPE.some((pattern) => pattern.test(code));
+};
 
 const sourceFiles = (): string[] =>
   ROOTS.flatMap((root) => [
@@ -51,7 +63,10 @@ describe('the any check', () => {
     'const v = /** @type {*} */ (raw);',
     ' * @param {?} value',
     ' * @returns {Array<*>}',
-    ' * @param {Object<string, *>} byName'
+    ' * @param {Object<string, *>} byName',
+    "const f = (x: any) => 'x'; // see the note",
+    "get('https://example.com/a'); const s = /** @type {any} */ (r);",
+    " * @param {any} row the flight's row"
   ])('flags %s', (line) => {
     expect(usesAny(line)).toBe(true);
   });
@@ -66,7 +81,10 @@ describe('the any check', () => {
     'if (a.any || b.any) return;',
     ' * @param {?string} name',
     ' * @param {number=} limit',
-    ' * @returns {Promise<void>} once saved (or not?)'
+    ' * @returns {Promise<void>} once saved (or not?)',
+    "const hint = 'expected: any';",
+    'const join = `a | any`;',
+    'run(); // works as any;'
   ])('ignores %s', (line) => {
     expect(usesAny(line)).toBe(false);
   });
