@@ -305,7 +305,9 @@ describe('parseSnapshot', () => {
     ['a year that is not a number', { ...base, year: '2026' }],
     ['flights that are not a list', { ...base, flights: {} }],
     ['no attribution', { ...base, attribution: undefined }],
-    ['totals that are not an object', { ...base, totals: 0 }]
+    ['a null attribution', { ...base, attribution: null }],
+    ['totals that are not an object', { ...base, totals: 0 }],
+    ['null totals', { ...base, totals: null }]
   ])('rejects a snapshot with %s', (_, data) => {
     expect(() => parseSnapshot(data)).toThrow('jet: not a flight snapshot');
   });

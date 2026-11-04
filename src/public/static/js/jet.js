@@ -82,8 +82,8 @@ export const parseSnapshot = (data) => {
     !isRecord(data) ||
     typeof data.year !== 'number' ||
     !Array.isArray(data.flights) ||
-    typeof data.attribution !== 'object' ||
-    typeof data.totals !== 'object'
+    !isRecord(data.attribution) ||
+    !isRecord(data.totals)
   ) {
     throw new Error('jet: not a flight snapshot');
   }
