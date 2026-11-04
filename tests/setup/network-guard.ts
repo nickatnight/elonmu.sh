@@ -22,15 +22,15 @@ const urlHost = (input: string | URL | Request): string => {
   return URL.canParse(url) ? new URL(url).hostname : '';
 };
 
-const guardFetch = (api: string, real: typeof fetch): typeof fetch =>
+const guardFetch = (real: typeof fetch): typeof fetch =>
   Object.assign(
     async (input: string | URL | Request, init?: RequestInit) => {
-      refuseOutside(api, urlHost(input));
+      refuseOutside('fetch', urlHost(input));
       return real(input, init);
     },
     {
       preconnect: (url: string | URL) => {
-        refuseOutside(`${api}.preconnect`, urlHost(url));
+        refuseOutside('fetch.preconnect', urlHost(url));
         real.preconnect(url);
       }
     }
@@ -60,7 +60,7 @@ Object.assign(net.Socket.prototype, {
 });
 
 // Bun.fetch is a separate, read-only binding, so it cannot be guarded here.
-globalThis.fetch = guardFetch('fetch', globalThis.fetch);
+globalThis.fetch = guardFetch(globalThis.fetch);
 
 const realBunConnect = Bun.connect;
 Object.assign(Bun, {
