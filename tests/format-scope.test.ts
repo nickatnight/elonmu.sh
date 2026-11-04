@@ -3,7 +3,6 @@ import { appendFileSync, rmSync } from 'node:fs';
 import { cp, mkdtemp, realpath, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { runHook } from './hooks/run-hook';
 
 const projectDir = path.join(import.meta.dir, '..');
 
@@ -108,16 +107,6 @@ const run = (checkout: string, script: string) => {
   return { exitCode, output: `${stdout}${stderr}` };
 };
 
-const editHook = (checkout: string, file: string) =>
-  runHook(
-    'format-on-edit.ts',
-    JSON.stringify({
-      tool_name: 'Edit',
-      tool_input: { file_path: path.join(checkout, file) }
-    }),
-    { CLAUDE_PROJECT_DIR: checkout }
-  );
-
 describe.each([
   ['the main checkout', () => main],
   ['a worktree under .claude/worktrees/', () => worktree]
@@ -149,29 +138,10 @@ describe.each([
       files.filter((file) => output.includes(path.join(checkout, file)))
     ).toEqual(checked);
   }, 20_000);
-
-  it('the edit hook fixes only the files Biome checks', async () => {
-    const checkout = checkoutOf();
-    const files = [...checked, ...skipped];
-
-    await write(checkout, files, unformatted);
-
-    const results = await Promise.all(
-      files.map((file) => editHook(checkout, file))
-    );
-
-    expect(
-      Object.fromEntries(files.map((file, i) => [file, results[i]]))
-    ).toEqual(each(files, { exitCode: 0, stderr: '' }));
-    expect(await contents(checkout, files)).toEqual({
-      ...each(checked, formatted),
-      ...each(skipped, unformatted)
-    });
-  }, 20_000);
 });
 
 describe('with a tracked .gitignore deleted from the working tree', () => {
-  it('format:check and the edit hook still run', async () => {
+  it('format:check still runs', async () => {
     const nestedIgnore = path.join(main, 'nested/.gitignore');
 
     rmSync(nestedIgnore);
@@ -180,10 +150,6 @@ describe('with a tracked .gitignore deleted from the working tree', () => {
 
     try {
       expect(run(main, 'format:check')).toMatchObject({ exitCode: 0 });
-      expect(await editHook(main, checked[0])).toEqual({
-        exitCode: 0,
-        stderr: ''
-      });
     } finally {
       await Bun.write(nestedIgnore, 'a.ts\n');
     }

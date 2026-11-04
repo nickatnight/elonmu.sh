@@ -12,24 +12,21 @@ const BIOME_EXTENSIONS = new Set([
   '.yaml'
 ]);
 
-const ESLINT_EXTENSIONS = new Set(['.ts', '.js']);
-
-const isInsideProject = (filePath: string, projectDir: string): boolean => {
+// Whether the format-on-edit hook should run Biome on this file: a type Biome
+// handles, inside the project.
+export const isBiomeTarget = (
+  filePath: string,
+  projectDir: string
+): boolean => {
   const relative = path.relative(
     projectDir,
     path.resolve(projectDir, filePath)
   );
 
-  return !relative.startsWith('..') && !path.isAbsolute(relative);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) return false;
+
+  return BIOME_EXTENSIONS.has(path.extname(filePath));
 };
-
-export const isBiomeTarget = (filePath: string, projectDir: string): boolean =>
-  isInsideProject(filePath, projectDir) &&
-  BIOME_EXTENSIONS.has(path.extname(filePath));
-
-export const isEslintTarget = (filePath: string, projectDir: string): boolean =>
-  isInsideProject(filePath, projectDir) &&
-  ESLINT_EXTENSIONS.has(path.extname(filePath));
 
 const COMMIT_TYPES = [
   'feat',

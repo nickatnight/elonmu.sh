@@ -1,18 +1,19 @@
+// PostToolUse hook (Edit|Write|MultiEdit): formats the edited file with the
+// project's Biome and applies safe lint fixes. Diagnostics that remain go back
+// to Claude via exit 2. Missing Biome or bad input never block editing.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isBiomeTarget, isEslintTarget, readToolInput } from './lib';
+import { isBiomeTarget, readToolInput } from './lib';
 
 const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 const filePath = await readToolInput('file_path');
 
-if (filePath === null) process.exit(0);
-
-// Installed devDependencies, found the way `bun run` finds bins: in the
+// The installed devDependency, found the way `bun run` finds bins: in the
 // nearest node_modules/.bin up the tree (worktrees under .claude/worktrees/
 // use the main checkout's). Never `bun x`, which could fetch another version.
-const findBin = (name: string, from: string): string | null => {
+const findBiome = (from: string): string | null => {
   for (let dir = from; ; dir = path.dirname(dir)) {
-    const bin = path.join(dir, 'node_modules', '.bin', name);
+    const bin = path.join(dir, 'node_modules', '.bin', 'biome');
 
     if (existsSync(bin)) return bin;
 
@@ -20,27 +21,16 @@ const findBin = (name: string, from: string): string | null => {
   }
 };
 
-const run = async (command: string[]) => {
-  const proc = Bun.spawn(command, {
-    cwd: projectDir,
-    stdout: 'pipe',
-    stderr: 'pipe'
-  });
-  const [exitCode, stdout, stderr] = await Promise.all([
-    proc.exited,
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text()
-  ]);
+if (filePath !== null && isBiomeTarget(filePath, projectDir)) {
+  const biome = findBiome(projectDir);
 
-  return { exitCode, output: `${stdout}${stderr}` };
-};
+  if (biome === null) {
+    console.error('format-on-edit: Biome not found; run `bun install`.');
+    process.exit(0);
+  }
 
-const tools = [
-  {
-    name: 'Biome',
-    bin: 'biome',
-    handles: isBiomeTarget,
-    command: (biome: string, file: string) => [
+  const proc = Bun.spawn(
+    [
       biome,
       'check',
       // Formatting, sorted imports and safe lint fixes: what format:check
@@ -50,50 +40,20 @@ const tools = [
       '--files-ignore-unknown=true',
       '--no-errors-on-unmatched',
       '--colors=off',
-      file
-    ]
-  },
-  {
-    name: 'ESLint',
-    bin: 'eslint',
-    handles: isEslintTarget,
-    // Run under Bun, which loads eslint.config.ts natively; under Node,
-    // ESLint needs the jiti package to read a TypeScript config.
-    command: (eslint: string, file: string) => [
-      process.execPath,
-      eslint,
-      '--fix',
-      '--no-color',
-      file
-    ]
-  }
-];
-
-const problems: string[] = [];
-
-for (const tool of tools) {
-  if (!tool.handles(filePath, projectDir)) continue;
-
-  const bin = findBin(tool.bin, projectDir);
-
-  if (bin === null) {
-    console.error(
-      `format-on-edit: ${tool.name} not found; run \`bun install\`.`
-    );
-    continue;
-  }
-
-  const { exitCode, output } = await run(tool.command(bin, filePath));
+      filePath
+    ],
+    { cwd: projectDir, stdout: 'pipe', stderr: 'pipe' }
+  );
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text()
+  ]);
 
   if (exitCode !== 0) {
-    problems.push(
-      `${tool.name} found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${output}`
+    console.error(
+      `Biome found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${stdout}${stderr}`
     );
+    process.exit(2);
   }
-}
-
-if (problems.length > 0) {
-  console.error(problems.join('\n'));
-  // Claude Code shows a PostToolUse hook's stderr to Claude only on exit 2.
-  process.exit(2);
 }
