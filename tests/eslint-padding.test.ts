@@ -137,7 +137,7 @@ describe('files ESLint checks', () => {
     'tests/hooks/lib.test.ts',
     'scripts/geocode-places.ts',
     '.claude/hooks/format-on-edit.ts',
-    'eslint.config.ts'
+    'eslint.config.mjs'
   ])('lints %p', async (file) => {
     expect(await eslint.isPathIgnored(path.join(projectDir, file))).toBe(false);
   });
