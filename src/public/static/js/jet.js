@@ -295,9 +295,6 @@ export const createGlobeView = (
   Globe,
   { texture, reducedMotion, label = () => null, onSelect = () => {} }
 ) => {
-  const byId = (/** @type {{ id: string, count?: number }} */ d) =>
-    label(d.id, d.count) ?? '';
-  const select = (/** @type {{ id: string }} */ d) => onSelect(d.id);
   const mount = document.createElement('div');
 
   mount.className = 'jet__canvas';
@@ -319,10 +316,10 @@ export const createGlobeView = (
     .arcDashInitialGap('dashInitialGap')
     .arcDashAnimateTime('dashAnimateTime')
     .arcsTransitionDuration(reducedMotion ? 0 : 500)
-    .arcLabel(byId)
-    .onArcClick(select)
-    .pointLabel(byId)
-    .onPointClick(select)
+    .arcLabel((d) => label(d.id, d.count) ?? '')
+    .onArcClick((d) => onSelect(d.id))
+    .pointLabel((d) => label(d.id) ?? '')
+    .onPointClick((d) => onSelect(d.id))
     .pointLat('lat')
     .pointLng('lng')
     .pointColor('color')
