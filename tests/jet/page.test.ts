@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createApp } from '../../src/app';
 import { TEASER_SIZE } from '../../src/jet/projection';
+import { sampleDoge } from '../doge/fakes';
 import { startTestServer, type TestServer } from '../helpers';
+import { sampleHype } from '../hype/fakes';
 import { sampleNews } from '../news/fakes';
 import { sampleStarlink } from '../starlink/fakes';
 import { failingJet, flight, sampleJet } from './fakes';
@@ -16,15 +18,17 @@ beforeAll(async () => {
   const nasty = flight({
     from: { name: '<img src=x onerror=alert(1)>, Evil, Place', lat: 1, lon: 1 }
   });
+  const others = {
+    hype: sampleHype(),
+    doge: sampleDoge(),
+    news: sampleNews(),
+    starlink: sampleStarlink()
+  };
   const apps = {
-    full: createApp({
-      jet: sampleJet(),
-      news: sampleNews(),
-      starlink: sampleStarlink()
-    }),
-    empty: createApp({ jet: sampleJet([]) }),
-    down: createApp({ jet: failingJet() }),
-    nasty: createApp({ jet: sampleJet([nasty]) })
+    full: createApp({ jet: sampleJet(), ...others }),
+    empty: createApp({ jet: sampleJet([]), ...others }),
+    down: createApp({ jet: failingJet(), ...others }),
+    nasty: createApp({ jet: sampleJet([nasty]), ...others })
   };
 
   for (const [name, app] of Object.entries(apps) as [
