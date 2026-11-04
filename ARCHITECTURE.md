@@ -64,8 +64,12 @@ bundler. Bun runs the TypeScript directly.
   `noExplicitAny` sees TypeScript but not JSDoc, so `tests/no-any.test.ts`
   fails on an `any` type in either form, including JSDoc's `{*}` and `{?}`,
   under `src/`, `tests/`, `scripts/` and `.claude/hooks/`. It reads one line
-  at a time and skips strings and `//` comments, so a type split across
-  lines, such as `Map<string,` followed by `any>`, gets past it.
+  at a time. On code lines it skips strings and `//` comments; JSDoc lines
+  (starting with `/**` or `*`) are matched as written. Two things get past
+  it: a type split across lines, such as `Map<string,` followed by `any>`,
+  and an inline JSDoc cast on a code line that comes after a stray quote
+  (one inside a regex literal, for example), because that quote pairs with
+  a later one and the cast is skipped as part of a string.
 
 ## Shared ports and cache
 
