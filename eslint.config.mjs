@@ -7,8 +7,7 @@ const DECLARATIONS = ['const', 'let', 'var'];
 
 // ESLint only loads a default export.
 export default defineConfig(
-  // Flat config reads no ignore files. These mirror the directories in
-  // .gitignore, which Biome follows, and biome.json's vendor exclusion.
+  // Flat config reads no ignore files.
   globalIgnores([
     '.claude/worktrees/',
     '.emgee/',
