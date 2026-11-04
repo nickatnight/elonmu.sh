@@ -97,6 +97,7 @@ describe('source files', () => {
     expect(files).toContain('src/index.ts');
     expect(files).toContain('tests/jet/scene.test.ts');
     expect(files).toContain('tests/no-any.test.ts');
+    expect(files).toContain('scripts/geocode-places.ts');
     expect(files.some((f) => f.startsWith('.claude/hooks/'))).toBe(true);
     expect(files.some((f) => f.startsWith(VENDOR))).toBe(false);
   });
