@@ -6,12 +6,18 @@ const projectDir = path.join(import.meta.dir, '..');
 const ROOTS = ['src', 'tests', 'scripts', '.claude/hooks'];
 const VENDOR = 'src/public/static/vendor/';
 
+const JSDOC_ANY = /@\w+\s*\{[^}]*\bany\b/;
+const JSDOC_WILDCARD = /@\w+\s*\{(?:[^}]*[<(,|:\s])?[*?]\s*[}>),|]/;
+const ANY_AFTER_OPERATOR = /(?::|\bas\s|=>|(?<![|&])[|&])\s*any\b(?!\s*[\w.(])/;
+const ANY_BEFORE_OPERATOR = /(?<!\.)\bany\s*[|&](?![|&])/;
+const ANY_IN_TYPE_LIST = /[<,[]\s*any\s*(?:\[\])?\s*[,>\]]/;
+
 const ANY_TYPE = [
-  /@\w+\s*\{[^}]*\bany\b/,
-  /@\w+\s*\{(?:[^}]*[<(,|:\s])?[*?]\s*[}>),|]/,
-  /(?::|\bas\s|=>|(?<![|&])[|&])\s*any\b(?!\s*[\w.(])/,
-  /(?<!\.)\bany\s*[|&](?![|&])/,
-  /[<,[]\s*any\s*(?:\[\])?\s*[,>\]]/
+  JSDOC_ANY,
+  JSDOC_WILDCARD,
+  ANY_AFTER_OPERATOR,
+  ANY_BEFORE_OPERATOR,
+  ANY_IN_TYPE_LIST
 ];
 
 const JSDOC_LINE = /^\s*(?:\/\*\*|\*)/;
