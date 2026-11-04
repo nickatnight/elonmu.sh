@@ -62,8 +62,10 @@ bundler. Bun runs the TypeScript directly.
   and `starlink.js` each declare a `GlobeView` typedef with only the methods
   they call, and a misspelt globe.gl method fails the typecheck. Biome's
   `noExplicitAny` sees TypeScript but not JSDoc, so `tests/no-any.test.ts`
-  fails on an `any` type in either form under `src/`, `tests/`, `scripts/`
-  and `.claude/hooks/`.
+  fails on an `any` type in either form, including JSDoc's `{*}` and `{?}`,
+  under `src/`, `tests/`, `scripts/` and `.claude/hooks/`. It reads one line
+  at a time and skips strings and `//` comments, so a type split across
+  lines, such as `Map<string,` followed by `any>`, gets past it.
 
 ## Shared ports and cache
 

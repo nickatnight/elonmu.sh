@@ -8,7 +8,8 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 ## Floor (always enforced)
 
 - No suppression comments: `@ts-ignore`, `@ts-expect-error`, `biome-ignore`,
-  and no `any`. There are none in the repo today.
+  and no `any`. There are none in the repo today. `tests/no-any.test.ts`
+  fails on an `any` type in TypeScript or JSDoc.
 - No unimplemented stubs (`throw new Error('Not implemented')`), and no empty
   `catch {}`.
 - No skipped (`.skip`, `.todo`) or deleted tests, and no assertions removed
