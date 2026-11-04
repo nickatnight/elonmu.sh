@@ -5,11 +5,11 @@ import { parser } from 'typescript-eslint';
 const BLOCKS = ['if', 'for', 'while', 'do', 'try', 'switch'];
 const DECLARATIONS = ['const', 'let', 'var'];
 const GITIGNORED_DIRS = [
+  '**/.emgee/',
+  '**/.playwright-mcp/',
+  '**/.taste-skill/',
+  '**/dist/',
   '.claude/worktrees/',
-  '.emgee/',
-  '.playwright-mcp/',
-  '.taste-skill/',
-  'dist/',
   'docs/',
   'files/'
 ];

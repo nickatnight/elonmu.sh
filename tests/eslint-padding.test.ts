@@ -155,12 +155,30 @@ describe('files ESLint checks', () => {
     'utf8'
   )
     .split('\n')
-    .filter((line) => line.endsWith('/'))
-    .map((line) => line.replace(/^\//, ''));
+    .filter((line) => line.endsWith('/'));
+  // Git anchors an entry to the root when it has a slash before the last one.
+  const isAnchored = (entry: string): boolean =>
+    entry.slice(0, -1).includes('/');
+  const atRoot = (entry: string): string =>
+    path.join(projectDir, entry.replace(/^\//, ''), 'a.ts');
+  const nested = (entry: string): string =>
+    path.join(projectDir, 'src', entry.replace(/^\//, ''), 'a.ts');
 
-  it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (dir) => {
-    expect(await eslint.isPathIgnored(path.join(projectDir, dir, 'a.ts'))).toBe(
-      true
-    );
+  it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (entry) => {
+    expect(await eslint.isPathIgnored(atRoot(entry))).toBe(true);
   });
+
+  it.each(gitignoredDirs.filter((entry) => !isAnchored(entry)))(
+    'ignores %p at any depth, as .gitignore does',
+    async (entry) => {
+      expect(await eslint.isPathIgnored(nested(entry))).toBe(true);
+    }
+  );
+
+  it.each(gitignoredDirs.filter(isAnchored))(
+    'lints %p below the root, where .gitignore does not match it',
+    async (entry) => {
+      expect(await eslint.isPathIgnored(nested(entry))).toBe(false);
+    }
+  );
 });
