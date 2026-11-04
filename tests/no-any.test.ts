@@ -5,7 +5,6 @@ import path from 'node:path';
 const projectDir = path.join(import.meta.dir, '..');
 const ROOTS = ['src', 'tests', 'scripts', '.claude/hooks'];
 const VENDOR = 'src/public/static/vendor/';
-const THIS_FILE = path.relative(projectDir, import.meta.path);
 
 const ANY_TYPE = [
   /@\w+\s*\{[^}]*\bany\b/,
@@ -39,7 +38,7 @@ const sourceFiles = (): string[] =>
       cwd: projectDir,
       dot: true
     })
-  ]).filter((file) => !file.startsWith(VENDOR) && file !== THIS_FILE);
+  ]).filter((file) => !file.startsWith(VENDOR));
 
 describe('the any check', () => {
   it.each([
@@ -97,6 +96,7 @@ describe('source files', () => {
     expect(files).toContain('src/public/static/js/jet.js');
     expect(files).toContain('src/index.ts');
     expect(files).toContain('tests/jet/scene.test.ts');
+    expect(files).toContain('tests/no-any.test.ts');
     expect(files.some((f) => f.startsWith('.claude/hooks/'))).toBe(true);
     expect(files.some((f) => f.startsWith(VENDOR))).toBe(false);
   });
