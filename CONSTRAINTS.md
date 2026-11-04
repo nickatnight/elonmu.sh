@@ -51,9 +51,10 @@ are expected to come in at or above today's level.
 
 ## Not covered yet
 
-Nothing in this file is judged from outside the project's own suite and
-tools. One candidate, needing a dev tool installed first (ask before adding):
-axe-core against a local server for accessibility.
+Apart from dependency advisories, nothing in this file is judged from
+outside the project's own suite and tools. One candidate, needing a dev tool
+installed first (ask before adding): axe-core against a local server for
+accessibility.
 
 ## Exceptions
 
