@@ -67,28 +67,28 @@ const tools = [
   }
 ];
 
+if (filePath === null) process.exit(0);
+
 const problems: string[] = [];
 
-if (filePath !== null) {
-  for (const tool of tools) {
-    if (!tool.handles(filePath, projectDir)) continue;
+for (const tool of tools) {
+  if (!tool.handles(filePath, projectDir)) continue;
 
-    const bin = findBin(tool.bin, projectDir);
+  const bin = findBin(tool.bin, projectDir);
 
-    if (bin === null) {
-      console.error(
-        `format-on-edit: ${tool.name} not found; run \`bun install\`.`
-      );
-      continue;
-    }
+  if (bin === null) {
+    console.error(
+      `format-on-edit: ${tool.name} not found; run \`bun install\`.`
+    );
+    continue;
+  }
 
-    const { exitCode, output } = await run(tool.command(bin, filePath));
+  const { exitCode, output } = await run(tool.command(bin, filePath));
 
-    if (exitCode !== 0) {
-      problems.push(
-        `${tool.name} found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${output}`
-      );
-    }
+  if (exitCode !== 0) {
+    problems.push(
+      `${tool.name} found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${output}`
+    );
   }
 }
 
