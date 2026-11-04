@@ -23,14 +23,10 @@ const isInsideProject = (filePath: string, projectDir: string): boolean => {
   return !relative.startsWith('..') && !path.isAbsolute(relative);
 };
 
-// Whether the format-on-edit hook should run Biome on this file: a type Biome
-// handles, inside the project.
 export const isBiomeTarget = (filePath: string, projectDir: string): boolean =>
   isInsideProject(filePath, projectDir) &&
   BIOME_EXTENSIONS.has(path.extname(filePath));
 
-// Whether the format-on-edit hook should run ESLint (the padding rule) on this
-// file: TypeScript or JavaScript inside the project.
 export const isEslintTarget = (filePath: string, projectDir: string): boolean =>
   isInsideProject(filePath, projectDir) &&
   ESLINT_EXTENSIONS.has(path.extname(filePath));

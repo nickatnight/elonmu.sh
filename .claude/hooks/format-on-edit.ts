@@ -1,7 +1,3 @@
-// PostToolUse hook (Edit|Write|MultiEdit): formats the edited file with the
-// project's Biome and applies safe lint fixes, then lets ESLint add the blank
-// lines its padding rule wants. Diagnostics that remain go back to Claude via
-// exit 2. A missing tool or bad input never blocks editing.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { isBiomeTarget, isEslintTarget, readToolInput } from './lib';
@@ -98,5 +94,6 @@ if (filePath !== null) {
 
 if (problems.length > 0) {
   console.error(problems.join('\n'));
+  // Claude Code shows a PostToolUse hook's stderr to Claude only on exit 2.
   process.exit(2);
 }
