@@ -1,6 +1,6 @@
 # Constraints
 
-Last reviewed: 2026-10-27 by @nickatnight
+Last reviewed: 2026-11-03 by @nickatnight
 
 Read this before writing code. Do not weaken it to make a change pass.
 CLAUDE.md holds the conventions; this file holds the bar a change must clear.
@@ -21,18 +21,20 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 
 ## Enforced with numbers
 
-| Dimension        | Rule                                            | Checked by                                        | Runs at               |
-| ---------------- | ----------------------------------------------- | ------------------------------------------------- | --------------------- |
-| Format           | Zero diffs from Biome                           | `bun run format:check`                            | every edit (hook), CI |
-| Lint             | Zero errors or warnings                         | `bun run lint`                                    | every edit (hook), CI |
-| Types            | Zero type errors, strict mode                   | `bun run typecheck`                               | task end, CI          |
-| Tests            | All pass, none skipped                          | `bun test`                                        | task end, CI          |
-| Security headers | CSP and headers unchanged unless a spec says so | `tests/security-headers.test.ts`                  | task end, CI          |
-| Page weight      | Per-asset and per-page budgets hold             | `tests/jet/budgets.test.ts` and page budget tests | task end, CI          |
-| Commits          | Conventional Commit subject                     | `.claude/hooks/commit-msg-guard.ts`               | every commit          |
+| Dimension        | Rule                                                                   | Checked by                                        | Runs at               |
+| ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | --------------------- |
+| Format           | Zero diffs from Biome                                                  | `bun run format:check`                            | every edit (hook), CI |
+| Lint             | Zero errors or warnings                                                | `bun run lint`                                    | every edit (hook), CI |
+| Types            | Zero type errors, strict mode                                          | `bun run typecheck`                               | task end, CI          |
+| Tests            | All pass, none skipped                                                 | `bun test`                                        | task end, CI          |
+| Security headers | CSP and headers unchanged unless a spec says so                        | `tests/security-headers.test.ts`                  | task end, CI          |
+| Page weight      | Per-asset and per-page budgets hold                                    | `tests/jet/budgets.test.ts` and page budget tests | task end, CI          |
+| Dependencies     | No advisory at moderate or above, except those listed under Exceptions | `bun run audit`                                   | CI                    |
+| Commits          | Conventional Commit subject                                            | `.claude/hooks/commit-msg-guard.ts`               | every commit          |
 
 `bun run check` runs the first four rows plus every test. It takes about one
-second today. Run it before every commit.
+second today. Run it before every commit. `bun run audit` stays out of it
+because it needs the network and the suite runs offline.
 
 ## Measured, not yet enforced
 
@@ -49,11 +51,22 @@ are expected to come in at or above today's level.
 
 ## Not covered yet
 
-Nothing in this file is judged from outside the project's own suite and
-tools. Candidates, each needing a dev tool installed first (ask before
-adding): `osv-scanner` for dependency CVEs in CI, and axe-core against a
-local server for accessibility.
+Apart from dependency advisories, nothing in this file is judged from
+outside the project's own suite and tools. One candidate, needing a dev tool
+installed first (ask before adding): axe-core against a local server for
+accessibility.
 
 ## Exceptions
 
-None.
+Fix an advisory by default: bump the lockfile first, then upgrade the
+dependency. Ignore one only when no fixed version is reachable and our use of
+the package never reaches the vulnerable code. Each ignore adds an
+`--ignore=<GHSA>` flag to the `audit` script in `package.json` and a row
+below, in the same commit, with a review-by date at most 90 days out. When
+the review date passes, check again and either fix it or renew it with a new
+date.
+
+| GHSA | Package and path | Severity | Why unreachable | Accepted | Review by |
+| ---- | ---------------- | -------- | --------------- | -------- | --------- |
+
+None today, and no other rule in this file has an exception.
