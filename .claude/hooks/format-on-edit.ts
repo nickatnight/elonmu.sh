@@ -1,9 +1,10 @@
 // PostToolUse hook (Edit|Write|MultiEdit): formats the edited file with the
-// project's Biome and applies safe lint fixes. Diagnostics that remain go back
-// to Claude via exit 2. Missing Biome or bad input never block editing.
+// project's Biome and applies safe lint fixes, then lets ESLint add the blank
+// lines its padding rule wants. Diagnostics that remain go back to Claude via
+// exit 2. A missing tool or bad input never blocks editing.
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { isBiomeTarget, readToolInput } from './lib';
+import { isBiomeTarget, isEslintTarget, readToolInput } from './lib';
 
 const projectDir = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 const filePath = await readToolInput('file_path');
@@ -11,9 +12,9 @@ const filePath = await readToolInput('file_path');
 // The installed devDependency, found the way `bun run` finds bins: in the
 // nearest node_modules/.bin up the tree (worktrees under .claude/worktrees/
 // use the main checkout's). Never `bun x`, which could fetch another version.
-const findBiome = (from: string): string | null => {
+const findBin = (name: string, from: string): string | null => {
   for (let dir = from; ; dir = path.dirname(dir)) {
-    const bin = path.join(dir, 'node_modules', '.bin', 'biome');
+    const bin = path.join(dir, 'node_modules', '.bin', name);
 
     if (existsSync(bin)) return bin;
 
@@ -21,16 +22,27 @@ const findBiome = (from: string): string | null => {
   }
 };
 
-if (filePath !== null && isBiomeTarget(filePath, projectDir)) {
-  const biome = findBiome(projectDir);
+const run = async (command: string[]) => {
+  const proc = Bun.spawn(command, {
+    cwd: projectDir,
+    stdout: 'pipe',
+    stderr: 'pipe'
+  });
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text()
+  ]);
 
-  if (biome === null) {
-    console.error('format-on-edit: Biome not found; run `bun install`.');
-    process.exit(0);
-  }
+  return { exitCode, output: `${stdout}${stderr}` };
+};
 
-  const proc = Bun.spawn(
-    [
+const tools = [
+  {
+    name: 'Biome',
+    bin: 'biome',
+    handles: isBiomeTarget,
+    command: (biome: string, file: string) => [
       biome,
       'check',
       // Formatting, sorted imports and safe lint fixes: what format:check
@@ -40,20 +52,51 @@ if (filePath !== null && isBiomeTarget(filePath, projectDir)) {
       '--files-ignore-unknown=true',
       '--no-errors-on-unmatched',
       '--colors=off',
-      filePath
-    ],
-    { cwd: projectDir, stdout: 'pipe', stderr: 'pipe' }
-  );
-  const [exitCode, stdout, stderr] = await Promise.all([
-    proc.exited,
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text()
-  ]);
-
-  if (exitCode !== 0) {
-    console.error(
-      `Biome found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${stdout}${stderr}`
-    );
-    process.exit(2);
+      file
+    ]
+  },
+  {
+    name: 'ESLint',
+    bin: 'eslint',
+    handles: isEslintTarget,
+    // Run under Bun, which loads eslint.config.ts natively; under Node,
+    // ESLint needs the jiti package to read a TypeScript config.
+    command: (eslint: string, file: string) => [
+      process.execPath,
+      eslint,
+      '--fix',
+      '--no-color',
+      file
+    ]
   }
+];
+
+const problems: string[] = [];
+
+if (filePath !== null) {
+  for (const tool of tools) {
+    if (!tool.handles(filePath, projectDir)) continue;
+
+    const bin = findBin(tool.bin, projectDir);
+
+    if (bin === null) {
+      console.error(
+        `format-on-edit: ${tool.name} not found; run \`bun install\`.`
+      );
+      continue;
+    }
+
+    const { exitCode, output } = await run(tool.command(bin, filePath));
+
+    if (exitCode !== 0) {
+      problems.push(
+        `${tool.name} found problems it could not fix in ${path.relative(projectDir, filePath)}:\n${output}`
+      );
+    }
+  }
+}
+
+if (problems.length > 0) {
+  console.error(problems.join('\n'));
+  process.exit(2);
 }
