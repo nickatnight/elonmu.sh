@@ -61,8 +61,18 @@ bundler. Bun runs the TypeScript directly.
   against its JSDoc types (`checkJs`), with one `tsconfig.json` for the
   whole program. Its `lib` includes `DOM` and `DOM.Iterable`, so server code
   that names `document` or `window` is not a type error; it fails at
-  runtime. The vendored globe.gl is excluded and has no types, and `jet.js`
-  types its calls into it as `any`.
+  runtime. The vendored globe.gl is excluded and has no types, so `jet.js`
+  and `starlink.js` each declare a `GlobeView` typedef with only the methods
+  they call, and a misspelt globe.gl method fails the typecheck. Biome's
+  `noExplicitAny` sees TypeScript but not JSDoc, so `tests/no-any.test.ts`
+  fails on an `any` type in either form, including JSDoc's `{*}` and `{?}`,
+  under `src/`, `tests/`, `scripts/` and `.claude/hooks/`. It reads one line
+  at a time. On code lines it skips strings and `//` comments; JSDoc lines
+  (starting with `/**` or `*`) are matched as written. Two things get past
+  it: a type split across lines, such as `Map<string,` followed by `any>`,
+  and an inline JSDoc cast on a code line that comes after a stray quote
+  (one inside a regex literal, for example), because that quote pairs with
+  a later one and the cast is skipped as part of a string.
 
 ## Shared ports and cache
 

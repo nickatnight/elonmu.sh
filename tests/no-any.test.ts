@@ -1,0 +1,117 @@
+import { describe, expect, it } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+
+const projectDir = path.join(import.meta.dir, '..');
+const ROOTS = ['src', 'tests', 'scripts', '.claude/hooks'];
+const VENDOR = 'src/public/static/vendor/';
+
+const JSDOC_ANY = /@\w+\s*\{[^}]*\bany\b/;
+const JSDOC_WILDCARD = /@\w+\s*\{(?:[^}]*[<(,|:\s])?[*?]\s*[}>),|]/;
+const ANY_AFTER_OPERATOR = /(?::|\bas\s|=>|(?<![|&])[|&])\s*any\b(?!\s*[\w.(])/;
+const ANY_BEFORE_OPERATOR = /(?<!\.)\bany\s*[|&](?![|&])/;
+const ANY_IN_TYPE_LIST = /[<,[]\s*any\s*(?:\[\])?\s*[,>\]]/;
+
+const ANY_TYPE = [
+  JSDOC_ANY,
+  JSDOC_WILDCARD,
+  ANY_AFTER_OPERATOR,
+  ANY_BEFORE_OPERATOR,
+  ANY_IN_TYPE_LIST
+];
+
+const JSDOC_LINE = /^\s*(?:\/\*\*|\*)/;
+const STRING = /(['"`])(?:\\.|(?!\1).)*\1/g;
+const LINE_COMMENT = /\/\/.*/;
+
+const codeOf = (line: string): string =>
+  JSDOC_LINE.test(line)
+    ? line
+    : line.replace(STRING, "''").replace(LINE_COMMENT, '');
+
+const usesAny = (line: string): boolean => {
+  const code = codeOf(line);
+
+  return ANY_TYPE.some((pattern) => pattern.test(code));
+};
+
+const sourceFiles = (): string[] =>
+  ROOTS.flatMap((root) => [
+    ...new Bun.Glob(`${root}/**/*.{ts,js,mjs}`).scanSync({
+      cwd: projectDir,
+      dot: true
+    })
+  ]).filter((file) => !file.startsWith(VENDOR));
+
+describe('the any check', () => {
+  it.each([
+    'const isPlace = (/** @type {any} */ p) =>',
+    '  const s = /** @type {any} */ (data);',
+    ' * @param {any[]} rows',
+    ' * @returns {Promise<any>}',
+    'const f = (x: any) => x;',
+    'let rows: any[] = [];',
+    'const body = res as any;',
+    'const map: Map<string, any> = new Map();',
+    'const g = <any>value;',
+    ' *   cb: () => any,',
+    ' *   (n: number) => any> & {',
+    ' *   string | any',
+    'let x: string | any;',
+    'type Maybe = any | null;',
+    'type Both = Base & any;',
+    'const t: [any, string] = [a, b];',
+    'const t: [string, any] = [a, b];',
+    'const v = /** @type {*} */ (raw);',
+    ' * @param {?} value',
+    ' * @returns {Array<*>}',
+    ' * @param {Object<string, *>} byName',
+    "const f = (x: any) => 'x'; // see the note",
+    "get('https://example.com/a'); const s = /** @type {any} */ (r);",
+    " * @param {any} row the flight's row"
+  ])('flags %s', (line) => {
+    expect(usesAny(line)).toBe(true);
+  });
+
+  it.each([
+    "const company = 'SpaceX';",
+    'expect(spy).toHaveBeenCalledWith(expect.any(String));',
+    '// fails like any other upstream error',
+    ' * Works for any tail, such as any other jet.',
+    '/** @type {unknown} */',
+    "if (!rows.some((r) => r.any)) return 'many';",
+    'if (a.any || b.any) return;',
+    ' * @param {?string} name',
+    ' * @param {number=} limit',
+    ' * @returns {Promise<void>} once saved (or not?)',
+    "const hint = 'expected: any';",
+    'const join = `a | any`;',
+    'run(); // works as any;'
+  ])('ignores %s', (line) => {
+    expect(usesAny(line)).toBe(false);
+  });
+});
+
+describe('source files', () => {
+  it('scans the client, server, test and hook code', () => {
+    const files = sourceFiles();
+
+    expect(files).toContain('src/public/static/js/jet.js');
+    expect(files).toContain('src/index.ts');
+    expect(files).toContain('tests/jet/scene.test.ts');
+    expect(files).toContain('tests/no-any.test.ts');
+    expect(files).toContain('scripts/geocode-places.ts');
+    expect(files.some((f) => f.startsWith('.claude/hooks/'))).toBe(true);
+    expect(files.some((f) => f.startsWith(VENDOR))).toBe(false);
+  });
+
+  it('declare no type as any', () => {
+    const found = sourceFiles().flatMap((file) =>
+      readFileSync(path.join(projectDir, file), 'utf8')
+        .split('\n')
+        .flatMap((line, i) => (usesAny(line) ? [`${file}:${i + 1}`] : []))
+    );
+
+    expect(found).toEqual([]);
+  });
+});

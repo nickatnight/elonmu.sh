@@ -8,6 +8,47 @@
  * }} Flight
  */
 /** @typedef {{ year: number, flights: Flight[], attribution: object, totals: object }} Snapshot */
+/**
+ * @typedef {{
+ *   id: string, startLat: number, startLng: number, endLat: number,
+ *   endLng: number, latest: boolean, color: string, count: number
+ * }} SceneArc
+ */
+/** @typedef {{ id: string, lat: number, lng: number, latest: boolean, color: string }} ScenePoint */
+/** @typedef {{ id: string, lat: number, lng: number }} SceneRing */
+/**
+ * @typedef {SceneArc & {
+ *   stroke: number, dashLength: number, dashGap: number,
+ *   dashInitialGap: number, dashAnimateTime: number
+ * }} StyledArc
+ */
+/**
+ * @typedef {Record<'width' | 'height' | 'atmosphereAltitude' |
+ *   'arcAltitudeAutoScale' | 'arcsTransitionDuration' | 'pointAltitude' |
+ *   'ringMaxRadius' | 'ringPropagationSpeed' | 'ringRepeatPeriod',
+ *   (n: number) => GlobeView> & Record<'backgroundColor' | 'globeImageUrl' |
+ *   'atmosphereColor' | 'arcColor' | 'arcStroke' | 'arcDashLength' |
+ *   'arcDashGap' | 'arcDashInitialGap' | 'arcDashAnimateTime' | 'pointLat' |
+ *   'pointLng' | 'pointColor' | 'ringLat' | 'ringLng',
+ *   (s: string) => GlobeView> & {
+ *   showAtmosphere(on: boolean): GlobeView,
+ *   arcLabel(label: (d: StyledArc) => HTMLElement | ''): GlobeView,
+ *   onArcClick(click: (d: StyledArc) => void): GlobeView,
+ *   pointLabel(label: (d: ScenePoint) => HTMLElement | ''): GlobeView,
+ *   onPointClick(click: (d: ScenePoint) => void): GlobeView,
+ *   pointRadius(radius: (d: ScenePoint) => number): GlobeView,
+ *   ringColor(color: () => (t: number) => string): GlobeView,
+ *   onGlobeReady(ready: () => void): GlobeView,
+ *   arcsData(arcs: StyledArc[]): GlobeView,
+ *   pointsData(points: ScenePoint[]): GlobeView,
+ *   ringsData(rings: SceneRing[]): GlobeView,
+ *   pointOfView(at: { lat: number, lng: number, altitude: number }, ms: number): GlobeView,
+ *   controls(): { autoRotate: boolean, autoRotateSpeed: number,
+ *     addEventListener(type: string, listener: () => void): void },
+ *   _destructor(): void
+ * }} GlobeView
+ */
+/** @typedef {(options: { animateIn: boolean }) => (el: HTMLElement) => GlobeView} GlobeFactory */
 
 export const ARC_LATEST = '#ffa94d';
 export const ARC_OLDER = 'rgba(255, 169, 77, 0.32)';
@@ -15,10 +56,19 @@ export const ARC_OLDER = 'rgba(255, 169, 77, 0.32)';
 const inRange = (/** @type {unknown} */ v, /** @type {number} */ max) =>
   typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= max;
 
-const isPlace = (/** @type {any} */ p) =>
+/**
+ * @param {unknown} v
+ * @returns {v is Record<string, unknown>}
+ */
+const isRecord = (v) => typeof v === 'object' && v !== null;
+
+/**
+ * @param {unknown} p
+ * @returns {p is Place | null}
+ */
+const isPlace = (p) =>
   p === null ||
-  (typeof p === 'object' &&
-    p !== null &&
+  (isRecord(p) &&
     typeof p.name === 'string' &&
     inRange(p.lat, 90) &&
     inRange(p.lon, 180));
@@ -28,32 +78,33 @@ const isPlace = (/** @type {any} */ p) =>
  * @returns {Snapshot}
  */
 export const parseSnapshot = (data) => {
-  const s = /** @type {any} */ (data);
-
   if (
-    !s ||
-    typeof s !== 'object' ||
-    typeof s.year !== 'number' ||
-    !Array.isArray(s.flights) ||
-    typeof s.attribution !== 'object' ||
-    typeof s.totals !== 'object'
+    !isRecord(data) ||
+    typeof data.year !== 'number' ||
+    !Array.isArray(data.flights) ||
+    !isRecord(data.attribution) ||
+    !isRecord(data.totals)
   ) {
     throw new Error('jet: not a flight snapshot');
   }
 
-  for (const f of s.flights) {
+  /** @type {unknown[]} */
+  const flights = data.flights;
+
+  for (const f of flights) {
     const ok =
-      f &&
+      isRecord(f) &&
       typeof f.id === 'string' &&
       typeof f.tail === 'string' &&
       isPlace(f.from) &&
       isPlace(f.to) &&
       (f.status === 'landed' || f.status === 'airborne');
 
-    if (!ok) throw new Error(`jet: bad flight ${f?.id}`);
+    if (!ok)
+      throw new Error(`jet: bad flight ${isRecord(f) ? f.id : undefined}`);
   }
 
-  return s;
+  return /** @type {Snapshot} */ (data);
 };
 
 const samePlace = (/** @type {Place} */ a, /** @type {Place} */ b) =>
@@ -74,14 +125,14 @@ export const routeColor = (count) => {
  */
 export const toScene = (snapshot, tail) => {
   const scene = {
-    /** @type {{ id: string, startLat: number, startLng: number, endLat: number, endLng: number, latest: boolean, color: string, count: number }[]} */
+    /** @type {SceneArc[]} */
     arcs: [],
-    /** @type {{ id: string, lat: number, lng: number, latest: boolean, color: string }[]} */
+    /** @type {ScenePoint[]} */
     points: [],
-    /** @type {{ id: string, lat: number, lng: number }[]} */
+    /** @type {SceneRing[]} */
     rings: []
   };
-  /** @type {Map<string, (typeof scene.arcs)[number]>} */
+  /** @type {Map<string, SceneArc>} */
   const routes = new Map();
   const flights = snapshot.flights.filter((f) => !tail || f.tail === tail);
 
@@ -208,7 +259,7 @@ const PULSE_LENGTH = 0.08;
 const arcWidth = (/** @type {number} */ count = 1) =>
   Math.min(0.7, 0.3 + 0.08 * Math.log2(count));
 
-const solidArc = (/** @type {any} */ arc) => ({
+const solidArc = (/** @type {SceneArc} */ arc) => ({
   ...arc,
   stroke: arc.latest ? 0.8 : arcWidth(arc.count),
   dashLength: 1,
@@ -217,7 +268,7 @@ const solidArc = (/** @type {any} */ arc) => ({
   dashAnimateTime: 0
 });
 
-const pulseArc = (/** @type {any} */ arc) => ({
+const pulseArc = (/** @type {SceneArc} */ arc) => ({
   ...arc,
   color: arc.latest ? '#ffe2bd' : 'rgba(255, 210, 160, 0.75)',
   stroke: arc.latest ? 1.1 : arcWidth(arc.count) + 0.2,
@@ -231,6 +282,7 @@ const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
 
 /**
  * @param {HTMLElement} pane
+ * @param {GlobeFactory} Globe
  * @param {{
  *   texture: string,
  *   reducedMotion: boolean,
@@ -240,17 +292,15 @@ const HOME_VIEW = { lat: 32, lng: -98, altitude: 2.1 };
  */
 export const createGlobeView = (
   pane,
+  Globe,
   { texture, reducedMotion, label = () => null, onSelect = () => {} }
 ) => {
-  const byId = (/** @type {any} */ d) => label(d.id, d.count) ?? '';
-  const select = (/** @type {any} */ d) => onSelect(d.id);
   const mount = document.createElement('div');
 
   mount.className = 'jet__canvas';
   pane.prepend(mount);
 
-  const globe = /** @type {any} */ (window)
-    .Globe({ animateIn: !reducedMotion })(mount)
+  const globe = Globe({ animateIn: !reducedMotion })(mount)
     .width(pane.clientWidth)
     .height(pane.clientHeight)
     .backgroundColor('rgba(0,0,0,0)')
@@ -266,15 +316,15 @@ export const createGlobeView = (
     .arcDashInitialGap('dashInitialGap')
     .arcDashAnimateTime('dashAnimateTime')
     .arcsTransitionDuration(reducedMotion ? 0 : 500)
-    .arcLabel(byId)
-    .onArcClick(select)
-    .pointLabel(byId)
-    .onPointClick(select)
+    .arcLabel((d) => label(d.id, d.count) ?? '')
+    .onArcClick((d) => onSelect(d.id))
+    .pointLabel((d) => label(d.id) ?? '')
+    .onPointClick((d) => onSelect(d.id))
     .pointLat('lat')
     .pointLng('lng')
     .pointColor('color')
     .pointAltitude(0.004)
-    .pointRadius((/** @type {any} */ d) => (d.latest ? 0.45 : 0.25))
+    .pointRadius((d) => (d.latest ? 0.45 : 0.25))
     .ringLat('lat')
     .ringLng('lng')
     .ringColor(
@@ -600,13 +650,17 @@ const start = async () => {
     return;
   }
 
-  if (typeof (/** @type {any} */ (window).Globe) !== 'function') {
+  const Globe = /** @type {{ Globe?: GlobeFactory }} */ (
+    /** @type {unknown} */ (window)
+  ).Globe;
+
+  if (typeof Globe !== 'function') {
     showFallback(pane);
 
     return;
   }
 
-  view = createGlobeView(pane, {
+  view = createGlobeView(pane, Globe, {
     texture,
     reducedMotion,
     label: (id, count) => tooltipFor(panel, id, count),

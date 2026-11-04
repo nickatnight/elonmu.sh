@@ -267,6 +267,12 @@ describe('list paging', () => {
 });
 
 describe('parseSnapshot', () => {
+  const base = snap([flights[3]]);
+  const withFlight = (changes: Record<string, unknown>) => ({
+    ...base,
+    flights: [{ ...base.flights[0], ...changes }]
+  });
+
   it('accepts the API’s JetSnapshot', () => {
     const s = snap(flights);
 
@@ -276,22 +282,69 @@ describe('parseSnapshot', () => {
   it('rejects the API’s error body', () => {
     expect(() =>
       parseSnapshot({ error: 'Flight data is unavailable' })
-    ).toThrow();
+    ).toThrow('jet: not a flight snapshot');
   });
 
   it('rejects flights with out-of-range or missing coordinates', () => {
     const bad = JSON.parse(JSON.stringify(snap([flights[3]])));
 
     bad.flights[0].from.lat = 123;
-    expect(() => parseSnapshot(bad)).toThrow();
+    expect(() => parseSnapshot(bad)).toThrow('jet: bad flight');
     const missing = JSON.parse(JSON.stringify(snap([flights[3]])));
 
     missing.flights[0].to = { name: 'X' };
-    expect(() => parseSnapshot(missing)).toThrow();
+    expect(() => parseSnapshot(missing)).toThrow('jet: bad flight');
   });
 
   it('rejects anything that is not an object', () => {
-    expect(() => parseSnapshot(null)).toThrow();
-    expect(() => parseSnapshot('[]')).toThrow();
+    expect(() => parseSnapshot(null)).toThrow('jet: not a flight snapshot');
+    expect(() => parseSnapshot('[]')).toThrow('jet: not a flight snapshot');
+  });
+
+  it.each([
+    ['a year that is not a number', { ...base, year: '2026' }],
+    ['flights that are not a list', { ...base, flights: {} }],
+    ['no attribution', { ...base, attribution: undefined }],
+    ['a null attribution', { ...base, attribution: null }],
+    ['totals that are not an object', { ...base, totals: 0 }],
+    ['null totals', { ...base, totals: null }]
+  ])('rejects a snapshot with %s', (_, data) => {
+    expect(() => parseSnapshot(data)).toThrow('jet: not a flight snapshot');
+  });
+
+  it.each([
+    ['a flight that is not an object', { ...base, flights: ['a-sj'] }],
+    ['a null flight', { ...base, flights: [null] }],
+    ['a flight whose id is not a string', withFlight({ id: 7 })],
+    ['a flight without a tail', withFlight({ tail: undefined })],
+    ['an unknown status', withFlight({ status: 'cancelled' })],
+    ['a place that is not an object', withFlight({ from: 'Austin' })],
+    [
+      'a place whose lat is a string',
+      withFlight({ from: { ...places.austin, lat: '30.27' } })
+    ],
+    [
+      'a place without a name',
+      withFlight({ to: { lat: places.sanJose.lat, lon: places.sanJose.lon } })
+    ],
+    [
+      'a place whose lon is past 180',
+      withFlight({ to: { ...places.sanJose, lon: 180.5 } })
+    ],
+    [
+      'a place whose lat is not finite',
+      withFlight({ to: { ...places.sanJose, lat: Number.NaN } })
+    ]
+  ])('rejects a snapshot with %s as a bad flight', (_, data) => {
+    expect(() => parseSnapshot(data)).toThrow('jet: bad flight');
+  });
+
+  it('accepts places on a pole and on the antimeridian', () => {
+    const edge = withFlight({
+      from: { name: 'North Pole', lat: 90, lon: 0 },
+      to: { name: 'Fiji', lat: -17, lon: -180 }
+    });
+
+    expect(parseSnapshot(edge)).toEqual(edge);
   });
 });
