@@ -27,8 +27,11 @@ Commit (see below). The hooks are tested in `tests/hooks/`.
   it as `bun --bun eslint`, since ESLint under Node needs `jiti` to load the
   TypeScript config. It checks the files Biome checks: the config asks git for
   every `.gitignore` and `.git/info/exclude`, as Biome's `vcs.useIgnoreFile`
-  does, so add ignores to those files, not to `eslint.config.ts`
-  (`tests/format-scope.test.ts` holds the two tools to this).
+  does, and reads the `!` exclusions in `biome.json`'s `files.includes`. Add
+  ignores to those files, not to `eslint.config.ts`
+  (`tests/format-scope.test.ts` holds the two tools to this). Its one list,
+  `IGNORED_WITHOUT_GITIGNORE`, copies `.gitignore` entries that must hold when
+  neither git nor a `.gitignore` is present.
 - Named exports only, no default exports (except `eslint.config.ts`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).

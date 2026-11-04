@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import stylistic from '@stylistic/eslint-plugin';
 import { defineConfig, globalIgnores, includeIgnoreFile } from 'eslint/config';
@@ -7,6 +7,7 @@ import { parser } from 'typescript-eslint';
 
 const BLOCKS = ['if', 'for', 'while', 'do', 'try', 'switch'];
 const DECLARATIONS = ['const', 'let', 'var'];
+const IGNORED_WITHOUT_GITIGNORE = ['.claude/worktrees/', 'docs/', 'dist/'];
 
 const root = import.meta.dirname;
 
@@ -45,18 +46,27 @@ const localExcludes = existingFiles([
   git('rev-parse', '--git-path', 'info/exclude')?.trim() ?? ''
 ]);
 
+type BiomeConfig = { files?: { includes?: string[] } };
+
+const biomeExcludes = (): string[] => {
+  const biomeJson = path.join(root, 'biome.json');
+
+  if (!existsSync(biomeJson)) return [];
+
+  const config: BiomeConfig = JSON.parse(readFileSync(biomeJson, 'utf8'));
+
+  return (config.files?.includes ?? [])
+    .filter((pattern) => pattern.startsWith('!'))
+    .map((pattern) => pattern.replace(/^!+/, ''));
+};
+
 // ESLint only loads a default export.
 export default defineConfig(
   // Biome skips what git ignores (vcs.useIgnoreFile), but flat config reads no
   // ignore files.
   includeIgnoreFile(gitignores, { gitignoreResolution: true }),
   includeIgnoreFile(localExcludes),
-  globalIgnores([
-    'src/public/static/vendor/',
-    '.claude/worktrees/',
-    'docs/',
-    'dist/'
-  ]),
+  globalIgnores([...biomeExcludes(), ...IGNORED_WITHOUT_GITIGNORE]),
   {
     files: ['**/*.ts', '**/*.js'],
     plugins: { '@stylistic': stylistic },
