@@ -35,13 +35,19 @@ bundler. Bun runs the TypeScript directly.
 - The topbar (`partials/topbar.ejs`) carries the GitHub "fork me" ribbon on
   every page: pure CSS, sized by the `--ribbon` `clamp()` token. Only the
   band takes clicks. The nav has `padding-inline-end` derived from
-  `--ribbon` so no link runs under the band. Below 520 px (32.49rem) the
-  brand shows only its icon, and the name stays for screen readers, because
-  the brand, six links and a readable band don't fit in one bar there.
-  The brand never shrinks (`flex-shrink: 0`). Instead, the nav text and gaps
-  shrink with the viewport through `clamp()`, to 11.5 px text and 4.8 px gaps
-  at 320 px, and reach full size at 400 px. A seventh link will need another
-  look at 320 px.
+  `--ribbon` so no link runs under the band. The brand shows its icon and
+  name at every width and never shrinks (`flex-shrink: 0`).
+- The topbar has one `<nav>`, and it is also a `popover` opened by the Menu
+  button (`popovertarget`), so the menu needs no script. From 520 px up the
+  button is hidden and the nav renders inline. Below 520 px (32.49rem) the
+  links collapse into a full-width panel under the topbar, one 44 px row per
+  link, so a new service just adds a row. The browser closes the panel on
+  Esc, on a tap outside, on the button and on navigation. The button keeps
+  more room from the band than the links do, because its taller box starts
+  higher, where the band reaches further left. The collapse sits inside
+  `@supports selector(:popover-open)`, so a browser without popovers keeps
+  the links inline. At 520 px the six inline links already fill the bar, so
+  a seventh link needs that breakpoint moved up.
 - Static files are served with a one-year cache. Templates link them through
   `asset('static/...')`, which appends a hash of the file's contents.
 - `src/middleware/security-headers.ts` sets a strict CSP (`script-src 'self'`,
