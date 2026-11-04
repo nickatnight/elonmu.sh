@@ -9,6 +9,7 @@ const THIS_FILE = path.relative(projectDir, import.meta.path);
 
 const ANY_TYPE = [
   /@\w+\s*\{[^}]*\bany\b/,
+  /@\w+\s*\{(?:[^}]*[<(,|:\s])?[*?]\s*[}>),|]/,
   /:\s*any\b(?!\s*[\w.(])/,
   /\bas\s+any\b(?!\s*[\w.(])/,
   /=>\s*any\b(?!\s*[\w.(])/,
@@ -46,7 +47,11 @@ describe('the any check', () => {
     'type Maybe = any | null;',
     'type Both = Base & any;',
     'const t: [any, string] = [a, b];',
-    'const t: [string, any] = [a, b];'
+    'const t: [string, any] = [a, b];',
+    'const v = /** @type {*} */ (raw);',
+    ' * @param {?} value',
+    ' * @returns {Array<*>}',
+    ' * @param {Object<string, *>} byName'
   ])('flags %s', (line) => {
     expect(usesAny(line)).toBe(true);
   });
@@ -58,7 +63,10 @@ describe('the any check', () => {
     ' * Works for any tail, such as any other jet.',
     '/** @type {unknown} */',
     "if (!rows.some((r) => r.any)) return 'many';",
-    'if (a.any || b.any) return;'
+    'if (a.any || b.any) return;',
+    ' * @param {?string} name',
+    ' * @param {number=} limit',
+    ' * @returns {Promise<void>} once saved (or not?)'
   ])('ignores %s', (line) => {
     expect(usesAny(line)).toBe(false);
   });
