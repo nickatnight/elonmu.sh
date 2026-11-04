@@ -66,7 +66,8 @@ no re-export shim. The jet cache's tests passed with only their imports
 changed, which shows the move kept its behaviour.
 - `src/ports.ts` defines the ports every module uses: `Clock`, `HttpGet` and
   `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`,
-  `src/doge/index.ts`, `src/news/index.ts`) builds the real ones.
+  `src/doge/index.ts`, `src/news/index.ts`, `src/starlink/index.ts`) builds
+  the real ones.
 - `src/http-config.ts` defines `HttpConfig`, the axios request config each
   composition root passes, and `GetJson`, the shape of the `get` it accepts
   (`axios.get` by default). Only composition roots and their tests import
