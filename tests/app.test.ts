@@ -375,6 +375,29 @@ const testService = (n: number) => ({
 const ribbon = (page: string): string =>
   page.match(/<a class="ribbon"[\s\S]*?<\/a>/)?.[0] ?? '';
 
+const topbarOf = (page: string): string =>
+  page.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0] ?? '';
+
+const collapse = (css: string) => {
+  const [whole = '', rem = '', body = ''] =
+    css.match(
+      /@supports selector\(:popover-open\) \{\s*@media \(max-width: ([\d.]+)rem\) \{([\s\S]*?)\n {2}\}\n\}/
+    ) ?? [];
+
+  return { whole, px: Number(rem) * 16, body };
+};
+
+const nestedRule = (block: string, selector: string): string =>
+  block.match(
+    new RegExp(
+      `\\n\\s*${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`
+    )
+  )?.[1] ?? '';
+
+const menuButton = (page: string): string =>
+  topbarOf(page).match(/<button class="topbar__menu"[\s\S]*?<\/button>/)?.[0] ??
+  '';
+
 const accessibleName = (link: string): string =>
   link
     .replace(/<[^>]+>/g, '')
@@ -551,54 +574,172 @@ describe('topbar', () => {
     expect(ruleBody(css, '.topbar')).not.toContain('overflow');
   });
 
-  it('shows only the brand icon below 520 px, where the name and six links overflow', async () => {
-    const css = await mainCss();
-    const collapse = [
-      ...css.matchAll(
-        /@media \(max-width: ([\d.]+)rem\) \{\s*\.brand__name \{/g
-      )
-    ].map(([, rem]) => Number(rem) * 16);
+  it('collapses the links into the Menu panel below 520 px, where popovers work', async () => {
+    const { px, body } = collapse(await mainCss());
 
-    expect(collapse).toHaveLength(1);
-    expect(collapse[0]).toBeGreaterThanOrEqual(519);
-    expect(collapse[0]).toBeLessThan(520);
+    expect(px).toBeGreaterThanOrEqual(519);
+    expect(px).toBeLessThan(520);
+    expect(nestedRule(body, '.topbar__menu')).toContain(
+      'display: inline-flex;'
+    );
+    expect(nestedRule(body, '.topbar__actions:not(:popover-open)')).toContain(
+      'display: none;'
+    );
   });
 
-  it('keeps the brand name for screen readers when only the icon shows', () => {
+  it('hides the Menu button from 520 px up, and hides the links nowhere else, so browsers without popovers keep them inline', async () => {
+    const css = await mainCss();
+    const outside = css.replace(collapse(css).whole, '');
+
+    expect(ruleBody(css, '.topbar__menu')).toContain('display: none;');
+    expect(outside).not.toMatch(/\.topbar__actions[^{]*\{[^}]*display: none/);
+  });
+
+  it('names the brand link elonmu.sh', () => {
     const brand = html.match(/<a class="brand"[\s\S]*?<\/a>/)?.[0] ?? '';
 
     expect(accessibleName(brand)).toBe('elonmu.sh');
   });
 
-  it('tightens the topbar gaps and nav text on narrow screens', async () => {
-    const css = await mainCss();
-
-    for (const [selector, prop] of [
-      ['.topbar', 'gap'],
-      ['.topbar__actions', 'gap'],
-      ['.topbar__actions', 'font-size']
-    ] as const) {
-      const value = declared(css, selector, prop);
-
-      expect({
-        selector,
-        prop,
-        tighter: pxAt(css, value, 320) < pxAt(css, value, 480)
-      }).toEqual({ selector, prop, tighter: true });
-    }
-  });
-
-  it('fits six nav links beside the brand icon from 320 px: 11.5 px text and 4.8 px gaps there, full size from 400 px', async () => {
+  it('keeps the inline nav from 520 px up as it was: 14 px text, 16 px topbar gap, link gaps from 17.8 px to 24 px', async () => {
     const css = await mainCss();
     const font = declared(css, '.topbar__actions', 'font-size');
     const gap = declared(css, '.topbar__actions', 'gap');
-    const sixLinks = SERVICES.length + 1;
+    const topbarGap = declared(css, '.topbar', 'gap');
 
-    expect(sixLinks).toBe(6);
-    expect(pxAt(css, font, 320)).toBeCloseTo(11.5, 2);
-    expect(pxAt(css, gap, 320)).toBeCloseTo(4.8, 2);
-    expect(pxAt(css, declared(css, '.topbar', 'gap'), 320)).toBeCloseTo(6, 2);
-    expect(pxAt(css, font, 400)).toBeCloseTo(14, 2);
+    expect(pxAt(css, font, 520)).toBe(14);
+    expect(pxAt(css, font, 1280)).toBe(14);
+    expect(pxAt(css, topbarGap, 520)).toBe(16);
+    expect(pxAt(css, topbarGap, 1280)).toBe(16);
+    expect(pxAt(css, gap, 520)).toBeCloseTo(17.8, 2);
+    expect(pxAt(css, gap, 1280)).toBe(24);
+  });
+
+  it('shows the brand name at every width', async () => {
+    expect(await mainCss()).not.toMatch(
+      /\.brand__name[^{]*\{[^}]*(?:display: none|clip-path|position: absolute)/
+    );
+  });
+
+  it('sets the menu rows in full-size text, each at least 44 px tall', async () => {
+    const css = await mainCss();
+    const { body } = collapse(css);
+    const font = nestedRule(body, '.topbar__actions').match(
+      /font-size: ([^;]+);/
+    )?.[1];
+    const height = nestedRule(body, '.topbar__actions a').match(
+      /min-height: ([^;]+);/
+    )?.[1];
+
+    expect(pxAt(css, font ?? '', 320)).toBeGreaterThanOrEqual(14);
+    expect(pxAt(css, height ?? '', 320)).toBeGreaterThanOrEqual(44);
+  });
+
+  it('anchors the panel full width under the topbar', async () => {
+    const panel = nestedRule(
+      collapse(await mainCss()).body,
+      '.topbar__actions'
+    );
+
+    expect(panel).toContain('position: fixed;');
+    expect(panel).toContain('inset: var(--topbar) 0 auto;');
+    expect(panel).toContain('max-height: calc(100dvh - var(--topbar));');
+  });
+
+  it('marks the current row with an accent bar on its inline-start edge', async () => {
+    const bar = nestedRule(
+      collapse(await mainCss()).body,
+      '.topbar__actions a[aria-current="page"]::after'
+    );
+
+    expect(bar).toContain('inset-block: 0;');
+    expect(bar).toContain('inset-inline-end: auto;');
+    expect(bar).toMatch(/width: \dpx;/);
+  });
+
+  it('dims the page under the topbar with a scrim token set for both schemes', async () => {
+    const css = await mainCss();
+    const backdrop = nestedRule(
+      collapse(css).body,
+      '.topbar__actions::backdrop'
+    );
+
+    expect(declared(css, ':root', '--scrim')).not.toBe('');
+    expect(css).toMatch(
+      /@media \(prefers-color-scheme: light\) \{\s*:root \{[^}]*--scrim:/
+    );
+    expect(backdrop).toContain('inset-block-start: var(--topbar);');
+    expect(backdrop).toContain('background: var(--scrim);');
+  });
+
+  it('keeps the Menu button clear of the band with more room than the links, because its 44 px box starts higher', async () => {
+    const button = ruleBody(await mainCss(), '.topbar__menu');
+
+    expect(button).toContain('min-height: 2.75rem;');
+    expect(button).toContain(
+      'margin-inline-end: calc(var(--ribbon) * 0.8 - var(--margin));'
+    );
+  });
+
+  it('keeps an open menu where the inline nav sits if the screen widens past 520 px', async () => {
+    const css = await mainCss();
+    const wide = css.match(
+      /@media \(min-width: ([\d.]+)rem\) \{\s*\.topbar__actions:popover-open \{([^}]*)\}/
+    );
+
+    expect(Number(wide?.[1]) * 16).toBeGreaterThanOrEqual(519.84);
+    expect(Number(wide?.[1]) * 16).toBeLessThanOrEqual(520);
+    expect(wide?.[2]).toContain('position: fixed;');
+    expect(wide?.[2]).toContain('inset: 0 var(--margin) auto auto;');
+    expect(wide?.[2]).toContain('height: var(--topbar);');
+  });
+
+  it('keeps focus outlines on the Menu button and the links', async () => {
+    expect(await mainCss()).not.toMatch(
+      /\.topbar__[^{]*\{[^}]*outline: (?:none|0)/
+    );
+  });
+
+  it('draws the focus ring inside each menu row, where the scrolling panel cannot clip it', async () => {
+    const ring = nestedRule(
+      collapse(await mainCss()).body,
+      '.topbar__actions a:focus-visible'
+    );
+
+    expect(ring).toMatch(/outline-offset: -\d+px;/);
+  });
+
+  it('draws the chevron as a shape that mirrors left to right, so right-to-left pages need nothing flipped', async () => {
+    const chevron = ruleBody(await mainCss(), '.topbar__chevron');
+    const points = (chevron.match(/clip-path: polygon\(([^)]*)\);/)?.[1] ?? '')
+      .split(',')
+      .map((point) => point.trim().split(/\s+/).map(Number.parseFloat));
+    const mirrored = points.map(([x, y]) => `${100 - x} ${y}`).sort();
+
+    expect(points.length).toBeGreaterThan(2);
+    expect(mirrored).toEqual(points.map(([x, y]) => `${x} ${y}`).sort());
+    expect(chevron).not.toMatch(/border-(?:left|right|inline)/);
+  });
+
+  it('opens the panel in 200 ms or less, with no motion under reduced motion', async () => {
+    const css = await mainCss();
+    const durations = [
+      ...collapse(css).body.matchAll(/transition:[^;]*?(\d+)ms/g),
+      ...ruleBody(css, '.topbar__chevron').matchAll(/(\d+)ms/g)
+    ].map(([, ms]) => Number(ms));
+    const reduced = [
+      ...css.matchAll(
+        /@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/g
+      )
+    ]
+      .map(([, block]) => block)
+      .find((block) => block.includes('.topbar__actions:popover-open'));
+
+    expect(durations.length).toBeGreaterThan(0);
+    expect(Math.max(...durations)).toBeLessThanOrEqual(200);
+    expect(reduced).toMatch(
+      /\.topbar__actions:popover-open,\s*\.topbar__chevron \{\s*transition: none;/
+    );
   });
 
   it('never squeezes the brand icon to make room for the nav', async () => {
@@ -666,6 +807,84 @@ describe('topbar', () => {
         href,
         link: `<a href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
       });
+    }
+  });
+
+  it('opens the primary nav as a popover from a Menu button', () => {
+    const button = menuButton(html);
+    const navTag = topbarNav(html).match(/^<nav [^>]*>/)?.[0] ?? '';
+    const target = button.match(/popovertarget="([^"]+)"/)?.[1];
+
+    expect(button).toMatch(/^<button class="topbar__menu" type="button" /);
+    expect(accessibleName(button)).toBe('Menu');
+    expect(button).toMatch(/<span class="topbar__chevron" aria-hidden="true">/);
+    expect(target).toBeDefined();
+    expect(navTag).toContain(`id="${target}"`);
+    expect(navTag).toMatch(/\spopover[\s>]/);
+    expect(navTag).toContain('aria-label="Primary"');
+  });
+
+  it('puts the Menu button before the links, so Tab reaches it first', () => {
+    const topbar = topbarOf(html);
+    const button = topbar.indexOf('<button class="topbar__menu"');
+
+    expect(button).toBeGreaterThan(-1);
+    expect(button).toBeLessThan(topbar.indexOf('<nav '));
+  });
+
+  it('has one primary nav, shared by the inline links and the menu panel', async () => {
+    for (const path of ['/', '/news', '/docs']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+
+      expect({ path, navs: page.match(/<nav\b/g)?.length }).toEqual({
+        path,
+        navs: 1
+      });
+    }
+  });
+
+  it('marks the current page in the nav on each service page and /docs, and none on /', async () => {
+    for (const [path, current] of [
+      ['/', []],
+      ['/news', ['News']],
+      ['/jet', ['Jet']],
+      ['/hype', ['Hype']],
+      ['/doge', ['DOGE']],
+      ['/starlink', ['Starlink']],
+      ['/docs', ['Docs']]
+    ] as const) {
+      const nav = topbarNav(await (await fetch(`${server.url}${path}`)).text());
+      const marked = [
+        ...nav.matchAll(/<a [^>]*aria-current="page"[^>]*>([^<]*)<\/a>/g)
+      ].map(([, label]) => label);
+
+      expect({ path, marked }).toEqual({ path, marked: [...current] });
+    }
+  });
+
+  it('opens the menu with no script or inline handler in the topbar', () => {
+    const topbar = topbarOf(html);
+
+    expect(topbar).not.toContain('<script');
+    expect(topbar).not.toMatch(/\son[a-z]+=/);
+  });
+
+  it('lists a seventh service in the menu with no template change', async () => {
+    const seven = await startTestServer(
+      createApp({ jet: sampleJet(), services: [...SERVICES, testService(7)] })
+    );
+
+    try {
+      const page = await (await fetch(`${seven.url}/`)).text();
+
+      expect(navLinks(page)).toEqual([
+        ...SERVICES.map((service) => service.nav),
+        'S7',
+        'Docs'
+      ]);
+      expect(menuButton(page)).toBe(menuButton(html));
+    } finally {
+      await seven.close();
     }
   });
 

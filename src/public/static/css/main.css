@@ -36,6 +36,7 @@
   --hero-accent: #e31937;
   --arc: #ffa94d;
   --arc-dim: rgb(255 169 77 / 0.32);
+  --scrim: rgb(0 0 0 / 0.6);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -47,6 +48,7 @@
     --ink: #111418;
     --muted: #59606b;
     --accent: #c8102e;
+    --scrim: rgb(17 20 24 / 0.4);
   }
 }
 
@@ -153,7 +155,7 @@ pre {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(0.375rem, 5vw - 0.625rem, 1rem);
+  gap: 1rem;
   height: var(--topbar);
   padding: 0 var(--margin);
   background: var(--bg);
@@ -168,11 +170,48 @@ pre {
 }
 
 .topbar__actions {
+  position: static;
   display: flex;
   align-items: center;
   gap: clamp(0.25rem, 6.5vw - 1rem, 1.5rem);
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
   padding-inline-end: calc(var(--ribbon) * 0.8 - 0.625rem - var(--margin));
-  font-size: clamp(0.71875rem, 3.125vw + 0.09375rem, var(--step-small));
+  overflow: visible;
+  background: none;
+  color: inherit;
+  font-size: var(--step-small);
+}
+
+.topbar__menu {
+  display: none;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 2.75rem;
+  margin-inline-end: calc(var(--ribbon) * 0.8 - var(--margin));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.topbar__chevron {
+  width: 0.7em;
+  height: 0.4em;
+  background: currentColor;
+  clip-path: polygon(0% 0%, 50% 60%, 100% 0%, 100% 40%, 50% 100%, 0% 40%);
+  transition: rotate 150ms var(--ease-out);
+}
+
+.topbar:has(.topbar__actions:popover-open) .topbar__chevron {
+  rotate: 180deg;
 }
 
 .topbar__actions a {
@@ -243,6 +282,86 @@ pre {
 .ribbon:focus-visible .ribbon__band {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
+}
+
+@supports selector(:popover-open) {
+  @media (max-width: 32.49rem) {
+    .topbar__menu {
+      display: inline-flex;
+    }
+
+    .topbar__actions:not(:popover-open) {
+      display: none;
+    }
+
+    .topbar__actions {
+      position: fixed;
+      inset: var(--topbar) 0 auto;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      max-height: calc(100dvh - var(--topbar));
+      padding: 0.5rem 0;
+      overflow-y: auto;
+      background: var(--surface);
+      font-size: var(--step-body);
+    }
+
+    .topbar__actions:popover-open {
+      transition:
+        opacity 150ms var(--ease-out),
+        translate 150ms var(--ease-out);
+    }
+
+    .topbar__actions a {
+      min-height: 2.75rem;
+      padding: 0 var(--margin);
+    }
+
+    .topbar__actions a:hover {
+      background: var(--raised);
+    }
+
+    .topbar__actions a:focus-visible {
+      outline-offset: -2px;
+    }
+
+    .topbar__actions a[aria-current="page"]::after {
+      inset-block: 0;
+      inset-inline-end: auto;
+      width: 3px;
+      height: auto;
+      border-radius: 0;
+    }
+
+    .topbar__actions::backdrop {
+      inset-block-start: var(--topbar);
+      background: var(--scrim);
+    }
+
+    @starting-style {
+      .topbar__actions:popover-open {
+        opacity: 0;
+        translate: 0 -0.5rem;
+      }
+    }
+  }
+}
+
+/* A popover stays open in the top layer when a phone rotates past 520 px. */
+@media (min-width: 32.5rem) {
+  .topbar__actions:popover-open {
+    position: fixed;
+    inset: 0 var(--margin) auto auto;
+    height: var(--topbar);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topbar__actions:popover-open,
+  .topbar__chevron {
+    transition: none;
+  }
 }
 
 .hero {
@@ -951,17 +1070,6 @@ a.card__link[href]:focus-visible {
 
   .teaser__text {
     justify-self: stretch;
-  }
-}
-
-@media (max-width: 32.49rem) {
-  .brand__name {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 }
 
