@@ -32,9 +32,9 @@
  *   'pointLng' | 'pointColor' | 'ringLat' | 'ringLng',
  *   (s: string) => GlobeView> & {
  *   showAtmosphere(on: boolean): GlobeView,
- *   arcLabel(label: (d: StyledArc) => HTMLElement | string): GlobeView,
+ *   arcLabel(label: (d: StyledArc) => HTMLElement | ''): GlobeView,
  *   onArcClick(click: (d: StyledArc) => void): GlobeView,
- *   pointLabel(label: (d: ScenePoint) => HTMLElement | string): GlobeView,
+ *   pointLabel(label: (d: ScenePoint) => HTMLElement | ''): GlobeView,
  *   onPointClick(click: (d: ScenePoint) => void): GlobeView,
  *   pointRadius(radius: (d: ScenePoint) => number): GlobeView,
  *   ringColor(color: () => (t: number) => string): GlobeView,
