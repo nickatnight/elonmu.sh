@@ -16,6 +16,12 @@
     "noFallthroughCasesInSwitch": true,
     "allowJs": true
   },
-  "include": ["src/**/*", "tests/**/*", "scripts/**/*", ".claude/hooks/**/*"],
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    ".claude/hooks/**/*",
+    "eslint.config.ts"
+  ],
   "exclude": ["src/public/static/vendor"]
 }
