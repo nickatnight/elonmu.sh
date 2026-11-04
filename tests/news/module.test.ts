@@ -61,6 +61,7 @@ describe('createNewsModule', () => {
     try {
       const news = createNewsModule({
         ...quiet,
+        apiKey: 'k-123',
         get: (_url, config) => axios.get(upstream.url, config)
       });
       const thrown = await news.random().catch((err: unknown) => err);
