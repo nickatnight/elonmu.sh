@@ -10,6 +10,8 @@ const fix = async (code: string, file = 'src/example.ts'): Promise<string> => {
     filePath: path.join(projectDir, file)
   });
 
+  expect(result.messages).toEqual([]);
+
   return result.output ?? code;
 };
 

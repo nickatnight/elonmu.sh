@@ -134,7 +134,7 @@ describe('format-on-edit hook', () => {
     );
   });
 
-  it('adds blank lines between statements after Biome formats', async () => {
+  it('formats with Biome and adds blank lines with ESLint', async () => {
     await Bun.write(
       fixture,
       'export const f = (x) => {\n  const y = x\n  return y\n}\n'
@@ -280,26 +280,22 @@ describe('format-on-edit hook', () => {
   });
 
   it('fails open with a note when Biome is not installed', async () => {
-    const bare = await mkdtemp(path.join(tmpdir(), 'format-on-edit-'));
+    await withTempDir(async (bare) => {
+      await cp(
+        path.join(projectDir, 'biome.json'),
+        path.join(bare, 'biome.json')
+      );
+      const file = path.join(bare, 'x.ts');
 
-    await cp(
-      path.join(projectDir, 'biome.json'),
-      path.join(bare, 'biome.json')
-    );
-    const file = path.join(bare, 'x.ts');
+      await Bun.write(file, 'export const   x = 1\n');
 
-    await Bun.write(file, 'export const   x = 1\n');
-
-    try {
       const { exitCode, stderr } = await formatOnEdit(file, {
         CLAUDE_PROJECT_DIR: bare
       });
 
       expect(exitCode).toBe(0);
       expect(stderr).toContain('Biome not found');
-    } finally {
-      rmSync(bare, { recursive: true, force: true });
-    }
+    });
   });
 });
 
