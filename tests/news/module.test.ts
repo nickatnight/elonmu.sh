@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'bun:test';
-import { AxiosError, type AxiosResponse } from 'axios';
+import axios, { AxiosError, type AxiosResponse } from 'axios';
 import { createNewsModule } from '../../src/news/index';
 import { type NewsFailure, NewsUpstreamError } from '../../src/news/ports';
 import { FakeClock, FakeLogger } from '../fakes';
 import { newsApiArticle } from '../fixtures';
+import { serveRedirect } from '../helpers';
 
 const quiet = { logger: new FakeLogger() };
 
@@ -24,7 +25,7 @@ describe('createNewsModule', () => {
     expect(new URL(urls[0] ?? '').searchParams.get('apiKey')).toBe('k-123');
   });
 
-  it('gives NewsAPI 10 s to answer, like the other upstreams', async () => {
+  it('gives NewsAPI 10 s to answer and follows no redirects', async () => {
     const configs: unknown[] = [];
     const news = createNewsModule({
       ...quiet,
@@ -36,7 +37,24 @@ describe('createNewsModule', () => {
     });
 
     await news.random();
-    expect(configs).toEqual([{ timeout: 10_000 }]);
+    expect(configs).toEqual([{ timeout: 10_000, maxRedirects: 0 }]);
+  });
+
+  it('reports a NewsAPI redirect as an error response and never follows it', async () => {
+    const upstream = serveRedirect({ articles: [newsApiArticle] });
+
+    try {
+      const news = createNewsModule({
+        ...quiet,
+        get: (_url, config) => axios.get(upstream.url, config)
+      });
+      const thrown = await news.random().catch((err: unknown) => err);
+
+      expect((thrown as NewsUpstreamError).failure).toBe('error-response');
+      expect(upstream.hits).toEqual(['/moved']);
+    } finally {
+      await upstream.stop();
+    }
   });
 
   it('reports a timed-out request as no response, like any unanswered one', async () => {

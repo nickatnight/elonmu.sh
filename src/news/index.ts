@@ -5,11 +5,11 @@ import { NewsService } from './news.service';
 import { type NewsQuery, NewsUpstreamError } from './ports';
 import { NewsApiArticleSource } from './sources/newsapi/newsapi-article-source';
 
-type HttpConfig = { timeout: number };
+type HttpConfig = { timeout: number; maxRedirects: number };
 
 type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
-const NEWSAPI_CONFIG: HttpConfig = { timeout: 10_000 };
+const NEWSAPI_CONFIG: HttpConfig = { timeout: 10_000, maxRedirects: 0 };
 
 const systemClock: Clock = { now: () => new Date() };
 
