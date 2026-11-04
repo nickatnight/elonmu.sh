@@ -375,6 +375,13 @@ const testService = (n: number) => ({
 const ribbon = (page: string): string =>
   page.match(/<a class="ribbon"[\s\S]*?<\/a>/)?.[0] ?? '';
 
+const topbarOf = (page: string): string =>
+  page.match(/<header class="topbar">[\s\S]*?<\/header>/)?.[0] ?? '';
+
+const menuButton = (page: string): string =>
+  topbarOf(page).match(/<button class="topbar__menu"[\s\S]*?<\/button>/)?.[0] ??
+  '';
+
 const accessibleName = (link: string): string =>
   link
     .replace(/<[^>]+>/g, '')
@@ -666,6 +673,84 @@ describe('topbar', () => {
         href,
         link: `<a href="/docs#${id}"><code>GET ${api}</code> <span>docs</span></a>`
       });
+    }
+  });
+
+  it('opens the primary nav as a popover from a Menu button', () => {
+    const button = menuButton(html);
+    const navTag = topbarNav(html).match(/^<nav [^>]*>/)?.[0] ?? '';
+    const target = button.match(/popovertarget="([^"]+)"/)?.[1];
+
+    expect(button).toMatch(/^<button class="topbar__menu" type="button" /);
+    expect(accessibleName(button)).toBe('Menu');
+    expect(button).toMatch(/<span class="topbar__chevron" aria-hidden="true">/);
+    expect(target).toBeDefined();
+    expect(navTag).toContain(`id="${target}"`);
+    expect(navTag).toMatch(/\spopover[\s>]/);
+    expect(navTag).toContain('aria-label="Primary"');
+  });
+
+  it('puts the Menu button before the links, so Tab reaches it first', () => {
+    const topbar = topbarOf(html);
+    const button = topbar.indexOf('<button class="topbar__menu"');
+
+    expect(button).toBeGreaterThan(-1);
+    expect(button).toBeLessThan(topbar.indexOf('<nav '));
+  });
+
+  it('has one primary nav, shared by the inline links and the menu panel', async () => {
+    for (const path of ['/', '/news', '/docs']) {
+      const page = await (await fetch(`${server.url}${path}`)).text();
+
+      expect({ path, navs: page.match(/<nav\b/g)?.length }).toEqual({
+        path,
+        navs: 1
+      });
+    }
+  });
+
+  it('marks the current page in the nav on each service page and /docs, and none on /', async () => {
+    for (const [path, current] of [
+      ['/', []],
+      ['/news', ['News']],
+      ['/jet', ['Jet']],
+      ['/hype', ['Hype']],
+      ['/doge', ['DOGE']],
+      ['/starlink', ['Starlink']],
+      ['/docs', ['Docs']]
+    ] as const) {
+      const nav = topbarNav(await (await fetch(`${server.url}${path}`)).text());
+      const marked = [
+        ...nav.matchAll(/<a [^>]*aria-current="page"[^>]*>([^<]*)<\/a>/g)
+      ].map(([, label]) => label);
+
+      expect({ path, marked }).toEqual({ path, marked: [...current] });
+    }
+  });
+
+  it('opens the menu with no script or inline handler in the topbar', () => {
+    const topbar = topbarOf(html);
+
+    expect(topbar).not.toContain('<script');
+    expect(topbar).not.toMatch(/\son[a-z]+=/);
+  });
+
+  it('lists a seventh service in the menu with no template change', async () => {
+    const seven = await startTestServer(
+      createApp({ jet: sampleJet(), services: [...SERVICES, testService(7)] })
+    );
+
+    try {
+      const page = await (await fetch(`${seven.url}/`)).text();
+
+      expect(navLinks(page)).toEqual([
+        ...SERVICES.map((service) => service.nav),
+        'S7',
+        'Docs'
+      ]);
+      expect(menuButton(page)).toBe(menuButton(html));
+    } finally {
+      await seven.close();
     }
   });
 

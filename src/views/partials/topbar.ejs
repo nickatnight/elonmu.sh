@@ -3,7 +3,8 @@
         <img src="<%= asset('favicon-32x32.png') %>" width="20" height="20" alt="" />
         <span class="brand__name">elonmu.sh</span>
       </a>
-      <nav class="topbar__actions" aria-label="Primary">
+      <button class="topbar__menu" type="button" popovertarget="site-nav">Menu<span class="topbar__chevron" aria-hidden="true"></span></button>
+      <nav class="topbar__actions" id="site-nav" popover aria-label="Primary">
 <% for (const service of services) { -%>
         <a href="<%= service.href %>"<%- service.id === locals.current ? ' aria-current="page"' : '' %>><%= service.nav %></a>
 <% } -%>

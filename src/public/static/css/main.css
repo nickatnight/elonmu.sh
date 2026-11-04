@@ -168,11 +168,24 @@ pre {
 }
 
 .topbar__actions {
+  position: static;
   display: flex;
   align-items: center;
   gap: clamp(0.25rem, 6.5vw - 1rem, 1.5rem);
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
   padding-inline-end: calc(var(--ribbon) * 0.8 - 0.625rem - var(--margin));
+  overflow: visible;
+  background: none;
+  color: inherit;
   font-size: clamp(0.71875rem, 3.125vw + 0.09375rem, var(--step-small));
+}
+
+.topbar__menu {
+  display: none;
 }
 
 .topbar__actions a {
