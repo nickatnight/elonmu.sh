@@ -25,8 +25,9 @@ hooks are tested in `tests/hooks/`.
   `switch`, and after a group of `const`/`let`/`var` declarations.
   `bun run format` adds them and `format:check` fails without them; the edit
   hook runs only Biome. ESLint reads no ignore files, so a directory added to
-  `.gitignore` also goes in the config's `GITIGNORED_DIRS`
-  (`tests/eslint-padding.test.ts` checks this).
+  `.gitignore` also goes in the config's `GITIGNORED_DIRS`: as `**/<dir>/`
+  when git matches it at any depth, or as-is when it has a leading `/` or a
+  `/` before the last one (`tests/eslint-padding.test.ts` checks both).
 - Named exports only, no default exports (except `eslint.config.mjs`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
@@ -34,8 +35,10 @@ hooks are tested in `tests/hooks/`.
   adapters (axios, the system clock, `console`) only in a composition root
   (`src/jet/index.ts`, `src/index.ts`). Core code and routes import ports, not
   concrete sources, and there are no module-level singletons elsewhere.
-- Import types with `import type` or inline `type`. No `any`, `@ts-ignore` or
-  `biome-ignore`; there are none in the repo.
+- Import types with `import type` or inline `type`. No `any`, `@ts-ignore`,
+  `biome-ignore` or inline ESLint config (`eslint-disable`, `/* eslint */`);
+  there are none in the repo. The config sets `noInlineConfig`, so
+  `format:check` fails on one.
 - Keep Bluesky-specific fields out of `domain.ts` and out of the public JSON.
 
 ### Comments
