@@ -1,2 +1,2 @@
 [test]
-preload = ["./tests/setup/network-guard.ts"]
+preload = ["./tests/setup/network-guard.ts", "./tests/setup/env.ts"]
