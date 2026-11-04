@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { ESLint } from 'eslint';
 
@@ -144,13 +145,22 @@ describe('files ESLint checks', () => {
 
   it.each([
     'src/public/static/vendor/globe.gl.min.js',
-    'node_modules/eslint/lib/api.js',
-    '.claude/worktrees/feature/src/app.ts',
-    'docs/plans/sketch.ts',
-    'dist/index.js',
-    'files/x.js',
-    '.playwright-mcp/x.js'
+    'node_modules/eslint/lib/api.js'
   ])('ignores %p', async (file) => {
     expect(await eslint.isPathIgnored(path.join(projectDir, file))).toBe(true);
+  });
+
+  const gitignoredDirs = readFileSync(
+    path.join(projectDir, '.gitignore'),
+    'utf8'
+  )
+    .split('\n')
+    .filter((line) => line.endsWith('/'))
+    .map((line) => line.replace(/^\//, ''));
+
+  it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (dir) => {
+    expect(await eslint.isPathIgnored(path.join(projectDir, dir, 'a.ts'))).toBe(
+      true
+    );
   });
 });
