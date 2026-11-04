@@ -62,3 +62,32 @@ export const startTestServer = (app: Express): Promise<TestServer> =>
       });
     });
   });
+
+export interface RedirectServer {
+  url: string;
+  hits: string[];
+  stop: () => Promise<void>;
+}
+
+export const serveRedirect = (landingBody: unknown): RedirectServer => {
+  const hits: string[] = [];
+  const server = Bun.serve({
+    hostname: '127.0.0.1',
+    port: 0,
+    fetch: (req) => {
+      const { origin, pathname } = new URL(req.url);
+
+      hits.push(pathname);
+
+      return pathname === '/moved'
+        ? Response.redirect(`${origin}/landed`, 302)
+        : Response.json(landingBody);
+    }
+  });
+
+  return {
+    url: `http://127.0.0.1:${server.port}/moved`,
+    hits,
+    stop: () => server.stop(true)
+  };
+};

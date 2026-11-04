@@ -1,30 +1,105 @@
 import { describe, expect, it } from 'bun:test';
-import { AxiosError, type AxiosResponse } from 'axios';
+import axios, { AxiosError, type AxiosResponse } from 'axios';
 import { createNewsModule } from '../../src/news/index';
 import { type NewsFailure, NewsUpstreamError } from '../../src/news/ports';
 import { FakeClock, FakeLogger } from '../fakes';
 import { newsApiArticle } from '../fixtures';
+import { serveRedirect } from '../helpers';
 
 const quiet = { logger: new FakeLogger() };
 
 describe('createNewsModule', () => {
-  it('asks NewsAPI with the key it is given, and returns its article', async () => {
-    const urls: string[] = [];
+  it('sends the key in the X-Api-Key header and never in the URL', async () => {
+    const requests: { url: string; config: unknown }[] = [];
     const news = createNewsModule({
       ...quiet,
       apiKey: 'k-123',
-      get: async (url) => {
-        urls.push(url);
+      get: async (url, config) => {
+        requests.push({ url, config });
 
         return { data: { articles: [newsApiArticle] } };
       }
     });
 
     expect((await news.random()).title).toBe(newsApiArticle.title);
-    expect(new URL(urls[0] ?? '').searchParams.get('apiKey')).toBe('k-123');
+    expect(requests.map(({ config }) => config)).toEqual([
+      expect.objectContaining({ headers: { 'X-Api-Key': 'k-123' } })
+    ]);
+    expect(requests.map(({ url }) => url)).toEqual([
+      expect.not.stringMatching(/apiKey|k-123/)
+    ]);
   });
 
-  it('gives NewsAPI 10 s to answer, like the other upstreams', async () => {
+  it('calls NewsAPI with the key header, a 10 s timeout and no redirects', async () => {
+    const requests: { url: string; config: unknown }[] = [];
+    const news = createNewsModule({
+      ...quiet,
+      apiKey: 'k-123',
+      get: async (url, config) => {
+        requests.push({ url, config });
+
+        return { data: { articles: [newsApiArticle] } };
+      }
+    });
+
+    await news.random();
+    expect(requests).toEqual([
+      {
+        url: 'https://newsapi.org/v2/everything?q=elon%20musk&language=en',
+        config: {
+          timeout: 10_000,
+          maxRedirects: 0,
+          headers: { 'X-Api-Key': 'k-123' }
+        }
+      }
+    ]);
+  });
+
+  it('warns once, when it is created, that NEWS_API_KEY is missing', async () => {
+    const logger = new FakeLogger();
+    const news = createNewsModule({
+      logger,
+      apiKey: '',
+      get: async () => ({ data: { articles: [newsApiArticle] } })
+    });
+    const oneWarning = [{ msg: expect.stringContaining('NEWS_API_KEY') }];
+
+    expect(logger.warnings).toEqual(oneWarning);
+    await news.random();
+    await news.random();
+    expect(logger.warnings).toEqual(oneWarning);
+  });
+
+  it('logs nothing at creation when it has a key', () => {
+    const logger = new FakeLogger();
+
+    createNewsModule({
+      logger,
+      apiKey: 'k-123',
+      get: async () => ({ data: {} })
+    });
+    expect(logger.warnings).toEqual([]);
+  });
+
+  it('warns when NEWS_API_KEY is unset in the environment', () => {
+    const saved = process.env.NEWS_API_KEY;
+
+    delete process.env.NEWS_API_KEY;
+
+    try {
+      const logger = new FakeLogger();
+
+      createNewsModule({ logger, get: async () => ({ data: {} }) });
+      expect(logger.warnings).toEqual([
+        { msg: expect.stringContaining('NEWS_API_KEY') }
+      ]);
+    } finally {
+      if (saved === undefined) delete process.env.NEWS_API_KEY;
+      else process.env.NEWS_API_KEY = saved;
+    }
+  });
+
+  it('reads the key from NEWS_API_KEY by default', async () => {
     const configs: unknown[] = [];
     const news = createNewsModule({
       ...quiet,
@@ -36,7 +111,30 @@ describe('createNewsModule', () => {
     });
 
     await news.random();
-    expect(configs).toEqual([{ timeout: 10_000 }]);
+    expect(configs).toEqual([
+      expect.objectContaining({
+        headers: { 'X-Api-Key': 'test-news-api-key' }
+      })
+    ]);
+  });
+
+  it('reports a NewsAPI redirect as an error response and never follows it', async () => {
+    const upstream = serveRedirect({ articles: [newsApiArticle] });
+
+    try {
+      const news = createNewsModule({
+        ...quiet,
+        apiKey: 'k-123',
+        get: (_url, config) => axios.get(upstream.url, config)
+      });
+      const failed = news.random();
+
+      await expect(failed).rejects.toBeInstanceOf(NewsUpstreamError);
+      await expect(failed).rejects.toMatchObject({ failure: 'error-response' });
+      expect(upstream.hits).toEqual(['/moved']);
+    } finally {
+      await upstream.stop();
+    }
   });
 
   it('reports a timed-out request as no response, like any unanswered one', async () => {

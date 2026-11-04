@@ -1,19 +1,11 @@
 import axios from 'axios';
 import { version } from '../../package.json';
+import type { GetJson, HttpConfig } from '../http-config';
 import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedPageviewSource } from './cached-pageview-source';
 import { HypeService } from './hype.service';
 import type { HypeQuery } from './ports';
 import { WikimediaPageviewSource } from './sources/wikimedia/wikimedia-pageview-source';
-
-export type HttpConfig = {
-  timeout: number;
-  maxContentLength: number;
-  maxRedirects: number;
-  headers: Record<string, string>;
-};
-
-type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const systemClock: Clock = { now: () => new Date() };
 

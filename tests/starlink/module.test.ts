@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { AxiosError, type AxiosResponse } from 'axios';
 import pkg from '../../package.json';
-import {
-  createStarlinkModule,
-  type HttpConfig,
-  warmUp
-} from '../../src/starlink/index';
+import type { HttpConfig } from '../../src/http-config';
+import { createStarlinkModule, warmUp } from '../../src/starlink/index';
 import { GP_URL } from '../../src/starlink/sources/celestrak/celestrak-orbit-source';
 import { SATCAT_URL } from '../../src/starlink/sources/celestrak/celestrak-reentry-source';
 import { FakeClock, FakeLogger, inTimeZone } from '../fakes';
@@ -39,7 +36,7 @@ describe('createStarlinkModule', () => {
 
     const snapshot = await starlink.snapshot();
 
-    const config = {
+    const config: HttpConfig = {
       timeout: 10_000,
       maxContentLength: 16 * 1024 * 1024,
       maxRedirects: 0,

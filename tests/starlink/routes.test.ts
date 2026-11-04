@@ -1,10 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../../src/app';
+import type { HttpConfig } from '../../src/http-config';
 import type { StarlinkSnapshot } from '../../src/starlink/domain';
-import {
-  createStarlinkModule,
-  type HttpConfig
-} from '../../src/starlink/index';
+import { createStarlinkModule } from '../../src/starlink/index';
 import { GP_URL } from '../../src/starlink/sources/celestrak/celestrak-orbit-source';
 import { FakeClock, FakeLogger } from '../fakes';
 import gpCapture from '../fixtures/celestrak-starlink-gp.json';
