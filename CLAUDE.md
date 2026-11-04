@@ -25,7 +25,7 @@ hooks are tested in `tests/hooks/`.
   `switch`, and after a group of `const`/`let`/`var` declarations.
   `bun run format` adds them and `format:check` fails without them; the edit
   hook runs only Biome. ESLint reads no ignore files, so a directory added to
-  `.gitignore` also goes in the config's `globalIgnores`
+  `.gitignore` also goes in the config's `GITIGNORED_DIRS`
   (`tests/eslint-padding.test.ts` checks this).
 - Named exports only, no default exports (except `eslint.config.mjs`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
