@@ -58,8 +58,9 @@ bundler. Bun runs the TypeScript directly.
   against its JSDoc types (`checkJs`), with one `tsconfig.json` for the
   whole program. Its `lib` includes `DOM` and `DOM.Iterable`, so server code
   that names `document` or `window` is not a type error; it fails at
-  runtime. The vendored globe.gl is excluded and has no types, and `jet.js`
-  types its calls into it as `any`.
+  runtime. The vendored globe.gl is excluded and has no types, so `jet.js`
+  and `starlink.js` each declare a `GlobeView` typedef with only the methods
+  they call, and a misspelt globe.gl method fails the typecheck.
 
 ## Shared ports and cache
 
