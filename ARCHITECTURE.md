@@ -13,9 +13,16 @@ bundler. Bun runs the TypeScript directly.
   services })`, so tests can inject fakes and start the app on a random port
   with `startTestServer` (`tests/helpers.ts`).
 - Any module a test leaves out is the real one. A test that follows nav links
-  or card links must pass a fake for every page it reaches, or it calls the
-  real upstream. `tests/jet/page.test.ts` passes `sampleStarlink()` for this
-  reason.
+  or card links must pass a fake for every page it reaches.
+  `tests/setup/network-guard.ts`, preloaded from `bunfig.toml`, catches a
+  missing fake. It blocks `fetch`, `node:net` and `node:tls` connects (axios's
+  http adapter goes through them), `node:dns` lookups and `Bun.connect` to
+  any host that is not loopback, and records each attempt. The routes turn
+  the resulting error into a 200, so a throw alone would fail nothing: a
+  global `afterEach` fails the test that made the attempt, and a global
+  `afterAll` fails the run for attempts after the last test. `Bun.fetch`
+  (read-only), `WebSocket` and `dns.resolve*` are not guarded.
+  `tests/network-guard.test.ts` tests the guard.
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
   (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) fails, the route
   returns **200 with `{ error }`** through `upstreamFailure()`. Only our own

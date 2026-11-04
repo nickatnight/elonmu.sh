@@ -273,9 +273,11 @@ $ bun run format          # apply Biome formatting
 $ bun run check           # format check, lint, typecheck, tests (what CI runs)
 ```
 
-Tests run offline: `tests/setup/network-guard.ts`, preloaded from
-`bunfig.toml`, blocks requests to any host but localhost and fails the test
-that made one, so give `createApp` a fake for every module a test reaches.
+Tests must not reach the network. `tests/setup/network-guard.ts`, preloaded
+from `bunfig.toml`, blocks `fetch`, axios and other `node:net`/`node:tls`
+connects, `node:dns` lookups and `Bun.connect` to any host but localhost, and
+fails the test that tried. Give `createApp` a fake for every module a test
+reaches.
 
 `bun run dev` restarts on every save. It sets `SKIP_STARLINK_WARM_UP=1`, so a
 restart does not download the Starlink catalogues (about 9 MB from CelesTrak);
