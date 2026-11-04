@@ -12,8 +12,8 @@
     "start": "bun src/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint --error-on-warnings .",
-    "format": "biome check --write --linter-enabled=false .",
-    "format:check": "biome check --linter-enabled=false .",
+    "format": "biome check --write --linter-enabled=false . && eslint --fix .",
+    "format:check": "biome check --linter-enabled=false . && eslint .",
     "test": "bun test",
     "audit": "bun audit --audit-level=moderate",
     "check:static": "bun run format:check && bun run lint && bun run typecheck",
@@ -45,9 +45,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.2",
+    "@stylistic/eslint-plugin": "5.10.0",
     "@types/bun": "^1.4.3",
     "@types/compression": "^1.8.1",
     "@types/express": "^4.17.17",
-    "typescript": "^5.9.3"
+    "eslint": "10.14.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "8.72.1"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
   }
 }

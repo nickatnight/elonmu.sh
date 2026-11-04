@@ -11,6 +11,7 @@ export class CelesTrakReentrySource implements ReentrySource {
 
   async fetchReentries(): Promise<ReentryLog> {
     const reentries = parseSatcat(await this.deps.http<unknown>(SATCAT_URL));
+
     return { readAt: this.deps.clock.now().toISOString(), reentries };
   }
 }

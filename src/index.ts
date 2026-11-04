@@ -10,6 +10,7 @@ const port = process.env.PORT;
 
 const jet = createJetModule();
 const starlink = createStarlinkModule();
+
 void warmUpCaches({ jet, starlink }, process.env);
 
 createApp({

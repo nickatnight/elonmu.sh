@@ -44,7 +44,9 @@ const stylesheet = (): string => {
   const href = html.match(
     /href="(\/static\/css\/main\.css\?v=[0-9a-f]+)"/
   )?.[1];
+
   if (!href) throw new Error('main.css link not found');
+
   return href;
 };
 
@@ -52,6 +54,7 @@ const expectSecurityHeaders = (res: Response): void => {
   for (const [name, value] of Object.entries(expected)) {
     expect(res.headers.get(name)).toBe(value);
   }
+
   expect(res.headers.get('x-powered-by')).toBeNull();
 };
 
@@ -70,6 +73,7 @@ describe('security headers', () => {
 
   it('are set on the JSON API', async () => {
     const res = await fetch(`${server.url}/api/news`);
+
     expect(res.status).toBe(200);
     expectSecurityHeaders(res);
   });
@@ -87,8 +91,10 @@ describe('page markup vs the CSP', () => {
     'the pages have no %s, which the CSP would block',
     async (_label, pattern) => {
       expect(html).not.toMatch(pattern);
+
       for (const path of ['/jet', '/news', '/docs']) {
         const page = await (await fetch(`${server.url}${path}`)).text();
+
         expect({ path, matches: pattern.test(page) }).toEqual({
           path,
           matches: false

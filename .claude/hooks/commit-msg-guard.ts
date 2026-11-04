@@ -8,6 +8,7 @@ const subject = command === null ? null : extractSubject(command);
 
 if (subject !== null) {
   const verdict = checkSubject(subject);
+
   if (!verdict.ok) {
     console.error(
       [

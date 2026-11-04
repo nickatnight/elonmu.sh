@@ -19,6 +19,7 @@ const plural = (n: number, unit: string): string =>
 
 const parts = (date: IsoDate): [number, number, number] => {
   const [year, month, day] = date.split('-').map(Number);
+
   return [year, month, day];
 };
 
@@ -26,6 +27,7 @@ export const lifespan = (launched: IsoDate, reentered: IsoDate): string => {
   const [y1, m1, d1] = parts(launched);
   const [y2, m2, d2] = parts(reentered);
   const months = (y2 - y1) * 12 + (m2 - m1) - (d2 < d1 ? 1 : 0);
+
   if (months > 0) {
     const years = Math.floor(months / 12);
     const rest = months % 12;
@@ -33,10 +35,13 @@ export const lifespan = (launched: IsoDate, reentered: IsoDate): string => {
       years > 0 ? plural(years, 'year') : '',
       rest > 0 ? plural(rest, 'month') : ''
     ].filter(Boolean);
+
     return `lived ${spoken.join(', ')}`;
   }
+
   const days =
     (Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86_400_000;
+
   return days > 0 ? `lived ${plural(days, 'day')}` : 'lived less than a day';
 };
 

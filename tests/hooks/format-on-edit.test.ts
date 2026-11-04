@@ -8,7 +8,10 @@ import { runHook } from './run-hook';
 
 const projectDir = path.join(import.meta.dir, '../..');
 // Lives in the repo so Biome applies biome.json.
-const fixture = path.join(import.meta.dir, 'tmp-format-fixture.ts');
+const fixture = path.join(
+  import.meta.dir,
+  `tmp-format-fixture-${crypto.randomUUID()}.ts`
+);
 
 const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
   runHook(
@@ -52,6 +55,7 @@ describe('format-on-edit hook', () => {
   it('rewrites a badly formatted file and exits 0', async () => {
     await Bun.write(fixture, 'export const   answer = {a:"b"}\n');
     const result = await formatOnEdit(fixture);
+
     expect(result).toEqual({ exitCode: 0, stderr: '' });
     expect(await Bun.file(fixture).text()).toBe(
       "export const answer = { a: 'b' };\n"
@@ -65,6 +69,7 @@ describe('format-on-edit hook', () => {
       "export const dir = path.join('a', 'b');",
       ''
     ];
+
     await Bun.write(
       fixture,
       [
@@ -87,6 +92,7 @@ describe('format-on-edit hook', () => {
     // noUnusedVariables is a warning whose fix is unsafe, so --write leaves it.
     await Bun.write(fixture, 'const unused = 1;\nexport const x = 2;\n');
     const { exitCode, stderr } = await formatOnEdit(fixture);
+
     expect(exitCode).toBe(2);
     expect(stderr).toContain('noUnusedVariables');
   });
@@ -97,6 +103,7 @@ describe('format-on-edit hook', () => {
       'export const isOne = (n: unknown): boolean => n == 1;\n'
     );
     const { exitCode, stderr } = await formatOnEdit(fixture);
+
     expect(exitCode).toBe(2);
     expect(stderr).toContain('noDoubleEquals');
   });
@@ -112,21 +119,26 @@ describe('format-on-edit hook', () => {
     const result = await runHook('format-on-edit.ts', '{"tool_input":{}}', {
       CLAUDE_PROJECT_DIR: projectDir
     });
+
     expect(result).toEqual({ exitCode: 0, stderr: '' });
   });
 
   it('fails open with a note when Biome is not installed', async () => {
     const bare = await mkdtemp(path.join(tmpdir(), 'format-on-edit-'));
+
     await cp(
       path.join(projectDir, 'biome.json'),
       path.join(bare, 'biome.json')
     );
     const file = path.join(bare, 'x.ts');
+
     await Bun.write(file, 'export const   x = 1\n');
+
     try {
       const { exitCode, stderr } = await formatOnEdit(file, {
         CLAUDE_PROJECT_DIR: bare
       });
+
       expect(exitCode).toBe(0);
       expect(stderr).toContain('Biome not found');
     } finally {
@@ -140,6 +152,7 @@ describe('.claude/settings.json', () => {
     const settings = await Bun.file(
       path.join(projectDir, '.claude/settings.json')
     ).json();
+
     expect(settings.hooks.PostToolUse).toContainEqual({
       matcher: 'Edit|Write|MultiEdit',
       hooks: [

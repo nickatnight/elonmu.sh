@@ -12,6 +12,7 @@ export class DogeService implements DogeQuery {
   async comparison(): Promise<DogeComparison> {
     const now = await this.source.fetchPrice();
     const ratio = now.usd / SNL_SHOWTIME.usd;
+
     return {
       coin: DOGE_COIN,
       snl: SNL_SHOWTIME,

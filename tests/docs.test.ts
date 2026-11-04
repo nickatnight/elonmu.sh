@@ -59,9 +59,12 @@ const example = (id: string): unknown =>
 const keyPaths = (value: unknown, at = ''): string[] => {
   if (Array.isArray(value))
     return [...new Set(value.flatMap((item) => keyPaths(item, `${at}[]`)))];
+
   if (typeof value !== 'object' || value === null) return [];
+
   return Object.entries(value).flatMap(([key, child]) => {
     const path = at ? `${at}.${key}` : key;
+
     return [path, ...keyPaths(child, path)];
   });
 };
@@ -106,12 +109,14 @@ describe('GET /docs', () => {
     const ids = [...html.matchAll(/<section class="doc" id="([^"]+)"/g)].map(
       ([, id]) => id
     );
+
     expect(ids).toEqual([...SERVICES.map(({ id }) => id), 'errors']);
   });
 
   it('heads each block with its endpoint and gives a curl for it', () => {
     for (const { id, api } of SERVICES) {
       const section = block(id);
+
       expect({
         id,
         heading: textOf(section.match(/<h2[^>]*>[\s\S]*?<\/h2>/)?.[0] ?? '')
@@ -127,6 +132,7 @@ describe('GET /docs', () => {
     'documents the %s example with the keys %s really returns',
     async (id, api) => {
       const real = await (await fetch(`${server.url}${api}`)).json();
+
       expect(keyPaths(example(id)).sort()).toEqual(keyPaths(real).sort());
     }
   );
@@ -136,6 +142,7 @@ describe('GET /docs', () => {
       const documented = [
         ...block(id).matchAll(/<tr><td><code>([^<]+)<\/code><\/td>/g)
       ].map(([, field]) => field);
+
       for (const key of Object.keys(example(id) as object))
         expect({ id, key, listed: documented.includes(key) }).toEqual({
           id,
@@ -153,17 +160,21 @@ describe('GET /docs', () => {
 
   it('cites the SNL price source and what now.at means', () => {
     const doge = textOf(block('doge-since-snl'));
+
     expect(doge).toContain('Binance');
     expect(doge).toContain('now.at');
   });
 
   it('explains errors with the approved intro, the statuses and the 404 body', () => {
     const errors = textOf(block('errors'));
+
     expect(errors).toContain(
       'When an upstream (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) is down, the status is still 200: we are fine, it is the world that failed. Our own mistakes are a 500.'
     );
+
     for (const status of ['200', '500', '404'])
       expect(block('errors')).toContain(`<td><code>${status}</code></td>`);
+
     expect(errors).toContain('does not compute...');
     expect(errors).toContain('Fig. 1: a 500, in production.');
     expect(block('errors')).toMatch(
@@ -182,6 +193,7 @@ describe('GET /docs', () => {
         block('errors').match(
           new RegExp(`<tr><td><code>${api}</code></td>[\\s\\S]*?</tr>`)
         )?.[0] ?? '';
+
       expect({ api, row: textOf(row) }).toEqual({
         api,
         row: expect.stringContaining('asks again after a minute')
@@ -191,13 +203,16 @@ describe('GET /docs', () => {
 
   it('gives each endpoint a cache row', () => {
     const errors = block('errors');
+
     for (const { api } of SERVICES)
       expect(errors).toContain(`<td><code>${api}</code></td>`);
   });
 
   it('renders copy buttons hidden until the script runs', () => {
     const buttons = html.match(/<button[^>]*class="copy"[^>]*>/g) ?? [];
+
     expect(buttons.length).toBeGreaterThanOrEqual(SERVICES.length * 2);
+
     for (const button of buttons) expect(button).toContain('hidden');
   });
 
@@ -205,6 +220,7 @@ describe('GET /docs', () => {
     const sheets = [
       ...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
+
     expect(sheets).toHaveLength(2);
     expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=[0-9a-f]+$/);
     expect(sheets[1]).toMatch(/^\/static\/css\/docs\.css\?v=[0-9a-f]+$/);
@@ -212,6 +228,7 @@ describe('GET /docs', () => {
 
   it('loads only console.js, for Send and Copy, with a content hash', () => {
     const scripts = html.match(/<script\b[^>]*>/g) ?? [];
+
     expect(scripts).toEqual([
       expect.stringMatching(
         /^<script type="module" src="\/static\/js\/console\.js\?v=[0-9a-f]+">$/
@@ -223,6 +240,7 @@ describe('GET /docs', () => {
   it('gives each endpoint block a Send button for its catalog api, hidden until the script runs', () => {
     for (const { id, api } of SERVICES) {
       const sends = block(id).match(/<button [^>]*data-api="[^"]*"[^>]*>/g);
+
       expect({ id, sends }).toEqual({
         id,
         sends: [
@@ -230,6 +248,7 @@ describe('GET /docs', () => {
         ]
       });
     }
+
     expect(block('errors')).not.toContain('data-api=');
   });
 
@@ -237,6 +256,7 @@ describe('GET /docs', () => {
     for (const { id, api } of SERVICES) {
       const link =
         block(id).match(/<a class="code__full"[\s\S]*?<\/a>/)?.[0] ?? '';
+
       expect(link).toContain(
         `<a class="code__full" href="${api}" target="_blank" rel="noopener noreferrer" hidden>`
       );
@@ -265,6 +285,7 @@ describe('GET /docs', () => {
     const file = Bun.file(
       `${import.meta.dir}/../src/public/static/js/console.js`
     );
+
     expect(file.size).toBeLessThanOrEqual(7 * 1024);
   });
 
@@ -272,9 +293,12 @@ describe('GET /docs', () => {
     const urls = [...html.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)
       .filter((url) => !url.startsWith('/#') && !/^\/[a-z]*$/.test(url));
+
     expect(urls.length).toBeGreaterThan(0);
+
     for (const url of new Set(urls)) {
       const asset = await fetch(`${server.url}${url}`);
+
       await asset.arrayBuffer();
       expect({ url, status: asset.status }).toEqual({ url, status: 200 });
     }
@@ -284,6 +308,7 @@ describe('GET /docs', () => {
 describe('the /api/starlink docs', () => {
   it('says what partial data looks like and how precise the elements are', () => {
     const starlink = textOf(block('starlink-globe'));
+
     expect(starlink).toContain('null');
     expect(starlink).toContain('no-store');
     expect(starlink).toContain('meanMotionDot');
@@ -296,6 +321,7 @@ describe('docs.css', () => {
     const docs = await Bun.file(
       `${import.meta.dir}/../src/public/static/css/docs.css`
     ).text();
+
     expect(docs).toMatch(
       /\.code :focus-visible \{\s*outline-color: var\(--code-ink\);\s*\}/
     );
@@ -306,8 +332,10 @@ describe('docs.css', () => {
       Bun.file(`${import.meta.dir}/../src/public/static/css/${file}`).text();
     const main = await css('main.css');
     const docs = await css('docs.css');
+
     for (const selector of ['.doc', '.code', '.fields', '.illus']) {
       const rule = new RegExp(`(^|\\n)\\s*\\${selector}[ ,{]`);
+
       expect({
         selector,
         main: rule.test(main),

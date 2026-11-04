@@ -9,6 +9,7 @@ import type { FlightSource, JetQuery } from './ports';
 
 const sumTotals = (flights: Flight[]): Totals => {
   const t = { flights: 0, minutes: 0, gallons: 0, usd: 0, co2Tons: 0 };
+
   for (const f of flights) {
     t.flights += 1;
     t.minutes += f.durationMin ?? 0;
@@ -16,7 +17,9 @@ const sumTotals = (flights: Flight[]): Totals => {
     t.usd += f.fuel?.usd ?? 0;
     t.co2Tons += f.fuel?.co2Tons ?? 0;
   }
+
   const { minutes, ...rest } = t;
+
   return { ...rest, hours: minutes / 60 };
 };
 

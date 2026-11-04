@@ -23,12 +23,17 @@ export const parseElonJetPost = (
   uri: string
 ): JetEvent | null => {
   const m = BOT_POST.exec(text);
+
   if (!m) return null;
+
   const time = Date.parse(createdAt);
+
   if (Number.isNaN(time)) return null;
+
   const [, tail, verb, place, hours, minutes] = m;
   const kind = verb === 'Landed' ? 'landing' : 'takeoff';
   const timed = hours !== undefined || minutes !== undefined;
+
   return {
     kind,
     tail: tail ?? null,
@@ -46,10 +51,13 @@ export const parseFuelReply = (text: string): Fuel | null => {
   const gallons = /~ (-?[\d,]+(?:\.\d+)?) gallons/.exec(text)?.[1];
   const usd = /~ \$(-?[\d,]+(?:\.\d+)?) cost of fuel/.exec(text)?.[1];
   const co2 = /~ (-?[\d,]+(?:\.\d+)?) tons of CO2/.exec(text)?.[1];
+
   if (gallons === undefined || usd === undefined || co2 === undefined) {
     return null;
   }
+
   const fuel = { gallons: num(gallons), usd: num(usd), co2Tons: num(co2) };
+
   return Object.values(fuel).every((v) => Number.isFinite(v) && v >= 0)
     ? fuel
     : null;

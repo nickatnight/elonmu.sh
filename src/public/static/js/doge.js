@@ -33,6 +33,7 @@ const coins = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
  */
 export const amountAt = (position) => {
   const amount = MIN_DOGE * 10 ** ((position / SLIDER_STEPS) * DECADES);
+
   return amount >= 1000 ? Math.round(amount / 10) * 10 : Math.round(amount);
 };
 
@@ -42,6 +43,7 @@ export const amountAt = (position) => {
  */
 export const positionOf = (amount) => {
   const clamped = Math.min(Math.max(amount, MIN_DOGE), MAX_DOGE);
+
   return Math.round((Math.log10(clamped / MIN_DOGE) / DECADES) * SLIDER_STEPS);
 };
 
@@ -51,7 +53,9 @@ export const positionOf = (amount) => {
  */
 export const parseAmount = (text) => {
   if (text.trim() === '') return null;
+
   const amount = Number(text);
+
   return Number.isFinite(amount) && amount >= 0 ? amount : null;
 };
 
@@ -75,18 +79,23 @@ export const holding = (amount, snlUsd, nowUsd) => ({
 export const startHeldControl = ({ held, field, range, outputs }) => {
   const snlUsd = Number(held.dataset.snlUsd);
   const nowUsd = Number(held.dataset.nowUsd);
+
   if (!(snlUsd > 0 && nowUsd > 0)) return;
 
   /** @param {number} amount */
   const render = (amount) => {
     const values = holding(amount, snlUsd, nowUsd);
+
     for (const el of outputs) {
       const key = /** @type {keyof Holding} */ (el.dataset.out);
+
       if (el.dataset.wrap !== 'commas') {
         el.replaceChildren(values[key]);
         continue;
       }
+
       const [first, ...rest] = values[key].split(',');
+
       el.replaceChildren(
         first,
         ...rest.flatMap((group) => [
@@ -96,18 +105,22 @@ export const startHeldControl = ({ held, field, range, outputs }) => {
         ])
       );
     }
+
     range.setAttribute('aria-valuetext', `${values.doge} DOGE`);
   };
 
   range.addEventListener('input', () => {
     const amount = amountAt(range.valueAsNumber);
+
     field.value = String(amount);
     render(amount);
   });
 
   field.addEventListener('input', () => {
     const amount = parseAmount(field.value);
+
     if (amount === null) return;
+
     range.value = String(positionOf(amount));
     render(amount);
   });
@@ -120,14 +133,17 @@ const start = () => {
   const held = document.querySelector('[data-snl-usd]');
   const field = held?.querySelector('input[type="number"]');
   const range = held?.querySelector('input[type="range"]');
+
   if (
     !held ||
     !(field instanceof HTMLInputElement) ||
     !(range instanceof HTMLInputElement)
   )
     return;
+
   /** @type {NodeListOf<HTMLElement>} */
   const outputs = document.querySelectorAll('[data-out]');
+
   startHeldControl({ held, field, range, outputs });
 };
 

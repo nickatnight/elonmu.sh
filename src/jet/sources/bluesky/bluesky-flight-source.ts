@@ -16,10 +16,13 @@ const ACTOR = 'elonjet.net';
 
 const warnOnce = (logger: Logger): Logger => {
   const warned = new Set<string>();
+
   return {
     warn: (msg, meta) => {
       const key = `${msg} ${JSON.stringify(meta ?? {})}`;
+
       if (warned.has(key)) return;
+
       warned.add(key);
       logger.warn(msg, meta);
     }
@@ -49,11 +52,15 @@ export class BlueskyFlightSource implements FlightSource {
 
     const events: JetEvent[] = [];
     const fuelByParentUri = new Map<string, Fuel>();
+
     for (const { post } of items) {
       const { text, createdAt, reply } = post.record;
       const event = parseElonJetPost(text, createdAt, post.uri);
+
       if (event) events.push(event);
+
       const fuel = reply ? parseFuelReply(text) : null;
+
       if (reply && fuel) fuelByParentUri.set(reply.parent.uri, fuel);
     }
 
@@ -64,6 +71,7 @@ export class BlueskyFlightSource implements FlightSource {
       logger: this.logger,
       postUrl: (uri) => {
         const rkey = recordKey(uri);
+
         return /^\w+$/.test(rkey)
           ? `https://bsky.app/profile/${ACTOR}/post/${rkey}`
           : null;

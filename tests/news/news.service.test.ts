@@ -29,6 +29,7 @@ describe('NewsService', () => {
       new InMemoryArticleSource(articles, { error: new Error('down') }),
       () => 0
     );
+
     await expect(news.random()).rejects.toThrow('down');
   });
 });

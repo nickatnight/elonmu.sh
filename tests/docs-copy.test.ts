@@ -59,21 +59,27 @@ const responseFigure = () => {
   const figure = new FakeElement(doc);
   const pre = new FakeElement(doc);
   const code = new FakeElement(doc);
+
   code.textContent = STATIC_EXAMPLE;
   pre.textContent = STATIC_EXAMPLE;
   pre.parts.code = code;
   const send = new FakeElement(doc);
+
   send.dataset.api = '/api/hype';
   const copy = new FakeElement(doc);
+
   for (const el of [send, copy]) el.figure = figure;
+
   figure.parts.pre = pre;
   figure.parts['.code__label'] = new FakeElement(doc);
   figure.parts['.code__full'] = new FakeElement(doc);
+
   return { doc, figure, pre, code, send, copy };
 };
 
 const fakeClipboard = () => {
   const written: string[] = [];
+
   return {
     written,
     writeText: async (text: string) => {
@@ -99,6 +105,7 @@ describe('Copy on /docs', () => {
     const { copy } = responseFigure();
     const clipboard = fakeClipboard();
     const run = startCopy(copy, { clipboard, later: noLater });
+
     await run?.();
     expect(clipboard.written).toEqual([STATIC_EXAMPLE]);
   });
@@ -106,9 +113,11 @@ describe('Copy on /docs', () => {
   it('copies the full live response, pretty-printed and untrimmed, after Send', async () => {
     const { code, send, copy } = responseFigure();
     const body = { article: 'Elon Musk', days };
+
     await startSend(send, { fetch: respondWith(body) })?.();
     expect(code.textContent).toContain('… 2 more');
     const clipboard = fakeClipboard();
+
     await startCopy(copy, { clipboard, later: noLater })?.();
     expect(clipboard.written).toEqual([JSON.stringify(body, null, 2)]);
   });
@@ -116,8 +125,10 @@ describe('Copy on /docs', () => {
   it('copies an error body from Send as it came back', async () => {
     const { send, copy } = responseFigure();
     const body = { error: 'Pageview data is unavailable right now.' };
+
     await startSend(send, { fetch: respondWith(body) })?.();
     const clipboard = fakeClipboard();
+
     await startCopy(copy, { clipboard, later: noLater })?.();
     expect(clipboard.written).toEqual([JSON.stringify(body, null, 2)]);
   });
@@ -127,8 +138,10 @@ describe('Copy on /docs', () => {
     let reset: (() => void) | null = null;
     const later = (fn: () => void) => {
       reset = fn;
+
       return 0;
     };
+
     await startCopy(copy, { clipboard: fakeClipboard(), later })?.();
     expect(copy.textContent).toBe('Copied');
     expect(doc.announce.textContent).toBe('Copied');
@@ -143,12 +156,14 @@ describe('Copy on /docs', () => {
         throw new Error('denied');
       }
     };
+
     await startCopy(copy, { clipboard, later: noLater })?.();
     expect(copy.textContent).toBe('Failed');
   });
 
   it('shows the Copy button once wired', () => {
     const { copy } = responseFigure();
+
     startCopy(copy, { clipboard: fakeClipboard(), later: noLater });
     expect(copy.hidden).toBe(false);
   });
@@ -160,9 +175,11 @@ describe('Send on /docs', () => {
     const urls: string[] = [];
     const fetch = async (url: string) => {
       urls.push(url);
+
       return new Response('{}');
     };
     const run = startSend(send, { fetch });
+
     expect(send.hidden).toBe(false);
     await run?.();
     expect(urls).toEqual(['/api/hype']);
@@ -170,6 +187,7 @@ describe('Send on /docs', () => {
 
   it('shows the trimmed live response as a preview, with the full-response link', async () => {
     const { doc, figure, code, send } = responseFigure();
+
     await startSend(send, { fetch: respondWith({ days }) })?.();
     expect(code.textContent).toContain('… 2 more');
     expect(figure.parts['.code__label']?.textContent).toBe(
@@ -186,6 +204,7 @@ describe('Send on /docs', () => {
     const fetch = async () => {
       throw new TypeError('offline');
     };
+
     await startSend(send, { fetch })?.();
     expect(figure.parts['.code__label']?.textContent).toBe(
       'Preview · No response'
@@ -195,8 +214,10 @@ describe('Send on /docs', () => {
 
   it('keeps the response box as tall as the example when an error comes back', async () => {
     const { pre, send } = responseFigure();
+
     pre.height = 844;
     const body = { error: 'Price data is unavailable right now.' };
+
     await startSend(send, { fetch: respondWith(body) })?.();
     expect(pre.style.minHeight).toBe('844px');
   });
@@ -205,6 +226,7 @@ describe('Send on /docs', () => {
     const { pre, send } = responseFigure();
     const body = { error: 'Price data is unavailable right now.' };
     const run = startSend(send, { fetch: respondWith(body) });
+
     pre.height = 844;
     await run?.();
     pre.height = 244;

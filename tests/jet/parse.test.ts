@@ -140,6 +140,7 @@ describe('parseElonJetPost: bot posts', () => {
 
   it('normalises both timestamp styles the feed uses to ISO UTC', () => {
     const text = 'N8628 Took off from Austin, Texas, United States.';
+
     expect(parseElonJetPost(text, '2026-03-13T23:30:23.913Z', uri)?.at).toBe(
       '2026-03-13T23:30:23.913Z'
     );
@@ -150,6 +151,7 @@ describe('parseElonJetPost: bot posts', () => {
 
   it('rejects a post with an unparseable timestamp', () => {
     const text = 'N8628 Took off from Austin, Texas, United States.';
+
     expect(parseElonJetPost(text, 'yesterday', uri)).toBeNull();
   });
 });
@@ -166,6 +168,7 @@ describe('parseElonJetPost: everything else', () => {
     'Rejected takeoff',
     ''
   ];
+
   for (const text of ignored) {
     it(`ignores ${JSON.stringify(text)}`, () => {
       expect(parseElonJetPost(text, at, uri)).toBeNull();
@@ -177,6 +180,7 @@ describe('parseFuelReply', () => {
   it('reads gallons, dollars and tonnes of CO₂ from a real reply', () => {
     const text =
       '\n~ 782 gallons (2,960 liters). \n~ 5,240 lbs (2,377 kg) of jet fuel used. \n~ $6,083 cost of fuel. \n~ 8 tons of CO2 emissions.';
+
     expect(parseFuelReply(text)).toEqual({
       gallons: 782,
       usd: 6083,
@@ -187,6 +191,7 @@ describe('parseFuelReply', () => {
   it('reads thousands separators', () => {
     const text =
       '\n~ 1,021 gallons (3,863 liters). \n~ 6,840 lbs (3,103 kg) of jet fuel used. \n~ $7,961 cost of fuel. \n~ 11 tons of CO2 emissions.';
+
     expect(parseFuelReply(text)).toEqual({
       gallons: 1021,
       usd: 7961,
@@ -197,12 +202,14 @@ describe('parseFuelReply', () => {
   it('reads fractional tonnes', () => {
     const text =
       '\n~ 6 gallons (22 liters). \n~ 40 lbs (18 kg) of jet fuel used. \n~ $40 cost of fuel. \n~ 0.0625 tons of CO2 emissions.';
+
     expect(parseFuelReply(text)?.co2Tons).toBe(0.0625);
   });
 
   it('rejects the negative estimates the bot sometimes posts', () => {
     const text =
       '\n~ -6 gallons (-22 liters). \n~ -40 lbs (-18 kg) of jet fuel used. \n~ $-40 cost of fuel. \n~ -0.0625 tons of CO2 emissions.';
+
     expect(parseFuelReply(text)).toBeNull();
   });
 
@@ -228,7 +235,9 @@ describe('the feed fixture', () => {
         r.text
       )
     );
+
     expect(botShaped.length).toBeGreaterThan(40);
+
     for (const r of botShaped) {
       expect(parseElonJetPost(r.text, r.createdAt, uri)).not.toBeNull();
     }
@@ -238,9 +247,12 @@ describe('the feed fixture', () => {
     const fuelShaped = posts.filter(
       (r) => 'reply' in r && r.text.includes('cost of fuel')
     );
+
     expect(fuelShaped.length).toBeGreaterThan(10);
+
     for (const r of fuelShaped) {
       const fuel = parseFuelReply(r.text);
+
       if (r.text.includes('~ -')) expect(fuel).toBeNull();
       else expect(fuel).not.toBeNull();
     }

@@ -17,10 +17,12 @@ afterAll(() => server.close());
 describe('GET /api/news over the wire', () => {
   it('sends the article as compact JSON, keys in the documented order', async () => {
     const res = await fetch(`${server.url}/api/news`);
+
     expect(res.headers.get('content-type')).toBe(
       'application/json; charset=utf-8'
     );
     const a = article();
+
     expect(await res.text()).toBe(
       JSON.stringify({
         source: a.source,
@@ -35,6 +37,7 @@ describe('GET /api/news over the wire', () => {
 
   it('sets no Cache-Control, as before the move', async () => {
     const res = await fetch(`${server.url}/api/news`);
+
     await res.arrayBuffer();
     expect(res.headers.get('cache-control')).toBeNull();
   });

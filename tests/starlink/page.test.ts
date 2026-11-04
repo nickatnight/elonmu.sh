@@ -25,6 +25,7 @@ const nastyStarlink = (): StarlinkQuery => ({
         name: '<img src=x onerror=alert(1)>'
       }))
     };
+
     return {
       ...real,
       reentries,
@@ -57,15 +58,18 @@ beforeAll(async () => {
     nasty: nastyStarlink(),
     newYear: sampleStarlink(new FakeClock('2027-01-01T00:00:00.000Z'))
   };
+
   for (const name of Object.keys(starlinks) as Name[]) {
     servers[name] = await startTestServer(
       createApp({ jet: sampleJet(), starlink: starlinks[name] })
     );
     const res = await fetch(`${servers[name].url}/starlink`);
+
     status[name] = res.status;
     headers[name] = res.headers;
     html[name] = await res.text();
   }
+
   home = await (await fetch(`${servers.ok.url}/`)).text();
 });
 
@@ -123,6 +127,7 @@ describe('GET /starlink', () => {
     const obits = [
       ...html.ok.matchAll(/<li class="starlink__obit">([\s\S]*?)<\/li>/g)
     ].map(([, li]) => text(li));
+
     expect(obits).toHaveLength(12);
     expect(obits.slice(0, 3)).toEqual([
       'STARLINK-1309 2020 → Oct 29 lived 6 years, 7 months',
@@ -134,6 +139,7 @@ describe('GET /starlink', () => {
   it('reads the arrow as "to" and dates each end with <time>', () => {
     const first =
       html.ok.match(/<li class="starlink__obit">[\s\S]*?<\/li>/)?.[0] ?? '';
+
     expect(first).toContain('<time datetime="2020-03-18">2020</time>');
     expect(first).toContain('<time datetime="2026-10-29">Oct 29</time>');
     expect(first).toContain(
@@ -153,6 +159,7 @@ describe('GET /starlink', () => {
   it('shows the still Earth until the globe loads, with the globe sources on its pane', () => {
     const pane =
       html.ok.match(/<div\s+class="starlink__globe"[^>]*>/)?.[0] ?? '';
+
     expect(pane).toContain('aria-hidden="true"');
     expect(pane).toMatch(
       /data-globe-src="\/static\/vendor\/globe\.gl\.min\.js\?v=\w+"/
@@ -181,9 +188,12 @@ describe('GET /starlink', () => {
     ]
       .map(([, url]) => url)
       .filter((url) => url.includes('?v='));
+
     expect(urls.some((u) => u.includes('starlink.css'))).toBe(true);
+
     for (const url of new Set(urls)) {
       const res = await fetch(`${servers.ok.url}${url}`);
+
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
@@ -278,6 +288,7 @@ describe('client modules imported by a relative URL', () => {
   it('are revalidated on every visit, so a deploy reaches returning visitors', async () => {
     for (const target of new Set(relativeImports)) {
       const res = await fetch(`${servers.ok.url}/static/js/${target}`);
+
       await res.arrayBuffer();
       expect({ target, cache: res.headers.get('cache-control') }).toEqual({
         target,
@@ -290,6 +301,7 @@ describe('client modules imported by a relative URL', () => {
     const src =
       html.ok.match(/src="(\/static\/js\/starlink\.js\?v=\w+)"/)?.[1] ?? '';
     const res = await fetch(`${servers.ok.url}${src}`);
+
     await res.arrayBuffer();
     expect(res.headers.get('cache-control')).toBe('public, max-age=31536000');
   });
@@ -318,6 +330,7 @@ describe('starlink.css', () => {
     const links = [
       ...html.ok.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
+
     expect(links).toEqual([
       expect.stringMatching(/^\/static\/css\/main\.css\?v=\w+$/),
       expect.stringMatching(/^\/static\/css\/starlink\.css\?v=\w+$/)
@@ -338,12 +351,14 @@ describe('starlink.css', () => {
   it('sizes the big number with clamp() and tabular figures', () => {
     const rule =
       css('starlink.css').match(/\.starlink__number\s*\{[^}]*\}/)?.[0] ?? '';
+
     expect(rule).toMatch(/font-size:\s*clamp\(/);
     expect(rule).toContain('font-variant-numeric: tabular-nums');
   });
 
   it('shows the credit link in the muted text, ink on hover and focus, like the other pages', () => {
     const sheet = css('starlink.css');
+
     expect(sheet).not.toMatch(/\.starlink__credit a\s*\{/);
     expect(sheet).toMatch(
       /\.starlink__credit a:hover,\s*\.starlink__credit a:focus-visible\s*\{\s*color: var\(--ink\);\s*\}/
@@ -354,6 +369,7 @@ describe('starlink.css', () => {
     const classes = [...css('starlink.css').matchAll(/\.([a-z][\w-]*)/g)].map(
       ([, name]) => name
     );
+
     expect(
       classes.filter((c) => !c.startsWith('starlink__') && c !== 'has-globe')
     ).toEqual([]);
@@ -368,6 +384,7 @@ describe('starlink.css', () => {
     const diameterOfPane =
       Math.tan(Math.asin(1 / cameraRadii)) /
       Math.tan(((globeGlFovDeg / 2) * Math.PI) / 180);
+
     expect(percent).toBeCloseTo(100 * diameterOfPane, 1);
     expect(rule).toContain('width: auto;');
   });
@@ -400,6 +417,7 @@ describe('the page template', () => {
     const raw = [...view.matchAll(/<%-\s*([^%]*)%>/g)].map(([, code]) =>
       code.trim()
     );
+
     for (const code of raw) expect(code).toMatch(/^include\(/);
   });
 
@@ -407,6 +425,7 @@ describe('the page template', () => {
     const local = [...view.matchAll(/(?:href|src)="(\/[^"]*)"/g)].map(
       ([, url]) => url
     );
+
     expect(local).toEqual([]);
   });
 });

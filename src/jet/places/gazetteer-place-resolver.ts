@@ -11,9 +11,11 @@ export class GazetteerPlaceResolver implements PlaceResolver {
       const [lat, lon] = coords;
       const valid =
         coords.length === 2 && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+
       if (!valid) {
         throw new RangeError(`places.json: ${name} has bad coordinates`);
       }
+
       this.places.set(name, { name, lat, lon });
     }
   }

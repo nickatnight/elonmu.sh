@@ -20,16 +20,21 @@ export const toTeaser = (snapshot: JetSnapshot): Teaser => {
   const newest = flights[0];
 
   const arcs: TeaserArc[] = [];
+
   flights.forEach((f, i) => {
     if (f.status === 'airborne' || !f.from || !f.to) return;
+
     const d = arcPath(f.from, f.to);
+
     if (d) arcs.push({ id: f.id, d, latest: i === 0 });
   });
   arcs.reverse();
 
   let origin: Teaser['origin'] = null;
+
   if (newest?.status === 'airborne' && newest.from) {
     const p = orthographic(newest.from);
+
     if (p.visible) origin = { x: round1(p.x), y: round1(p.y) };
   }
 

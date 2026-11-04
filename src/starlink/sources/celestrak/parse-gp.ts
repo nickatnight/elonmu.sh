@@ -5,7 +5,9 @@ const EPOCH = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?Z?$/;
 
 const toEpoch = (value: unknown): IsoTimestamp | null => {
   const match = typeof value === 'string' ? EPOCH.exec(value) : null;
+
   if (!match) return null;
+
   const [year, month, day, hour, minute, second] = match
     .slice(1, 7)
     .map(Number);
@@ -17,8 +19,11 @@ const toEpoch = (value: unknown): IsoTimestamp | null => {
     whole.getUTCHours() === hour &&
     whole.getUTCMinutes() === minute &&
     whole.getUTCSeconds() === second;
+
   if (!fieldsKept) return null;
+
   const ms = Math.round(Number(match[7] ?? 0) * 1000);
+
   return new Date(whole.getTime() + ms).toISOString();
 };
 
@@ -27,12 +32,16 @@ const finiteOrNaN = (value: unknown): number =>
 
 const toSatellite = (record: unknown): Satellite | null => {
   if (!isObject(record)) return null;
+
   const id = record.NORAD_CAT_ID;
   const name = record.OBJECT_NAME;
   const epoch = toEpoch(record.EPOCH);
+
   if (typeof id !== 'number' || !Number.isSafeInteger(id) || id <= 0)
     return null;
+
   if (typeof name !== 'string' || name.trim() === '' || !epoch) return null;
+
   const satellite: Satellite = {
     id,
     name: name.trim(),
@@ -55,6 +64,7 @@ const toSatellite = (record: unknown): Satellite | null => {
     Number.isFinite(satellite.raan) &&
     Number.isFinite(satellite.argOfPerigee) &&
     Number.isFinite(satellite.meanAnomaly);
+
   return valid ? satellite : null;
 };
 

@@ -13,6 +13,7 @@ const slowJet = (ms: number): JetQuery => ({
 });
 
 const names = ['full', 'landed', 'empty', 'down', 'slow'] as const;
+
 type Name = (typeof names)[number];
 const servers = {} as Record<Name, TestServer>;
 const html = {} as Record<Name, string>;
@@ -34,9 +35,11 @@ beforeAll(async () => {
     down: failingJet(),
     slow: slowJet(2000)
   };
+
   for (const name of names) {
     servers[name] = await startTestServer(createApp({ jet: jets[name] }));
     const t0 = performance.now();
+
     html[name] = await (await fetch(`${servers[name].url}/`)).text();
     ms[name] = performance.now() - t0;
   }
@@ -52,6 +55,7 @@ const teaser = (name: Name) =>
 describe('home jet teaser', () => {
   it('sits between the services and the testimonials', () => {
     const at = (s: string) => html.full.indexOf(s);
+
     expect(at('class="teaser"')).toBeGreaterThan(at('id="services"'));
     expect(at('class="teaser"')).toBeLessThan(at('id="testimonials"'));
   });
@@ -65,6 +69,7 @@ describe('home jet teaser', () => {
 
   it('draws one SVG path per visible arc over the lazy, fixed-size Earth image', () => {
     const t = teaser('full');
+
     expect(t).toMatch(
       new RegExp(
         String.raw`<img[^>]+src="/static/img/globe/teaser-earth\.webp\?v=\w+"[^>]+width="${TEASER_SIZE}"[^>]+height="${TEASER_SIZE}"[^>]+loading="lazy"`
@@ -88,6 +93,7 @@ describe('home jet teaser', () => {
     const arcs = [...t.matchAll(/<path class="(teaser__arc[^"]*)"/g)].map(
       (m) => m[1]
     );
+
     expect(arcs).toEqual(['teaser__arc', 'teaser__arc is-latest']);
     expect(t.match(/<path class="teaser__pulse"/g)).toHaveLength(1);
     expect(t).toContain('Latest: Hawthorne → Austin, Jun 20');
@@ -97,6 +103,7 @@ describe('home jet teaser', () => {
     const text = teaser('full')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ');
+
     expect(text).toContain('4 flights · 5 h');
     expect(teaser('full')).toContain('Flight data:');
   });
@@ -109,6 +116,7 @@ describe('home jet teaser', () => {
 
   it('falls back to the bare Earth, a note and the link when data fails', () => {
     const t = teaser('down');
+
     expect(t).toContain('teaser-earth.webp');
     expect(t).not.toContain('<svg');
     expect(t).toContain('href="/jet"');

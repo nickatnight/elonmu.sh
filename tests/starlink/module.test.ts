@@ -22,8 +22,10 @@ const recordingGet = () => {
   const requests: { url: string; config: HttpConfig }[] = [];
   const get = async (url: string, config: HttpConfig) => {
     requests.push({ url, config });
+
     return { data: captures[url] };
   };
+
   return { get, requests };
 };
 
@@ -45,6 +47,7 @@ describe('createStarlinkModule', () => {
         'User-Agent': `elonmu.sh/${pkg.version} (https://github.com/nickatnight/elonmu.sh)`
       }
     };
+
     expect(requests).toEqual([
       {
         url: 'https://celestrak.org/NORAD/elements/gp.php?GROUP=starlink&FORMAT=json',
@@ -70,6 +73,7 @@ describe('createStarlinkModule', () => {
     }
 
     const count = (url: string) => requests.filter((r) => r.url === url).length;
+
     expect({ gp: count(GP_URL), satcat: count(SATCAT_URL) }).toEqual({
       gp: 4,
       satcat: 2
@@ -83,6 +87,7 @@ describe('createStarlinkModule', () => {
       const starlink = createStarlinkModule({ get, clock });
 
       const before = await starlink.snapshot();
+
       clock.set('2027-01-01T00:00:00.000Z');
       const after = await starlink.snapshot();
 
@@ -154,13 +159,16 @@ describe('createStarlinkModule', () => {
     const starlink = createStarlinkModule({
       get: async (url, config) => {
         const answer = await get(url, config);
+
         if (refusing) throw refusal(403);
+
         return answer;
       },
       clock,
       logger
     });
     const first = await starlink.snapshot();
+
     clock.advance(6 * 3_600_000);
     refusing = true;
 
@@ -184,6 +192,7 @@ describe('createStarlinkModule', () => {
       clock: new FakeClock('2026-10-30T04:30:00.000Z'),
       logger
     });
+
     await expect(starlink.snapshot()).rejects.toThrow('403');
     expect(logger.warnings.map((w) => w.msg).sort()).toEqual([
       'starlink: orbit refresh failed, no orbits to serve',
@@ -199,6 +208,7 @@ describe('warmUp', () => {
       get,
       clock: new FakeClock('2026-10-30T04:30:00.000Z')
     });
+
     await warmUp(starlink, new FakeLogger());
     await starlink.snapshot();
     expect(requests.map((r) => r.url)).toEqual([GP_URL, SATCAT_URL]);
@@ -206,6 +216,7 @@ describe('warmUp', () => {
 
   it('warns and carries on when CelesTrak is down at start', async () => {
     const logger = new FakeLogger();
+
     await expect(warmUp(failingStarlink(), logger)).resolves.toBeUndefined();
     expect(logger.warnings).toEqual([
       {

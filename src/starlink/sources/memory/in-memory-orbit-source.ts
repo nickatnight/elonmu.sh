@@ -13,6 +13,7 @@ export class InMemoryOrbitSource implements OrbitSource {
 
   async fetchOrbits(): Promise<OrbitCatalog> {
     if (this.error) throw this.error;
+
     return {
       readAt: this.catalog.readAt,
       satellites: this.catalog.satellites.map((s) => ({ ...s }))

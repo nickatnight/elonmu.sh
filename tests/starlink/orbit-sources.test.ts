@@ -35,6 +35,7 @@ describeOrbitSource('InMemoryOrbitSource', {
 describe('CelesTrakOrbitSource', () => {
   it("asks CelesTrak for the Starlink GP group as JSON, CelesTrak's own query", async () => {
     const http = fakeHttpGet({ [GP_URL]: capture });
+
     await new CelesTrakOrbitSource({
       http: http.get,
       clock: new FakeClock(READ_AT)
@@ -49,6 +50,7 @@ describe('CelesTrakOrbitSource', () => {
       http: fakeHttpGet({ [GP_URL]: capture }).get,
       clock: new FakeClock(READ_AT)
     }).fetchOrbits();
+
     expect(catalog.readAt).toBe(READ_AT);
     expect(catalog.satellites).toHaveLength(200);
   });
@@ -58,6 +60,7 @@ describe('CelesTrakOrbitSource', () => {
       http: fakeHttpGet({ [GP_URL]: 'No GP data found' }).get,
       clock: new FakeClock(READ_AT)
     });
+
     await expect(source.fetchOrbits()).rejects.toThrow();
   });
 });

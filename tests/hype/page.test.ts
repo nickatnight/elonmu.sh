@@ -31,11 +31,13 @@ beforeAll(async () => {
     down: failingHype(),
     nasty: nastyHype()
   };
+
   for (const name of Object.keys(hypes) as Name[]) {
     servers[name] = await startTestServer(
       createApp({ jet: sampleJet(), hype: hypes[name] })
     );
     const res = await fetch(`${servers[name].url}/hype`);
+
     status[name] = res.status;
     headers[name] = res.headers;
     html[name] = await res.text();
@@ -81,11 +83,13 @@ describe('GET /hype', () => {
 
   it('draws a wide and a narrow chart, each an image with a summary', () => {
     const charts = svgs(html.full);
+
     expect(charts).toHaveLength(2);
     expect(charts[0]).toMatch(/class="hype__svg hype__svg--wide"/);
     expect(charts[0]).toContain('viewBox="0 0 720 ');
     expect(charts[1]).toMatch(/class="hype__svg hype__svg--narrow"/);
     expect(charts[1]).toContain('viewBox="0 0 360 ');
+
     for (const svg of charts) {
       expect(svg).toContain('role="img"');
       expect(svg).toContain(
@@ -97,8 +101,10 @@ describe('GET /hype', () => {
   it('sets the chart text size once, from the chart geometry', async () => {
     const series = await sampleHype(capturedDays()).series();
     const charts = svgs(html.full);
+
     for (const [i, frame] of (['wide', 'narrow'] as const).entries()) {
       const { fontSize } = seismograph(series, frame);
+
       expect(charts[i].match(/^<svg\b[^>]*>/)?.[0]).toContain(
         `font-size="${fontSize}"`
       );
@@ -107,6 +113,7 @@ describe('GET /hype', () => {
 
   it('draws the needles as one path per colour', () => {
     const [wide] = svgs(html.full);
+
     expect(wide.match(/<path\b/g)).toHaveLength(2);
     expect(wide).toMatch(/<path class="hype__needles" d="M/);
     expect(wide).toMatch(/<path class="hype__needles hype__needles--hot" d="M/);
@@ -114,6 +121,7 @@ describe('GET /hype', () => {
 
   it('labels the spikes on the chart', () => {
     const [wide, narrow] = svgs(html.full);
+
     expect(wide.match(/class="hype__label"/g)).toHaveLength(5);
     expect(narrow.match(/class="hype__label"/g)).toHaveLength(3);
     expect(wide).toContain('12 Jun · 9.3×');
@@ -131,6 +139,7 @@ describe('GET /hype', () => {
     const items = [...list.matchAll(/<li[\s\S]*?<\/li>/g)].map(([li]) =>
       text(li)
     );
+
     expect(items).toHaveLength(5);
     expect(items[0]).toBe('12 Jun 2026 194,434 views 9.3× a normal day');
     expect(list).toContain('<time datetime="2026-06-12">12 Jun 2026</time>');
@@ -139,6 +148,7 @@ describe('GET /hype', () => {
   it('states a normal day, the peak and the total', () => {
     const stats =
       html.full.match(/<ul class="hype__stats"[\s\S]*?<\/ul>/)?.[0] ?? '';
+
     expect(text(stats)).toBe(
       '20,803 views on a normal day 194,434 peak, 12 Jun 2026 8.7M views in the last year'
     );
@@ -188,9 +198,12 @@ describe('GET /hype', () => {
     const urls = [...html.full.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)
       .filter((url) => url.includes('?v='));
+
     expect(urls.some((u) => u.includes('hype.css'))).toBe(true);
+
     for (const url of new Set(urls)) {
       const res = await fetch(`${servers.full.url}${url}`);
+
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
@@ -205,6 +218,7 @@ describe('hype stylesheets', () => {
 
   it('links main.css then hype.css, each with a content hash', () => {
     const links = sheets(html.full);
+
     expect(links).toHaveLength(2);
     expect(links[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
     expect(links[1]).toMatch(/^\/static\/css\/hype\.css\?v=\w+$/);
@@ -212,6 +226,7 @@ describe('hype stylesheets', () => {
 
   it('never links hype.css on the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
+
     expect(sheets(home).some((href) => href.includes('hype.css'))).toBe(false);
   });
 
@@ -239,6 +254,7 @@ describe('hype stylesheets', () => {
       [...(blocks.get(width) ?? '').matchAll(/([.\w-]+)\s*\{/g)].map(
         ([, selector]) => selector
       );
+
     expect(selectors('48rem')).toEqual([
       '.hype__svg--wide',
       '.hype__svg--narrow',
@@ -252,6 +268,7 @@ describe('hype stylesheets', () => {
       css('hype.css').match(
         new RegExp(`\\.${block}\\s*\\{[^}]*max-width:\\s*([^;]+);`)
       )?.[1];
+
     expect(maxWidth('hype__spikes')).toBe('50rem');
     expect(maxWidth('hype__stats')).toBe('50rem');
   });
@@ -260,7 +277,9 @@ describe('hype stylesheets', () => {
     const svgText = css('hype.css').match(
       /\.hype__(?:axis|label)\s*\{[^}]*\}/g
     );
+
     expect(svgText?.length).toBe(2);
+
     for (const rule of svgText ?? []) expect(rule).not.toContain('font-size');
   });
 
@@ -283,6 +302,7 @@ describe('hype topbar', () => {
 
   it('links to /hype from the home page', async () => {
     const home = await (await fetch(`${servers.full.url}/`)).text();
+
     expect(home).toMatch(/<a href="\/hype"[^>]*>Hype<\/a>/);
   });
 });

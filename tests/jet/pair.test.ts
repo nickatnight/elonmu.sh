@@ -46,6 +46,7 @@ const run = (events: JetEvent[], overrides: Partial<PairOptions> = {}) => {
     postUrl: (uri) => `https://bsky.app/post/${uri.split('/').at(-1)}`,
     ...overrides
   });
+
   return { flights, logger };
 };
 
@@ -58,6 +59,7 @@ describe('pairFlights', () => {
     const { flights } = run([landing, takeoff], {
       fuelByParentUri: new Map([[landing.uri, fuel]])
     });
+
     expect(flights).toEqual([
       {
         id: `takeoff-2026-09-01T14:00:00.000Z`,
@@ -79,6 +81,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-01T14:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-01T16:30:00.000Z', SAN_JOSE)
     ]);
+
     expect(flights[0].durationMin).toBe(150);
   });
 
@@ -87,6 +90,7 @@ describe('pairFlights', () => {
       durationMin: 60
     });
     const { flights } = run([landing]);
+
     expect(flights).toHaveLength(1);
     expect(flights[0]).toMatchObject({
       id: `landing-2026-09-02T09:00:00.000Z`,
@@ -104,6 +108,7 @@ describe('pairFlights', () => {
       [ev('takeoff', '2026-09-30T12:00:00.000Z', AUSTIN)],
       { now: new Date('2026-09-30T20:00:00.000Z') }
     );
+
     expect(flights).toEqual([
       expect.objectContaining({
         from: places.austin,
@@ -122,6 +127,7 @@ describe('pairFlights', () => {
       [ev('takeoff', '2026-09-30T02:00:00.000Z', AUSTIN)],
       { now: new Date('2026-09-30T20:00:00.000Z') }
     );
+
     expect(flights).toEqual([]);
   });
 
@@ -131,6 +137,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-03T14:00:00.000Z', SAN_JOSE),
       ev('landing', '2026-09-03T17:00:00.000Z', AUSTIN)
     ]);
+
     expect(flights.map((f) => f.from?.name)).toEqual([SAN_JOSE]);
   });
 
@@ -139,6 +146,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-01T14:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-02T15:00:00.000Z', SAN_JOSE)
     ]);
+
     expect(flights).toHaveLength(1);
     expect(flights[0]).toMatchObject({ from: null, to: places.sanJose });
   });
@@ -148,6 +156,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-01T10:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-01T16:00:00.000Z', HAWTHORNE, { durationMin: 45 })
     ]);
+
     expect(flights).toHaveLength(1);
     expect(flights[0]).toMatchObject({
       from: null,
@@ -161,6 +170,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-01T14:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-01T14:20:00.000Z', AUSTIN, { durationMin: 17 })
     ]);
+
     expect(flights).toHaveLength(1);
     expect(flights[0]).toMatchObject({
       from: places.austin,
@@ -177,8 +187,10 @@ describe('pairFlights', () => {
     ]);
     const route = (tail: string) => {
       const f = flights.find((x) => x.tail === tail);
+
       return `${f?.from?.name} → ${f?.to?.name}`;
     };
+
     expect(flights).toHaveLength(2);
     expect(route('N8628')).toBe(`${AUSTIN} → ${HAWTHORNE}`);
     expect(route('N7628')).toBe(`${SAN_JOSE} → ${AUSTIN}`);
@@ -192,6 +204,7 @@ describe('pairFlights', () => {
         durationMin: 500
       })
     ]);
+
     expect(flights).toHaveLength(1);
     expect(flights[0]).toMatchObject({
       tail: UNKNOWN_TAIL,
@@ -207,6 +220,7 @@ describe('pairFlights', () => {
       ev('takeoff', '2026-09-02T14:00:00.000Z', AUSTIN),
       ev('landing', '2026-09-02T16:00:00.000Z', 'Atlantis, Ocean, Nowhere')
     ]);
+
     expect(flights).toHaveLength(2);
     expect(
       flights.find((f) => f.departedAt?.startsWith('2026-09-01'))?.from
@@ -226,6 +240,7 @@ describe('pairFlights', () => {
       [ev('takeoff', '2026-09-01T14:00:00.000Z', AUSTIN), landing],
       { fuelByParentUri: new Map([['at://someone/else', fuel]]) }
     );
+
     expect(flights[0].fuel).toBeNull();
   });
 
@@ -239,6 +254,7 @@ describe('pairFlights', () => {
       ],
       { now: new Date('2026-09-30T13:00:00.000Z') }
     );
+
     expect(flights).toHaveLength(3);
     assertFlightShape(flights);
   });

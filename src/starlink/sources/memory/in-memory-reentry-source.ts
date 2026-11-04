@@ -13,6 +13,7 @@ export class InMemoryReentrySource implements ReentrySource {
 
   async fetchReentries(): Promise<ReentryLog> {
     if (this.error) throw this.error;
+
     return {
       readAt: this.log.readAt,
       reentries: this.log.reentries.map((r) => ({ ...r }))

@@ -11,16 +11,19 @@ export const register = (app: express.Application, starlink: StarlinkQuery) => {
   const bodies = new WeakMap<StarlinkSnapshot, string>();
   const bodyOf = (snapshot: StarlinkSnapshot): string => {
     let body = bodies.get(snapshot);
+
     if (body === undefined) {
       body = JSON.stringify(snapshot);
       bodies.set(snapshot, body);
     }
+
     return body;
   };
 
   app.get('/api/starlink', async (_req, res) => {
     try {
       const snapshot = await starlink.snapshot();
+
       res
         .set(
           'Cache-Control',
@@ -39,13 +42,17 @@ export const register = (app: express.Application, starlink: StarlinkQuery) => {
 
   app.get('/starlink', async (_req, res) => {
     let page: StarlinkPage = { state: 'unavailable' };
+
     try {
       const snapshot = await starlink.snapshot();
+
       page = starlinkPage(snapshot);
+
       if (!isComplete(snapshot)) res.set('Cache-Control', 'no-store');
     } catch {
       res.set('Cache-Control', 'no-store');
     }
+
     res.render('starlink', { page });
   });
 };

@@ -17,8 +17,11 @@ const SPIKE_GAP_DAYS = 7;
 
 const median = (days: readonly DayViews[]): number => {
   const views = days.map((d) => d.views).sort((a, b) => a - b);
+
   if (views.length === 0) return 0;
+
   const mid = Math.floor(views.length / 2);
+
   return views.length % 2
     ? views[mid]
     : Math.round((views[mid - 1] + views[mid]) / 2);
@@ -27,10 +30,13 @@ const median = (days: readonly DayViews[]): number => {
 const statsOf = (days: readonly DayViews[]): HypeStats => {
   let peak: DayViews | null = null;
   let total = 0;
+
   for (const d of days) {
     total += d.views;
+
     if (!peak || d.views > peak.views) peak = d;
   }
+
   return { total, median: median(days), peak };
 };
 
@@ -39,14 +45,18 @@ const daysApart = (a: DayViews, b: DayViews): number =>
 
 const spikesOf = (days: readonly DayViews[], normal: number): Spike[] => {
   if (normal <= 0) return [];
+
   const picked: DayViews[] = [];
   const loudestFirst = [...days].sort(
     (a, b) => b.views - a.views || a.date.localeCompare(b.date)
   );
+
   for (const d of loudestFirst) {
     if (picked.length === SPIKE_COUNT) break;
+
     if (picked.every((p) => daysApart(p, d) >= SPIKE_GAP_DAYS)) picked.push(d);
   }
+
   return picked.map((d) => ({
     ...d,
     timesMedian: Math.round((d.views / normal) * 10) / 10
@@ -70,6 +80,7 @@ export class HypeService implements HypeQuery {
     const from = new Date(today - WINDOW_DAYS * DAY_MS);
     const days = await this.source.fetchDays(from, to);
     const stats = statsOf(days);
+
     return {
       article: HYPE_ARTICLE,
       from: days[0]?.date ?? isoDate(from),

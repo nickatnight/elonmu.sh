@@ -29,8 +29,10 @@ beforeAll(async () => {
       })
     ])
   };
+
   for (const [name, news] of Object.entries(fakes)) {
     const key = name as keyof typeof servers;
+
     servers[key] = await startTestServer(createApp({ jet: sampleJet(), news }));
     res[key] = await fetch(`${servers[key].url}/news`);
     html[key] = await res[key].text();
@@ -67,6 +69,7 @@ describe('GET /news', () => {
     const description =
       'One random news article about Elon Musk, picked from the latest headlines. Also available as JSON.';
     const body = text(html.ok.match(/<body>[\s\S]*<\/body>/)?.[0] ?? '');
+
     expect(metaContent(html.ok, 'name="description"')).toBe(description);
     expect(body).toContain('News roulette');
     expect(body).not.toContain(description);
@@ -89,6 +92,7 @@ describe('GET /news', () => {
 
   it('renders the article on the server: source, date, title, description', () => {
     const article = card(html.ok);
+
     expect(text(article)).toContain('Example Daily · Oct 22, 2026');
     expect(article).toContain('<time datetime="2026-10-22T09:00:00Z">');
     expect(article).toMatch(
@@ -101,6 +105,7 @@ describe('GET /news', () => {
 
   it('shows the image without sending a referrer', () => {
     const img = card(html.ok).match(/<img [^>]*>/)?.[0] ?? '';
+
     expect(img).toContain('src="https://example.com/plan.jpg"');
     expect(img).toContain('referrerpolicy="no-referrer"');
     expect(img).toContain('alt=""');
@@ -109,6 +114,7 @@ describe('GET /news', () => {
   it('opens the article in a new tab, safely, and says so to screen readers', () => {
     const link =
       card(html.ok).match(/<a [^>]*class="card__link"[\s\S]*?<\/a>/)?.[0] ?? '';
+
     expect(link).toContain('href="https://example.com/plan"');
     expect(link).toContain('target="_blank"');
     expect(link).toContain('rel="noopener noreferrer"');
@@ -146,9 +152,12 @@ describe('GET /news', () => {
     const urls = [...html.ok.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)
       .filter((url) => !/^\/[a-z]*(#[\w-]+)?$/.test(url));
+
     expect(urls.length).toBeGreaterThan(0);
+
     for (const url of new Set(urls)) {
       const asset = await fetch(`${servers.ok.url}${url}`);
+
       await asset.arrayBuffer();
       expect({ url, status: asset.status }).toEqual({ url, status: 200 });
     }
@@ -158,6 +167,7 @@ describe('GET /news', () => {
     const sheets = [
       ...html.ok.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)
     ].map(([, href]) => href);
+
     expect(sheets).toHaveLength(2);
     expect(sheets[0]).toMatch(/^\/static\/css\/main\.css\?v=[0-9a-f]+$/);
     expect(sheets[1]).toMatch(/^\/static\/css\/news\.css\?v=[0-9a-f]+$/);
@@ -189,6 +199,7 @@ describe('GET /news with hostile article data', () => {
 
   it('drops a non-https image and a non-https link', () => {
     const article = card(html.hostile);
+
     expect(article).not.toContain('<img');
     expect(article).not.toContain('class="card__link"');
     expect(html.hostile).not.toContain('javascript:');
@@ -200,8 +211,10 @@ describe('news.css', () => {
     const main = await Bun.file(
       `${import.meta.dir}/../../src/public/static/css/main.css`
     ).text();
+
     expect(main).not.toMatch(/\.news[_\w-]* \{/);
     const home = await (await fetch(`${servers.ok.url}/`)).text();
+
     expect(home).not.toContain('news.css');
   });
 
@@ -210,10 +223,12 @@ describe('news.css', () => {
       const css = await Bun.file(
         `${import.meta.dir}/../../src/public/static/css/${page}.css`
       ).text();
+
       return css.match(
         new RegExp(`^\\.${page} \\{[^}]*?width: ([^;]+);`, 'm')
       )?.[1];
     };
+
     expect({
       news: await columnWidth('news'),
       hype: await columnWidth('hype'),

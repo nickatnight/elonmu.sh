@@ -11,6 +11,7 @@ const guard = (command: string) =>
 describe('commit-msg-guard hook', () => {
   it('blocks a commit whose subject is not a Conventional Commit', async () => {
     const { exitCode, stderr } = await guard('git commit -m "Bad subject"');
+
     expect(exitCode).toBe(2);
     expect(stderr).toContain('Bad subject');
     expect(stderr).toContain('<type>(<scope>): <summary>');
@@ -21,17 +22,20 @@ describe('commit-msg-guard hook', () => {
     const { exitCode, stderr } = await guard(
       "git commit -q -F - <<'EOF'\nBad subject\n\nBody.\nEOF"
     );
+
     expect(exitCode).toBe(2);
     expect(stderr).toContain('Subject: Bad subject');
   });
 
   it('allows a valid subject', async () => {
     const result = await guard('git commit -m "feat(api): add x"');
+
     expect(result).toEqual({ exitCode: 0, stderr: '' });
   });
 
   it('allows commands that are not commits', async () => {
     const result = await guard('git status');
+
     expect(result).toEqual({ exitCode: 0, stderr: '' });
   });
 
@@ -46,6 +50,7 @@ describe('commit-msg-guard hook', () => {
     '{"tool_input":{"command":42}}'
   ])('fails open on unusable input %p', async (stdin) => {
     const { exitCode } = await runHook('commit-msg-guard.ts', stdin);
+
     expect(exitCode).toBe(0);
   });
 });
@@ -55,6 +60,7 @@ describe('.claude/settings.json', () => {
     const settings = await Bun.file(
       path.join(import.meta.dir, '../../.claude/settings.json')
     ).json();
+
     expect(settings.hooks.PreToolUse).toContainEqual({
       matcher: 'Bash',
       hooks: [

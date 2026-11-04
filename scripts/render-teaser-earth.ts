@@ -13,6 +13,7 @@ import path from 'node:path';
 import { type LatLon, TEASER_SIZE, TEASER_VIEW } from '../src/jet/projection';
 
 const globeDir = path.join(import.meta.dir, '../src/public/static/img/globe');
+
 export const TEXTURE = path.join(globeDir, 'earth-night.jpg');
 export const OUTPUT = path.join(globeDir, 'teaser-earth.webp');
 const WEBP_QUALITY = 85;
@@ -53,6 +54,7 @@ export const renderPng = (
     '1',
     output
   ]);
+
   if (run.exitCode !== 0) {
     throw new Error(`ffmpeg failed: ${run.stderr.toString()}`);
   }
@@ -60,11 +62,14 @@ export const renderPng = (
 
 if (import.meta.main) {
   const work = mkdtempSync(path.join(tmpdir(), 'teaser-earth-'));
+
   try {
     const png = path.join(work, 'teaser-earth.png');
+
     renderPng(TEXTURE, png);
     await Bun.file(png).image().webp({ quality: WEBP_QUALITY }).write(OUTPUT);
     const bytes = Bun.file(OUTPUT).size;
+
     console.log(
       `wrote ${path.relative(process.cwd(), OUTPUT)}: ${TEASER_SIZE}×${TEASER_SIZE}, ${(bytes / 1024).toFixed(1)} KB`
     );

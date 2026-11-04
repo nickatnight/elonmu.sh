@@ -19,7 +19,16 @@ hooks are tested in `tests/hooks/`.
 
 - Biome decides formatting: 2 spaces, single quotes, no trailing commas,
   80 columns. Don't hand-format; the edit hook and `format:check` enforce it.
-- Named exports only, no default exports. Prefer `const` arrow functions;
+- ESLint (`eslint.config.mjs`) runs one rule,
+  `@stylistic/padding-line-between-statements`: a blank line before `return`
+  (unless it opens its block), around `if`, `for`, `while`, `do`, `try` and
+  `switch`, and after a group of `const`/`let`/`var` declarations.
+  `bun run format` adds them and `format:check` fails without them; the edit
+  hook runs only Biome. ESLint reads no ignore files, so a directory added to
+  `.gitignore` also goes in the config's `GITIGNORED_DIRS`
+  (`tests/eslint-padding.test.ts` checks this).
+- Named exports only, no default exports (except `eslint.config.mjs`, because
+  ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
 - Inject dependencies through the constructor or `deps` objects. Wire concrete
   adapters (axios, the system clock, `console`) only in a composition root

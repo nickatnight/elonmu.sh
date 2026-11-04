@@ -11,6 +11,7 @@ class RecordingSource implements PageviewSource {
 
   fetchDays(from: Date, to: Date): Promise<DayViews[]> {
     this.requests.push({ from: from.toISOString(), to: to.toISOString() });
+
     return this.inner.fetchDays(from, to);
   }
 }
@@ -54,6 +55,7 @@ describe('HypeService window', () => {
     'asks for the 365 days ending yesterday in UTC, %s',
     async (_when, now, from, to) => {
       const source = new RecordingSource(new InMemoryPageviewSource([]));
+
       await new HypeService(source, new FakeClock(now)).series();
       expect(source.requests).toEqual([
         { from: `${from}T00:00:00.000Z`, to: `${to}T00:00:00.000Z` }
@@ -66,12 +68,14 @@ describe('HypeService window', () => {
       (d) => d.date !== '2025-10-27' && d.date !== '2026-10-26'
     );
     const series = await seriesOf(days);
+
     expect(series.from).toBe('2025-10-28');
     expect(series.to).toBe('2026-10-25');
   });
 
   it('returns the days oldest first, with the article, attribution and time', async () => {
     const series = await seriesOf(capturedDays());
+
     expect(series.days).toHaveLength(365);
     expect(series.days[0]).toEqual(day('2025-10-27', 19194));
     expect(series.article).toBe('Elon Musk');
@@ -89,6 +93,7 @@ describe('HypeService stats', () => {
       day('2026-10-02', 1),
       day('2026-10-03', 3)
     ];
+
     expect((await seriesOf(days)).stats.median).toBe(3);
   });
 
@@ -99,11 +104,13 @@ describe('HypeService stats', () => {
       day('2026-10-03', 3),
       day('2026-10-04', 10)
     ];
+
     expect((await seriesOf(days)).stats.median).toBe(3);
   });
 
   it('reports a whole median when Wikimedia returns 364 days', async () => {
     const { stats } = await seriesOf(capturedDays().slice(1));
+
     expect(stats.median).toBe(20804);
   });
 
@@ -114,12 +121,14 @@ describe('HypeService stats', () => {
       day('2026-10-03', 3)
     ];
     const { stats } = await seriesOf(days);
+
     expect(stats.total).toBe(48);
     expect(stats.peak).toEqual(day('2026-10-02', 40));
   });
 
   it('finds the June 2026 peak in the captured year', async () => {
     const { stats } = await seriesOf(capturedDays());
+
     expect(stats.peak).toEqual(day('2026-06-12', 194434));
     expect(stats.median).toBe(20803);
   });
@@ -135,6 +144,7 @@ describe('HypeService spikes', () => {
       '2026-05-01': 1000,
       '2026-06-01': 200
     });
+
     expect((await seriesOf(days)).spikes).toEqual([
       { date: '2026-05-01', views: 1000, timesMedian: 10 },
       { date: '2026-02-01', views: 950, timesMedian: 9.5 },
@@ -151,6 +161,7 @@ describe('HypeService spikes', () => {
       '2026-06-14': 700
     });
     const spikes = (await seriesOf(days)).spikes;
+
     expect(spikes[0]).toEqual({
       date: '2026-06-12',
       views: 900,
@@ -167,6 +178,7 @@ describe('HypeService spikes', () => {
       '2026-06-17': 700
     });
     const dates = (await seriesOf(days)).spikes.map((s) => s.date);
+
     expect(dates.slice(0, 2)).toEqual(['2026-06-10', '2026-06-17']);
   });
 
@@ -177,6 +189,7 @@ describe('HypeService spikes', () => {
       day('2026-10-03', 3),
       day('2026-10-04', 10)
     ];
+
     expect((await seriesOf(days)).spikes[0]).toEqual({
       date: '2026-10-04',
       views: 10,
@@ -186,17 +199,20 @@ describe('HypeService spikes', () => {
 
   it('rounds timesMedian to one decimal', async () => {
     const days = withViews(flatYear(30), { '2026-06-12': 281 });
+
     expect((await seriesOf(days)).spikes[0].timesMedian).toBe(9.4);
   });
 
   it('keeps every spike in the captured year at least 7 days from the others', async () => {
     const { spikes } = await seriesOf(capturedDays());
+
     expect(spikes).toHaveLength(5);
     expect(spikes[0]).toEqual({
       date: '2026-06-12',
       views: 194434,
       timesMedian: 9.3
     });
+
     for (const a of spikes)
       for (const b of spikes)
         if (a !== b)
@@ -207,6 +223,7 @@ describe('HypeService spikes', () => {
 
   it('returns fewer than five spikes when there are fewer days', async () => {
     const days = [day('2026-10-01', 5), day('2026-10-20', 9)];
+
     expect((await seriesOf(days)).spikes.map((s) => s.date)).toEqual([
       '2026-10-20',
       '2026-10-01'
@@ -217,6 +234,7 @@ describe('HypeService spikes', () => {
 describe('HypeService with no days', () => {
   it('returns empty spikes and zeroed stats instead of throwing', async () => {
     const series = await seriesOf([]);
+
     expect(series.days).toEqual([]);
     expect(series.spikes).toEqual([]);
     expect(series.stats).toEqual({ total: 0, median: 0, peak: null });
@@ -230,6 +248,7 @@ describe('HypeService with no days', () => {
       day('2026-10-02', 0),
       day('2026-10-03', 7)
     ];
+
     expect((await seriesOf(days)).spikes).toEqual([]);
   });
 });

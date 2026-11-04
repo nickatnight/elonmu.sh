@@ -13,6 +13,7 @@ describe('JetService.snapshot', () => {
       flight({ id: 'dec31', departedAt: '2025-12-31T23:59:59.999Z' }),
       flight({ id: 'jan1', departedAt: '2026-01-01T00:00:00.000Z' })
     ]).snapshot();
+
     expect(snap.flights.map((f) => f.id)).toEqual(['jan1']);
   });
 
@@ -29,18 +30,21 @@ describe('JetService.snapshot', () => {
       sloppy,
       new FakeClock('2026-03-01T00:00:00.000Z')
     ).snapshot();
+
     expect(snap.flights.map((f) => f.id)).toEqual(['this-year']);
     expect(snap.totals.flights).toBe(1);
   });
 
   it('computes the year in UTC, not local time', async () => {
     const snap = await serviceAt('2026-12-31T23:30:00.000-08:00').snapshot();
+
     expect(snap.year).toBe(2027);
     expect(snap.flights).toEqual([]);
   });
 
   it('orders flights newest first, filing arrival-only flights by landing time', async () => {
     const snap = await serviceAt('2026-07-01T00:00:00.000Z').snapshot();
+
     expect(snap.flights.map((f) => f.id)).toEqual([
       'airborne',
       'tokyo-hop',
@@ -51,6 +55,7 @@ describe('JetService.snapshot', () => {
 
   it('sums totals over the year’s flights, counting fuel-less flights toward flights and hours', async () => {
     const snap = await serviceAt('2026-07-01T00:00:00.000Z').snapshot();
+
     expect(snap.totals).toEqual({
       flights: 4,
       hours: 310 / 60,
@@ -62,6 +67,7 @@ describe('JetService.snapshot', () => {
 
   it('returns zero totals and no flights for an empty year', async () => {
     const snap = await serviceAt('2027-01-01T00:05:00.000Z').snapshot();
+
     expect(snap.year).toBe(2027);
     expect(snap.flights).toEqual([]);
     expect(snap.totals).toEqual({
@@ -79,6 +85,7 @@ describe('JetService.snapshot', () => {
     });
     const clock = new FakeClock('2026-07-01T00:00:00.000Z');
     const snap = await new JetService(source, clock).snapshot();
+
     expect(snap.attribution).toEqual({
       label: 'Test feed',
       url: 'https://example.com'
@@ -91,6 +98,7 @@ describe('JetService.snapshot', () => {
       error: new Error('upstream down')
     });
     const clock = new FakeClock('2026-07-01T00:00:00.000Z');
+
     await expect(new JetService(source, clock).snapshot()).rejects.toThrow(
       'upstream down'
     );

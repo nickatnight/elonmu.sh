@@ -26,6 +26,7 @@ const fetchFrom = async (get: NewsGet, path: string) => {
       news: createNewsModule({ get, logger: new FakeLogger() })
     })
   );
+
   try {
     return await fetch(`${server.url}${path}`);
   } finally {
@@ -35,6 +36,7 @@ const fetchFrom = async (get: NewsGet, path: string) => {
 
 const getApi = async (get: NewsGet) => {
   const res = await fetchFrom(get, '/api/news');
+
   return { status: res.status, body: await res.json() };
 };
 
@@ -43,9 +45,11 @@ describe('GET /api', () => {
     let calls = 0;
     const get: NewsGet = async () => {
       calls++;
+
       return { data: { articles: [newsApiArticle] } };
     };
     const res = await fetchFrom(get, '/api');
+
     expect(res.status).toBe(404);
     expect(await res.text()).toBe('does not compute...');
     expect(calls).toBe(0);
@@ -136,6 +140,7 @@ describe('GET /api/news while NewsAPI is down', () => {
     const error = {
       error: 'There was an error with NewsAPI. Please try again later.'
     };
+
     try {
       expect(await body()).toEqual(error);
       clock.advance(59_000);

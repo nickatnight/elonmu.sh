@@ -15,6 +15,7 @@ type Vec = [number, number, number];
 const toVec = ({ lat, lon }: LatLon): Vec => {
   const φ = rad(lat);
   const λ = rad(lon);
+
   return [Math.cos(φ) * Math.cos(λ), Math.cos(φ) * Math.sin(λ), Math.sin(φ)];
 };
 
@@ -28,9 +29,11 @@ const angleBetween = (a: Vec, b: Vec): number =>
 
 const slerp = (a: Vec, b: Vec, ω: number, t: number): LatLon => {
   if (ω < 1e-12) return toLatLon(a);
+
   const s = Math.sin(ω);
   const ka = Math.sin((1 - t) * ω) / s;
   const kb = Math.sin(t * ω) / s;
+
   return toLatLon([
     ka * a[0] + kb * b[0],
     ka * a[1] + kb * b[1],
@@ -42,6 +45,7 @@ export const greatCircle = (a: LatLon, b: LatLon, n: number): LatLon[] => {
   const va = toVec(a);
   const vb = toVec(b);
   const ω = angleBetween(va, vb);
+
   return Array.from({ length: n }, (_, i) =>
     slerp(va, vb, ω, n === 1 ? 0 : i / (n - 1))
   );
@@ -61,6 +65,7 @@ export const orthographic = (
     Math.cos(φ0) * Math.sin(φ) - Math.sin(φ0) * Math.cos(φ) * Math.cos(Δλ);
   const cosC =
     Math.sin(φ0) * Math.sin(φ) + Math.cos(φ0) * Math.cos(φ) * Math.cos(Δλ);
+
   return { x: r + r * x, y: r - r * y, visible: cosC >= -1e-9 };
 };
 
@@ -74,11 +79,14 @@ const horizonCrossing = (
 ): ScreenPoint => {
   let lo = from;
   let hi = to;
+
   for (let k = 0; k < 24; k++) {
     const mid = (lo + hi) / 2;
+
     if (at(mid).visible === fromVisible) lo = mid;
     else hi = mid;
   }
+
   return { ...at(fromVisible ? lo : hi), visible: true };
 };
 
@@ -91,6 +99,7 @@ export const arcPath = (
   const va = toVec(a);
   const vb = toVec(b);
   const ω = angleBetween(va, vb);
+
   if (ω < SAME_PLACE_RAD) return '';
 
   const at = (t: number) => orthographic(slerp(va, vb, ω, t), view, size);
@@ -98,17 +107,21 @@ export const arcPath = (
   const ts = Array.from({ length: steps + 1 }, (_, i) => i / steps);
 
   const samples: ScreenPoint[] = [];
+
   for (let i = 0; i < ts.length; i++) {
     const p = at(ts[i]);
     const prev = samples.at(-1);
+
     if (prev && prev.visible !== p.visible) {
       samples.push(horizonCrossing(at, ts[i - 1], ts[i], prev.visible));
     }
+
     samples.push(p);
   }
 
   const runs: ScreenPoint[][] = [];
   let run: ScreenPoint[] = [];
+
   for (const p of samples) {
     if (p.visible) run.push(p);
     else if (run.length) {
@@ -116,6 +129,7 @@ export const arcPath = (
       run = [];
     }
   }
+
   if (run.length) runs.push(run);
 
   return runs

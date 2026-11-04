@@ -31,6 +31,7 @@ describe('parseItems on the captured year of Elon Musk pageviews', () => {
 
   it('returns days in ascending order, each date once', () => {
     const dates = days.map((d) => d.date);
+
     expect(dates).toEqual([...dates].sort());
     expect(new Set(dates).size).toBe(dates.length);
   });
@@ -42,6 +43,7 @@ describe('parseItems on the captured year of Elon Musk pageviews', () => {
   it('leaves a day Wikimedia omitted missing, not zero', () => {
     const withGap = capture.items.filter((i) => i.timestamp !== '2026061300');
     const parsed = parseItems(withGap);
+
     expect(parsed).toHaveLength(364);
     expect(parsed.some((d) => d.date === '2026-06-13')).toBe(false);
     expect(parsed.some((d) => d.views === 0)).toBe(false);

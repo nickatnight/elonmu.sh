@@ -15,6 +15,7 @@ describe('stylesheets', () => {
     const undefinedNames = [
       ...new Set([...css.matchAll(/var\((--[\w-]+)/g)].map(([, n]) => n))
     ].filter((name) => !defined.has(name));
+
     expect(undefinedNames).toEqual([]);
   });
 });

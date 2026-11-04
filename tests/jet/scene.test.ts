@@ -50,6 +50,7 @@ const flights: Flight[] = [
 describe('toScene', () => {
   it('draws an arc for each flight with two distinct known ends', () => {
     const scene = toScene(snap(flights), '');
+
     expect(scene.arcs.map((a) => a.id)).toEqual(['a-sj', 'sj-h']);
     expect(scene.arcs[0]).toMatchObject({
       startLat: places.austin.lat,
@@ -61,8 +62,10 @@ describe('toScene', () => {
 
   it('draws a point for a one-ended flight or a local hop', () => {
     const scene = toScene(snap(flights), '');
+
     expect(scene.points.map((p) => p.id).sort()).toEqual(['arr', 'hop']);
     const arr = scene.points.find((p) => p.id === 'arr');
+
     expect(arr).toMatchObject({
       lat: places.sanJose.lat,
       lng: places.sanJose.lon
@@ -71,6 +74,7 @@ describe('toScene', () => {
 
   it('marks an airborne flight with a ring at its origin and no arc', () => {
     const scene = toScene(snap(flights), '');
+
     expect(scene.rings).toEqual([
       { id: 'up', lat: places.austin.lat, lng: places.austin.lon }
     ]);
@@ -79,6 +83,7 @@ describe('toScene', () => {
 
   it('makes the newest arc bright and dims the rest', () => {
     const scene = toScene(snap([flights[3], flights[4]]), '');
+
     expect(scene.arcs.map((a) => [a.id, a.latest, a.color])).toEqual([
       ['a-sj', true, ARC_LATEST],
       ['sj-h', false, ARC_OLDER]
@@ -95,6 +100,7 @@ describe('toScene', () => {
       ]),
       ''
     );
+
     expect(scene.arcs.map((a) => [a.id, a.count, a.latest])).toEqual([
       ['sj-a-new', 3, true],
       ['h-a', 1, false]
@@ -118,11 +124,13 @@ describe('toScene', () => {
     );
     const busy = scene.arcs.find((a) => a.id === 'busy0');
     const once = scene.arcs.find((a) => a.id === 'once');
+
     expect(busy?.count).toBe(8);
     expect(busy?.color).toBe(routeColor(8));
     expect(once?.color).toBe(ARC_OLDER);
     expect(routeColor(1)).toBe(ARC_OLDER);
     const alpha = (c: string) => Number(c.match(/([\d.]+)\)$/)?.[1]);
+
     expect(alpha(routeColor(8))).toBeGreaterThan(alpha(routeColor(1)));
     expect(alpha(routeColor(1000))).toBeLessThanOrEqual(0.75);
   });
@@ -151,16 +159,19 @@ describe('toScene', () => {
       ]),
       'N7628'
     );
+
     expect(scene.arcs.map((a) => [a.id, a.count])).toEqual([['x1', 2]]);
   });
 
   it('treats the newest flight as the latest even when it draws as a point', () => {
     const scene = toScene(snap(flights), '');
+
     expect(scene.arcs.every((a) => !a.latest)).toBe(true);
   });
 
   it('filters everything to one tail, re-picking that tail’s latest', () => {
     const scene = toScene(snap(flights), 'N7628');
+
     expect(scene.arcs.map((a) => [a.id, a.latest])).toEqual([['a-sj', false]]);
     expect(scene.points.map((p) => [p.id, p.latest])).toEqual([['arr', true]]);
     expect(scene.rings).toEqual([]);
@@ -179,6 +190,7 @@ describe('focusPoint', () => {
         to: { name: 'B', lat: 0, lon: 90 }
       })
     );
+
     expect(at?.lat).toBeCloseTo(0, 6);
     expect(at?.lng).toBeCloseTo(45, 6);
   });
@@ -190,6 +202,7 @@ describe('focusPoint', () => {
         to: { name: 'Madrid', lat: 40.4, lon: -3.7 }
       })
     );
+
     expect(at?.lat).toBeGreaterThan(45);
   });
 
@@ -219,6 +232,7 @@ describe('list paging', () => {
 
   it('shows the first page of every flight', () => {
     const page = pageOf(rows, '', PAGE_SIZE);
+
     expect(PAGE_SIZE).toBe(25);
     expect(page.total).toBe(60);
     expect(page.shown).toEqual(rows.slice(0, 25).map((r) => r.id));
@@ -226,6 +240,7 @@ describe('list paging', () => {
 
   it('pages within the chosen tail', () => {
     const page = pageOf(rows, 'N7628', PAGE_SIZE);
+
     expect(page.total).toBe(20);
     expect(page.shown).toHaveLength(20);
     expect(page.shown.every((id) => Number(id.slice(1)) % 3 === 0)).toBe(true);
@@ -254,6 +269,7 @@ describe('list paging', () => {
 describe('parseSnapshot', () => {
   it('accepts the API’s JetSnapshot', () => {
     const s = snap(flights);
+
     expect(parseSnapshot(JSON.parse(JSON.stringify(s)))).toEqual(s);
   });
 
@@ -265,9 +281,11 @@ describe('parseSnapshot', () => {
 
   it('rejects flights with out-of-range or missing coordinates', () => {
     const bad = JSON.parse(JSON.stringify(snap([flights[3]])));
+
     bad.flights[0].from.lat = 123;
     expect(() => parseSnapshot(bad)).toThrow();
     const missing = JSON.parse(JSON.stringify(snap([flights[3]])));
+
     missing.flights[0].to = { name: 'X' };
     expect(() => parseSnapshot(missing)).toThrow();
   });

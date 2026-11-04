@@ -33,9 +33,11 @@ describe('NewsApiArticleSource', () => {
     const http = fakeHttpGet({
       [newsUrl(KEY)]: { articles: [newsApiArticle] }
     });
+
     await new NewsApiArticleSource({ http: http.get, apiKey: KEY }).latest();
 
     const url = new URL(http.calls[0] ?? '');
+
     expect(http.calls).toHaveLength(1);
     expect(url.origin + url.pathname).toBe('https://newsapi.org/v2/everything');
     expect(Object.fromEntries(url.searchParams)).toEqual({
@@ -49,6 +51,7 @@ describe('NewsApiArticleSource', () => {
     const http = fakeHttpGet({
       [newsUrl(KEY)]: { articles: [newsApiArticle] }
     });
+
     expect(
       await new NewsApiArticleSource({ http: http.get, apiKey: KEY }).latest()
     ).toEqual([
@@ -68,6 +71,7 @@ describe('NewsApiArticleSource', () => {
     const http = async () => {
       throw failure;
     };
+
     await expect(
       new NewsApiArticleSource({ http, apiKey: KEY }).latest()
     ).rejects.toBe(failure);

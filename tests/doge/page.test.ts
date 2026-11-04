@@ -33,11 +33,13 @@ beforeAll(async () => {
     unavailable: failingDoge(),
     nasty: nastyDoge()
   };
+
   for (const name of Object.keys(doges) as Name[]) {
     servers[name] = await startTestServer(
       createApp({ jet: sampleJet(), hype: sampleHype(), doge: doges[name] })
     );
     const res = await fetch(`${servers[name].url}/doge`);
+
     status[name] = res.status;
     headers[name] = res.headers;
     html[name] = await res.text();
@@ -91,12 +93,14 @@ describe('GET /doge', () => {
 
   it('shows the fall as a big minus percentage, read out as "Down"', () => {
     const change = element(html.down, 'doge__change');
+
     expect(change).toContain('<span aria-hidden="true">−88.2%</span>');
     expect(change).toContain('<span class="sr-only">Down 88.2%</span>');
   });
 
   it('shows a rise as a big plus percentage, read out as "Up"', () => {
     const change = element(html.up, 'doge__change');
+
     expect(change).toContain('<span aria-hidden="true">+12.3%</span>');
     expect(change).toContain('<span class="sr-only">Up 12.3%</span>');
   });
@@ -125,6 +129,7 @@ describe('GET /doge', () => {
       /<span class="doge__detail">(?:[^<]|<span class="doge__unit">[^<]*<\/span>)*<\/span>/g,
       ''
     );
+
     expect(text(withoutDetail)).toBe(
       'SNL night $1,000.00 8 May 2021 Now $118.03 28 Oct 2026'
     );
@@ -141,10 +146,12 @@ describe('GET /doge', () => {
     const units = lines.map((line) =>
       [...line.matchAll(unit)].map(([, inner]) => text(inner ?? ''))
     );
+
     expect(units).toEqual([
       ['$0.6734 ·', '8 May 2021,', '11:30 pm ET'],
       ['$0.0795 ·', '04:30 UTC,', '28 Oct 2026']
     ]);
+
     for (const line of lines) expect(text(line.replace(unit, ''))).toBe('');
   });
 
@@ -152,6 +159,7 @@ describe('GET /doge', () => {
     const wrapping = [
       ...html.down.matchAll(/<(\w+) class="([^"]*)" data-wrap="commas"/g)
     ].map(([, tag, className]) => `${tag}.${className}`);
+
     expect(wrapping).toEqual(['dd.doge__worth', 'dd.doge__worth']);
   });
 
@@ -200,9 +208,12 @@ describe('GET /doge', () => {
     const urls = [...html.down.matchAll(/(?:href|src)="(\/[^/"][^"]*)"/g)]
       .map(([, url]) => url)
       .filter((url) => url.includes('?v='));
+
     expect(urls.some((u) => u.includes('doge.css'))).toBe(true);
+
     for (const url of new Set(urls)) {
       const res = await fetch(`${servers.down.url}${url}`);
+
       await res.arrayBuffer();
       expect({ url, status: res.status }).toEqual({ url, status: 200 });
     }
@@ -224,12 +235,14 @@ describe('the DOGE-held control', () => {
 
   it('carries both prices for the script, so it never fetches', () => {
     const open = heldControl(html.down).match(/^<div[^>]*>/)?.[0] ?? '';
+
     expect(open).toContain(`data-snl-usd="${SNL_SHOWTIME.usd}"`);
     expect(open).toContain(`data-now-usd="${NOW_QUOTE.usd}"`);
   });
 
   it('labels the exact-amount field and starts it at the DOGE $1,000 bought', () => {
     const control = heldControl(html.down);
+
     expect(control).toContain(
       '<label for="doge-held">DOGE you held at showtime</label>'
     );
@@ -242,6 +255,7 @@ describe('the DOGE-held control', () => {
     const range =
       heldControl(html.down).match(/<input class="doge__range"[^>]*>/)?.[0] ??
       '';
+
     expect(range).toContain('type="range"');
     expect(range).toContain('min="0" max="1000" step="1" value="362"');
     expect(range).toContain('aria-label="DOGE you held at showtime"');
@@ -258,10 +272,12 @@ describe('the DOGE-held control', () => {
       SNL_SHOWTIME.usd,
       NOW_QUOTE.usd
     );
+
     for (const [out, value] of Object.entries(values)) {
       const printed = [
         ...html.down.matchAll(new RegExp(`data-out="${out}">([^<]*)<`, 'g'))
       ].map(([, v]) => v);
+
       expect({ out, printed }).toEqual({
         out,
         printed: out === 'doge' ? [value] : [value, value]
@@ -274,11 +290,13 @@ describe('the DOGE-held control', () => {
       const outs = [...html[name].matchAll(/data-out="([^"]*)"/g)].map(
         ([, out]) => out
       );
+
       expect({ name, outs }).toEqual({
         name,
         outs: ['doge', 'atShowtime', 'today', 'atShowtime', 'today']
       });
       const main = html[name].match(/<main[\s\S]*?<\/main>/)?.[0] ?? '';
+
       expect(text(main)).not.toMatch(/\b(lost|loss|gained|gain)\b/i);
     }
   });
@@ -298,6 +316,7 @@ describe('the DOGE-held control', () => {
 
   it('never loads doge.js on the home page', async () => {
     const home = await (await fetch(`${servers.down.url}/`)).text();
+
     expect(home).not.toContain('doge.js');
   });
 
@@ -306,6 +325,7 @@ describe('the DOGE-held control', () => {
       import.meta.dir,
       '../../src/public/static/js/doge.js'
     );
+
     expect(readFileSync(file).byteLength).toBeLessThanOrEqual(4 * 1024);
   });
 
@@ -314,6 +334,7 @@ describe('the DOGE-held control', () => {
       path.join(import.meta.dir, '../../src/public/static/js/doge.js'),
       'utf8'
     );
+
     expect(source).not.toMatch(
       /innerHTML|outerHTML|insertAdjacentHTML|fetch\(/
     );
@@ -328,6 +349,7 @@ describe('doge stylesheets', () => {
 
   it('links main.css then doge.css, each with a content hash', () => {
     const links = sheets(html.down);
+
     expect(links).toHaveLength(2);
     expect(links[0]).toMatch(/^\/static\/css\/main\.css\?v=\w+$/);
     expect(links[1]).toMatch(/^\/static\/css\/doge\.css\?v=\w+$/);
@@ -335,6 +357,7 @@ describe('doge stylesheets', () => {
 
   it('never links doge.css on the home page', async () => {
     const home = await (await fetch(`${servers.down.url}/`)).text();
+
     expect(sheets(home).some((href) => href.includes('doge.css'))).toBe(false);
   });
 
@@ -360,6 +383,7 @@ describe('doge stylesheets', () => {
 
   it('sizes the big number with clamp() and tabular figures', () => {
     const rule = css('doge.css').match(/\.doge__change\s*\{[^}]*\}/)?.[0] ?? '';
+
     expect(rule).toMatch(/font-size:\s*clamp\(/);
     expect(rule).toContain('color: var(--accent)');
     expect(rule).toContain('font-variant-numeric: tabular-nums');
@@ -370,11 +394,13 @@ describe('doge stylesheets', () => {
       css('doge.css').match(
         /@media \(max-width: 22\.5rem\) \{([\s\S]*?)\n\}/
       )?.[1] ?? '';
+
     expect(narrow).toMatch(/\.doge__detail\s*\{\s*display:\s*none;/);
   });
 
   it("holds the hidden control's space while scripting is on, and drops it when off", () => {
     const sheet = css('doge.css');
+
     expect(sheet).toMatch(
       /\.doge__held\[hidden\]\s*\{\s*display:\s*none;\s*\}/
     );
@@ -382,6 +408,7 @@ describe('doge stylesheets', () => {
       sheet.match(/@media \(scripting: enabled\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
     const held =
       scripting.match(/\.doge__held\[hidden\]\s*\{([^}]*)\}/)?.[1] ?? '';
+
     expect(held).toMatch(/display:\s*grid;/);
     expect(held).toMatch(/visibility:\s*hidden;/);
   });
@@ -407,6 +434,7 @@ describe('doge topbar', () => {
 
   it('links to /doge from the home page nav and a service card', async () => {
     const home = await (await fetch(`${servers.down.url}/`)).text();
+
     expect(home).toMatch(/<a href="\/doge"[^>]*>DOGE<\/a>/);
     expect(home).toContain(
       '<a class="service__link" href="/doge">DOGE since SNL</a>'

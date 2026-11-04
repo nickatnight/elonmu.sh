@@ -18,6 +18,7 @@ export class WikimediaPageviewSource implements PageviewSource {
     const body = await this.deps.http<{ items?: unknown }>(rangeUrl(from, to));
     const first = isoDate(from);
     const last = isoDate(to);
+
     return parseItems(body?.items).filter(
       (d) => d.date >= first && d.date <= last
     );

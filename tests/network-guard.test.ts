@@ -78,6 +78,7 @@ describe('the network guard', () => {
     const err = await new Promise((resolve) =>
       dns.lookup(HOST, (e) => resolve(e))
     );
+
     expect(String(err)).toContain(HOST);
     expect(takeBlockedAttempts()).toEqual([{ api: 'dns lookup', host: HOST }]);
   });
@@ -95,11 +96,13 @@ describe('the network guard', () => {
       proc.exited,
       new Response(proc.stderr).text()
     ]);
+
     return { exitCode, stderr };
   };
 
   it('fails the test even when the caller swallows the error', async () => {
     const { exitCode, stderr } = await runFixture('swallowed-leak.ts');
+
     expect(exitCode).toBe(1);
     expect(stderr).toContain(`fetch ${HOST}`);
     expect(stderr).toContain('(fail) answers "unavailable" when CoinGecko');
@@ -107,6 +110,7 @@ describe('the network guard', () => {
 
   it('fails the run when an afterAll hook reaches the network', async () => {
     const { exitCode, stderr } = await runFixture('after-all-leak.ts');
+
     expect(exitCode).toBe(1);
     expect(stderr).toContain(
       `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
@@ -119,6 +123,7 @@ describe('loopback', () => {
 
   beforeAll(async () => {
     const app = express();
+
     app.get('/ping', (_req, res) => {
       res.json({ pong: true });
     });
@@ -131,18 +136,21 @@ describe('loopback', () => {
 
   it('lets fetch reach a local test server', async () => {
     const res = await fetch(`${server.url}/ping`);
+
     expect(await res.json()).toEqual({ pong: true });
     expect(takeBlockedAttempts()).toEqual([]);
   });
 
   it('lets axios reach a local test server', async () => {
     const res = await axios.get(`${server.url}/ping`);
+
     expect(res.data).toEqual({ pong: true });
     expect(takeBlockedAttempts()).toEqual([]);
   });
 
   it('lets a dns lookup of localhost through', async () => {
     const { address } = await dns.promises.lookup('localhost');
+
     expect(isLoopback(address)).toBe(true);
     expect(takeBlockedAttempts()).toEqual([]);
   });
@@ -153,6 +161,7 @@ describe('loopback', () => {
       port: Number(new URL(server.url).port),
       socket: { data: () => undefined }
     });
+
     socket.end();
     expect(takeBlockedAttempts()).toEqual([]);
   });

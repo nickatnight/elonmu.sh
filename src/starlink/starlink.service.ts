@@ -29,11 +29,13 @@ const servedPrecision = (s: Satellite): Satellite => ({
 
 const newestFirst = (a: Reentry, b: Reentry): number => {
   if (a.reentered !== b.reentered) return a.reentered < b.reentered ? 1 : -1;
+
   return a.id - b.id;
 };
 
 const tally = (reentries: Reentry[], year: number): ReentryTally => {
   const thisYear = reentries.filter((r) => r.reentered.startsWith(`${year}-`));
+
   return {
     year,
     count: thisYear.length,
@@ -64,8 +66,10 @@ export class StarlinkService implements StarlinkQuery {
       this.deps.orbits.fetchOrbits(),
       this.deps.reentries.fetchReentries()
     ]);
+
     if (orbits.status === 'rejected' && reentries.status === 'rejected')
       throw orbits.reason;
+
     const catalog = orbits.status === 'fulfilled' ? orbits.value : null;
     const log = reentries.status === 'fulfilled' ? reentries.value : null;
     const readAts = [catalog?.readAt, log?.readAt].filter(
@@ -73,8 +77,10 @@ export class StarlinkService implements StarlinkQuery {
     );
     const year = this.deps.clock.now().getUTCFullYear();
     const last = this.last;
+
     if (last?.catalog === catalog && last.log === log && last.year === year)
       return last.snapshot;
+
     const snapshot: StarlinkSnapshot = {
       updatedAt: readAts.sort()[0],
       ...(catalog
@@ -86,7 +92,9 @@ export class StarlinkService implements StarlinkQuery {
       reentries: log ? tally(log.reentries, year) : null,
       attribution: STARLINK_ATTRIBUTION
     };
+
     this.last = { catalog, log, year, snapshot };
+
     return snapshot;
   }
 }

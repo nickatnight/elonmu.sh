@@ -19,9 +19,12 @@ const consoleLogger: Logger = {
 
 const classify = (err: unknown): unknown => {
   if (!(err instanceof AxiosError)) return err;
+
   if (err.response)
     return new NewsUpstreamError('error-response', { cause: err });
+
   if (err.request) return new NewsUpstreamError('no-response', { cause: err });
+
   return new NewsUpstreamError('not-sent', { cause: err });
 };
 
@@ -45,6 +48,7 @@ export const createNewsModule = ({
       throw classify(err);
     }
   };
+
   return new NewsService(
     new CachedArticleSource(
       new NewsApiArticleSource({ http, apiKey }),

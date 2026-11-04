@@ -9,6 +9,7 @@ describe('createHypeModule', () => {
     const requests: { url: string; config: HttpConfig }[] = [];
     const get = async (url: string, config: HttpConfig) => {
       requests.push({ url, config });
+
       return { data: capture };
     };
     const hype = createHypeModule({

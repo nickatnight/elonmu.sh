@@ -13,12 +13,14 @@ export const describePriceSource = (
   describe(`${name} meets the PriceSource contract`, () => {
     it('1. returns a finite US dollar price above zero', async () => {
       const { usd } = await subject.make().fetchPrice();
+
       expect(Number.isFinite(usd)).toBe(true);
       expect(usd).toBeGreaterThan(0);
     });
 
     it('2. returns the time of the price as an ISO 8601 UTC timestamp', async () => {
       const { at } = await subject.make().fetchPrice();
+
       expect(at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(new Date(at).toISOString()).toBe(at);
     });

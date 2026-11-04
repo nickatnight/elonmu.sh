@@ -93,6 +93,7 @@ const utc = (date: IsoDate): number => Date.parse(`${date}T00:00:00.000Z`);
 
 export const dayMonth = (date: IsoDate): string => {
   const at = new Date(utc(date));
+
   return `${at.getUTCDate()} ${MONTHS[at.getUTCMonth()]}`;
 };
 
@@ -120,7 +121,9 @@ type Bounds = { left: number; right: number };
 
 const anchorFor = (x: number, w: number, bounds: Bounds): LabelAnchor => {
   if (x - w / 2 < bounds.left) return 'start';
+
   if (x + w / 2 > bounds.right) return 'end';
+
   return 'middle';
 };
 
@@ -128,22 +131,30 @@ const labelAbove = (dot: Dot, bounds: Bounds): Label => {
   const w = dot.text.length * CHAR_WIDTH;
   const anchor = anchorFor(dot.x, w, bounds);
   const left = { start: dot.x, middle: dot.x - w / 2, end: dot.x - w }[anchor];
+
   return { left, right: left + w, y: dot.y - LABEL_GAP, anchor };
 };
 
 const placeLabels = (dots: Dot[], bounds: Bounds): Label[] => {
   const placed: Label[] = [];
+
   for (const dot of dots) {
     const label = labelAbove(dot, bounds);
     const clearOf = (): number | null => {
       const hit = placed.find((p) => overlaps(p, label));
+
       if (hit) return hit.y - LINE_HEIGHT;
+
       const other = dots.find((d) => d !== dot && covers(label, d));
+
       return other ? other.y - DOT_CLEARANCE - 1 : null;
     };
+
     for (let y = clearOf(); y !== null; y = clearOf()) label.y = y;
+
     placed.push(label);
   }
+
   return placed;
 };
 
@@ -156,11 +167,14 @@ const monthStarts = (from: IsoDate, to: IsoDate): Date[] => {
     first.getUTCMonth() + (first.getUTCDate() === 1 ? 0 : 1),
     1
   );
+
   while (at <= end) {
     const d = new Date(at);
+
     starts.push(d);
     at = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
   }
+
   return starts;
 };
 
@@ -179,6 +193,7 @@ export const seismograph = (
   const topExp = Math.max(MIN_TOP_EXP, Math.ceil(Math.log2(peakRatio)));
   const yIn = (r: number): number => {
     const exp = Math.max(LOW_EXP, Math.log2(r));
+
     return pad.top + ((topExp - exp) / (topExp - LOW_EXP)) * plotHeight;
   };
 
@@ -207,14 +222,17 @@ export const seismograph = (
 
   const normal: string[] = [];
   const hot: string[] = [];
+
   for (const d of series.days) {
     const r = ratio(d.views);
+
     (r >= HOT_RATIO ? hot : normal).push(
       `M${xAt(d.date)} ${baselineY}V${yAt(r)}`
     );
   }
 
   const gridlines = [];
+
   for (let exp = LOW_EXP; exp <= topExp; exp++)
     gridlines.push({ y: yAt(2 ** exp), label: gridLabel(exp) });
 
@@ -245,6 +263,7 @@ export const seismograph = (
     spikes: dots.map((dot, i) => {
       const label = labels[i];
       const moved = label.y < dot.y - LABEL_GAP;
+
       return {
         date: dot.date,
         x: dot.x,

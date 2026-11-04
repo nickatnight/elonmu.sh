@@ -18,29 +18,35 @@ export const describeOrbitSource = (
   describe(`${name} meets the OrbitSource contract`, () => {
     it('1. returns at least one satellite', async () => {
       const { satellites } = await subject.make().fetchOrbits();
+
       expect(satellites.length).toBeGreaterThan(0);
     });
 
     it('2. gives each satellite a unique positive integer id', async () => {
       const { satellites } = await subject.make().fetchOrbits();
       const ids = satellites.map((s) => s.id);
+
       for (const id of ids)
         expect(Number.isSafeInteger(id) && id > 0).toBe(true);
+
       expect(new Set(ids).size).toBe(ids.length);
     });
 
     it('3. names every satellite', async () => {
       const { satellites } = await subject.make().fetchOrbits();
+
       for (const { name } of satellites) expect(name.trim()).not.toBe('');
     });
 
     it('4. gives each epoch as an ISO 8601 UTC timestamp', async () => {
       const { satellites } = await subject.make().fetchOrbits();
+
       for (const { epoch } of satellites) expect(isIsoUtc(epoch)).toBe(true);
     });
 
     it('5. gives finite elements an orbit can have', async () => {
       const { satellites } = await subject.make().fetchOrbits();
+
       for (const s of satellites) {
         const elements = [
           s.meanMotion,
@@ -51,6 +57,7 @@ export const describeOrbitSource = (
           s.argOfPerigee,
           s.meanAnomaly
         ];
+
         expect({ id: s.id, finite: elements.every(Number.isFinite) }).toEqual({
           id: s.id,
           finite: true
@@ -65,7 +72,9 @@ export const describeOrbitSource = (
 
     it('6. carries only the domain fields', async () => {
       const catalog = await subject.make().fetchOrbits();
+
       expect(Object.keys(catalog).sort()).toEqual(['readAt', 'satellites']);
+
       for (const s of catalog.satellites)
         expect(Object.keys(s).sort()).toEqual([
           'argOfPerigee',
@@ -83,6 +92,7 @@ export const describeOrbitSource = (
 
     it('7. says when the catalogue was read, as an ISO 8601 UTC timestamp', async () => {
       const { readAt } = await subject.make().fetchOrbits();
+
       expect(isIsoUtc(readAt)).toBe(true);
     });
 

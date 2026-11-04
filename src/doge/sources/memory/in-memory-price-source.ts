@@ -13,6 +13,7 @@ export class InMemoryPriceSource implements PriceSource {
 
   async fetchPrice(): Promise<PriceQuote> {
     if (this.error) throw this.error;
+
     return { ...this.quote };
   }
 }

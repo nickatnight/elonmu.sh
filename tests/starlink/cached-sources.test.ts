@@ -70,8 +70,11 @@ class ScriptedSource implements OrbitSource, ReentrySource {
 
   private async answer<T>(value: T): Promise<T> {
     this.calls++;
+
     if (this.gate) await this.gate;
+
     if (this.failing) throw this.error;
+
     return value;
   }
 
@@ -109,6 +112,7 @@ const caches: Cache[] = [
     },
     build: (inner, clock, logger) => {
       const cached = new CachedOrbitSource(inner, clock, logger);
+
       return () => cached.fetchOrbits();
     }
   },
@@ -122,6 +126,7 @@ const caches: Cache[] = [
     },
     build: (inner, clock, logger) => {
       const cached = new CachedReentrySource(inner, clock, logger);
+
       return () => cached.fetchReentries();
     }
   }
@@ -131,6 +136,7 @@ const setup = (cache: Cache) => {
   const inner = new ScriptedSource();
   const clock = new FakeClock(START);
   const logger = new FakeLogger();
+
   return { inner, clock, logger, fetch: cache.build(inner, clock, logger) };
 };
 
@@ -140,6 +146,7 @@ for (const cache of caches) {
   describe(cache.name, () => {
     it(`serves a second call within ${hours} hours without asking ${cache.upstream} again`, async () => {
       const { inner, clock, fetch } = setup(cache);
+
       await fetch();
       clock.advance(cache.ttlMs - 1);
       await fetch();
@@ -148,6 +155,7 @@ for (const cache of caches) {
 
     it(`asks again once ${hours} hours have passed`, async () => {
       const { inner, clock, fetch } = setup(cache);
+
       await fetch();
       clock.advance(cache.ttlMs);
       expect((await fetch()).readAt).toBe('2026-10-30T01:00:00.000Z');
@@ -156,10 +164,13 @@ for (const cache of caches) {
 
     it('shares one upstream call between concurrent cold requests', async () => {
       const { inner, fetch } = setup(cache);
+
       inner.hold();
       const both = Promise.all([fetch(), fetch()]);
+
       inner.release();
       const [a, b] = await both;
+
       expect(inner.calls).toBe(1);
       expect(a).toEqual(b);
     });
@@ -167,6 +178,7 @@ for (const cache of caches) {
     it('serves the last good data on failure, keeping its read time, and warns once', async () => {
       const { inner, clock, logger, fetch } = setup(cache);
       const good = await fetch();
+
       clock.advance(cache.ttlMs);
       inner.failing = true;
       expect(await fetch()).toEqual(good);
@@ -181,6 +193,7 @@ for (const cache of caches) {
 
     it('throws and warns when the first fetch fails', async () => {
       const { inner, logger, fetch } = setup(cache);
+
       inner.failing = true;
       await expect(fetch()).rejects.toThrow('celestrak down');
       expect(logger.warnings.map((w) => w.msg)).toEqual([cache.messages.empty]);
@@ -189,12 +202,15 @@ for (const cache of caches) {
     it('asks again at most once a minute while the upstream fails', async () => {
       const { inner, clock, logger, fetch } = setup(cache);
       const good = await fetch();
+
       clock.advance(cache.ttlMs);
       inner.failing = true;
+
       for (let i = 0; i < 6; i++) {
         expect(await fetch()).toEqual(good);
         clock.advance(10_000);
       }
+
       expect(inner.calls).toBe(2);
       expect(logger.warnings).toHaveLength(1);
       await fetch();
@@ -203,6 +219,7 @@ for (const cache of caches) {
 
     it('fails fast for a minute after a failed cold fetch, then tries again', async () => {
       const { inner, clock, fetch } = setup(cache);
+
       inner.failing = true;
       await expect(fetch()).rejects.toThrow();
       clock.advance(59_000);
@@ -217,6 +234,7 @@ for (const cache of caches) {
     it('waits 2 hours after CelesTrak refuses, serving the last good data with one warning per refusal', async () => {
       const { inner, clock, logger, fetch } = setup(cache);
       const good = await fetch();
+
       clock.advance(cache.ttlMs);
       inner.failing = true;
       inner.error = new UpstreamRefusedError(403);
@@ -238,6 +256,7 @@ for (const cache of caches) {
 
     it('fails fast for 2 hours after a refused cold fetch, then tries again', async () => {
       const { inner, clock, fetch } = setup(cache);
+
       inner.failing = true;
       inner.error = new UpstreamRefusedError(429);
       await expect(fetch()).rejects.toThrow(UpstreamRefusedError);
@@ -252,12 +271,14 @@ for (const cache of caches) {
 
     it('goes back to the 1-minute retry once a fetch succeeds after a refusal', async () => {
       const { inner, clock, fetch } = setup(cache);
+
       inner.failing = true;
       inner.error = new UpstreamRefusedError(403);
       await expect(fetch()).rejects.toThrow();
       clock.advance(2 * HOUR);
       inner.failing = false;
       const good = await fetch();
+
       clock.advance(cache.ttlMs);
       inner.failing = true;
       inner.error = new Error('celestrak down');
@@ -269,10 +290,12 @@ for (const cache of caches) {
 
     it(`keeps a day of requests every 10 seconds to ${24 / hours} upstream calls`, async () => {
       const { inner, clock, fetch } = setup(cache);
+
       for (let s = 0; s < 24 * 3600; s += 10) {
         await fetch();
         clock.advance(10_000);
       }
+
       expect(inner.calls).toBe(24 / hours);
     });
   });

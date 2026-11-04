@@ -41,8 +41,11 @@ class ScriptedSource implements FlightSource {
 
   async fetchFlights(): Promise<Flight[]> {
     this.calls++;
+
     if (this.gate) await this.gate;
+
     if (this.failing) throw new Error('upstream down');
+
     return this.flights;
   }
 }
@@ -50,6 +53,7 @@ class ScriptedSource implements FlightSource {
 const setup = () => {
   const inner = new ScriptedSource();
   const clock = new FakeClock('2026-07-01T00:00:00.000Z');
+
   return { inner, clock, cached: new CachedFlightSource(inner, clock, TTL) };
 };
 
@@ -77,6 +81,7 @@ describe('CachedFlightSource', () => {
 
   it('serves a second call within the TTL without asking the inner source', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchFlights(YEAR);
     clock.advance(TTL - 1);
     expect(await cached.fetchFlights(YEAR)).toEqual(inner.flights);
@@ -85,6 +90,7 @@ describe('CachedFlightSource', () => {
 
   it('asks the inner source again once the TTL has passed', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchFlights(YEAR);
     clock.advance(TTL);
     inner.flights = [flight({ id: 'b' })];
@@ -94,13 +100,16 @@ describe('CachedFlightSource', () => {
 
   it('shares one inner call between concurrent callers', async () => {
     const { inner, cached } = setup();
+
     inner.hold();
     const both = Promise.all([
       cached.fetchFlights(YEAR),
       cached.fetchFlights(YEAR)
     ]);
+
     inner.release();
     const [a, b] = await both;
+
     expect(inner.calls).toBe(1);
     expect(a).toEqual(b);
   });
@@ -108,6 +117,7 @@ describe('CachedFlightSource', () => {
   it('serves the last good result when a refresh fails', async () => {
     const { inner, clock, cached } = setup();
     const good = await cached.fetchFlights(YEAR);
+
     clock.advance(TTL);
     inner.failing = true;
     expect(await cached.fetchFlights(YEAR)).toEqual(good);
@@ -115,6 +125,7 @@ describe('CachedFlightSource', () => {
 
   it('retries the upstream on the next call after a failed refresh', async () => {
     const { inner, clock, cached } = setup();
+
     await cached.fetchFlights(YEAR);
     clock.advance(TTL);
     inner.failing = true;
@@ -129,6 +140,7 @@ describe('CachedFlightSource', () => {
     const clock = new FakeClock('2026-07-01T00:00:00.000Z');
     const logger = new FakeLogger();
     const cached = new CachedFlightSource(inner, clock, TTL, logger);
+
     await cached.fetchFlights(YEAR);
     clock.advance(TTL);
     inner.failing = true;
@@ -152,6 +164,7 @@ describe('CachedFlightSource', () => {
       TTL,
       logger
     );
+
     inner.failing = true;
     await expect(cached.fetchFlights(YEAR)).rejects.toThrow('upstream down');
     expect(logger.warnings).toHaveLength(1);
@@ -163,6 +176,7 @@ describe('CachedFlightSource', () => {
     const clock = new FakeClock('2026-07-01T00:00:00.000Z');
     const logger = new FakeLogger();
     const cached = new CachedFlightSource(inner, clock, TTL, logger);
+
     await cached.fetchFlights(YEAR);
     clock.advance(TTL);
     await cached.fetchFlights(YEAR);
@@ -171,12 +185,14 @@ describe('CachedFlightSource', () => {
 
   it('throws when the upstream fails and nothing has loaded yet', async () => {
     const { inner, cached } = setup();
+
     inner.failing = true;
     await expect(cached.fetchFlights(YEAR)).rejects.toThrow('upstream down');
   });
 
   it('never serves a result fetched for a different `since`', async () => {
     const { inner, cached } = setup();
+
     await cached.fetchFlights(new Date('2025-01-01T00:00:00.000Z'));
     inner.failing = true;
     await expect(cached.fetchFlights(YEAR)).rejects.toThrow('upstream down');
@@ -185,6 +201,7 @@ describe('CachedFlightSource', () => {
   it('keeps three page loads within 5 minutes to one upstream refresh', async () => {
     const { inner, clock, cached } = setup();
     const jet = new JetService(cached, clock);
+
     await jet.snapshot();
     clock.advance(2 * 60_000);
     await jet.snapshot();
@@ -201,15 +218,18 @@ describe('warmUp', () => {
     const counting = {
       snapshot: () => {
         calls++;
+
         return jet.snapshot();
       }
     };
+
     await warmUp(counting, new FakeLogger());
     expect(calls).toBe(1);
   });
 
   it('logs a failed warm-up as a warning instead of throwing', async () => {
     const logger = new FakeLogger();
+
     await expect(warmUp(failingJet(), logger)).resolves.toBeUndefined();
     expect(logger.warnings).toHaveLength(1);
     expect(logger.warnings[0].msg).toContain('warm-up');

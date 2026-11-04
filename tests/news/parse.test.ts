@@ -41,6 +41,7 @@ describe('parseArticles', () => {
     ]
   ])('%s', (_name, change, expected) => {
     const [parsed] = parseArticles(body({ ...newsApiArticle, ...change }));
+
     expect(parsed).toMatchObject(expected);
   });
 
@@ -57,11 +58,13 @@ describe('parseArticles', () => {
     const parsed = parseArticles(
       body(broken, { ...newsApiArticle, title: 'kept' })
     );
+
     expect(parsed.map((a) => a.title)).toEqual(['kept']);
   });
 
   it('drops NewsAPI-only fields such as author and content', () => {
     const [parsed] = parseArticles(body(newsApiArticle));
+
     expect(parsed).not.toHaveProperty('author');
     expect(parsed).not.toHaveProperty('content');
     expect(parsed).not.toHaveProperty('urlToImage');

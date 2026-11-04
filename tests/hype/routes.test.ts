@@ -25,6 +25,7 @@ afterAll(async () => {
 describe('GET /api/hype', () => {
   it('returns the HypeQuery series as JSON', async () => {
     const res = await fetch(`${ok.url}/api/hype`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toContain('application/json');
     expect((await res.json()) as HypeSeries).toEqual(
@@ -36,6 +37,7 @@ describe('GET /api/hype', () => {
     const body = (await (
       await fetch(`${ok.url}/api/hype`)
     ).json()) as HypeSeries;
+
     expect(Object.keys(body)).toEqual([
       'article',
       'from',
@@ -62,6 +64,7 @@ describe('GET /api/hype', () => {
     const body = (await (
       await fetch(`${ok.url}/api/hype`)
     ).json()) as HypeSeries;
+
     expect(body.days).toHaveLength(365);
     expect(body.from).toBe('2025-10-27');
     expect(body.to).toBe('2026-10-26');
@@ -71,15 +74,18 @@ describe('GET /api/hype', () => {
 
   it('lets browsers and proxies cache it for an hour', async () => {
     const res = await fetch(`${ok.url}/api/hype`);
+
     await res.arrayBuffer();
     expect(res.headers.get('cache-control')).toBe('public, max-age=3600');
   });
 
   it('answers 200 with an error body, uncached, when no data has ever loaded', async () => {
     const res = await fetch(`${down.url}/api/hype`);
+
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('no-store');
     const body = (await res.json()) as { error: string };
+
     expect(Object.keys(body)).toEqual(['error']);
     expect(body.error).toBeString();
     expect(body.error.length).toBeGreaterThan(0);
@@ -89,6 +95,7 @@ describe('GET /api/hype', () => {
 describe('a failing hype module', () => {
   it('leaves /healthz healthy', async () => {
     const res = await fetch(`${down.url}/healthz`);
+
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ status: 'ok' });
   });

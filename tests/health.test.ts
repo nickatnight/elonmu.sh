@@ -11,6 +11,7 @@ let newsCalls = 0;
 const countingNews = (inner: NewsQuery): NewsQuery => ({
   random: () => {
     newsCalls++;
+
     return inner.random();
   }
 });

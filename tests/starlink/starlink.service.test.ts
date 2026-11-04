@@ -30,12 +30,14 @@ const decaysIn = (year: number) =>
 describe('StarlinkService', () => {
   it('counts every satellite in orbit and lists them all', async () => {
     const snapshot = await service().snapshot();
+
     expect(snapshot.inOrbit).toBe(200);
     expect(snapshot.satellites).toHaveLength(200);
   });
 
   it("counts the re-entries dated in the clock's UTC year", async () => {
     const { reentries } = await service().snapshot();
+
     expect(decaysIn(2026)).toBe(83);
     expect(reentries?.year).toBe(2026);
     expect(reentries?.count).toBe(83);
@@ -43,6 +45,7 @@ describe('StarlinkService', () => {
 
   it("lists this year's latest 12 re-entries, newest first, ties by id", async () => {
     const { reentries } = await service().snapshot();
+
     expect(
       reentries?.recent.map((r) => `${r.reentered} ${r.id} ${r.name}`)
     ).toEqual([
@@ -63,6 +66,7 @@ describe('StarlinkService', () => {
 
   it('gives each listed re-entry its launch date too', async () => {
     const { reentries } = await service().snapshot();
+
     expect(reentries?.recent[0]).toEqual({
       id: 45414,
       name: 'STARLINK-1309',
@@ -76,8 +80,10 @@ describe('StarlinkService', () => {
       const clock = new FakeClock('2026-12-31T23:59:59.999Z');
       const starlink = service({ clock });
       const lastDay = await starlink.snapshot();
+
       clock.advance(1);
       const newYear = await starlink.snapshot();
+
       expect(lastDay.reentries).toMatchObject({ year: 2026, count: 83 });
       expect(newYear.reentries).toEqual({ year: 2027, count: 0, recent: [] });
     });
@@ -88,6 +94,7 @@ describe('StarlinkService', () => {
       const { reentries } = await service({
         clock: new FakeClock('2026-12-31T12:00:00.000Z')
       }).snapshot();
+
       expect(reentries).toMatchObject({ year: 2026, count: 83 });
     });
   });
@@ -96,6 +103,7 @@ describe('StarlinkService', () => {
     const { reentries } = await service({
       clock: new FakeClock('2025-12-31T12:00:00.000Z')
     }).snapshot();
+
     expect(reentries?.count).toBe(decaysIn(2025));
     expect(reentries?.recent[0]?.reentered).toBe('2025-12-31');
   });
@@ -107,6 +115,7 @@ describe('StarlinkService', () => {
       )
     }).snapshot();
     const late = await service().snapshot();
+
     expect(early.updatedAt).toBe('2026-10-30T01:00:00.000Z');
     expect(late.updatedAt).toBe(ORBITS_READ_AT);
   });
@@ -119,6 +128,7 @@ describe('StarlinkService', () => {
 
   it('rounds elements to the precision that keeps 11k satellites under the gzip budget', async () => {
     const { satellites } = await service().snapshot();
+
     expect(satellites?.find((s) => s.id === 44714)).toEqual({
       id: 44714,
       name: 'STARLINK-1008',
@@ -135,6 +145,7 @@ describe('StarlinkService', () => {
 
   it('puts the fields in the documented order', async () => {
     const snapshot = await service().snapshot();
+
     expect(Object.keys(snapshot)).toEqual([
       'updatedAt',
       'inOrbit',
@@ -170,6 +181,7 @@ describe('StarlinkService over the caches', () => {
     const clock = new FakeClock(NOW);
     const starlink = cachedService(clock);
     const first = await starlink.snapshot();
+
     clock.advance(60_000);
     expect(await starlink.snapshot()).toBe(first);
   });
@@ -178,8 +190,10 @@ describe('StarlinkService over the caches', () => {
     const clock = new FakeClock(NOW);
     const starlink = cachedService(clock);
     const first = await starlink.snapshot();
+
     clock.advance(6 * 3_600_000);
     const next = await starlink.snapshot();
+
     expect(next).not.toBe(first);
     expect(next).toEqual(first);
   });
@@ -188,8 +202,10 @@ describe('StarlinkService over the caches', () => {
     const clock = new FakeClock('2026-12-31T23:59:59.999Z');
     const starlink = cachedService(clock);
     const lastDay = await starlink.snapshot();
+
     clock.advance(1);
     const newYear = await starlink.snapshot();
+
     expect(newYear).not.toBe(lastDay);
     expect(newYear.reentries).toEqual({ year: 2027, count: 0, recent: [] });
   });
@@ -200,6 +216,7 @@ describe('StarlinkService when one upstream fails', () => {
     const snapshot = await service({
       orbits: new InMemoryOrbitSource(capturedOrbits(), down)
     }).snapshot();
+
     expect(snapshot).toMatchObject({
       updatedAt: REENTRIES_READ_AT,
       inOrbit: null,
@@ -212,6 +229,7 @@ describe('StarlinkService when one upstream fails', () => {
     const snapshot: StarlinkSnapshot = await service({
       reentries: new InMemoryReentrySource(capturedReentries(), down)
     }).snapshot();
+
     expect(snapshot.reentries).toBeNull();
     expect(snapshot.inOrbit).toBe(200);
     expect(snapshot.updatedAt).toBe(ORBITS_READ_AT);

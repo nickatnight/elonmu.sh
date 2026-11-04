@@ -42,7 +42,9 @@ export type HypePage =
 
 export const hypePage = (series: HypeSeries): HypePage => {
   const { peak, median, total } = series.stats;
+
   if (series.days.length === 0 || !peak) return { state: 'empty' };
+
   return {
     state: 'loaded',
     summary: `Daily views, ${longDate(series.from)} – ${longDate(series.to)}, peak ${whole.format(peak.views)} on ${longDate(peak.date)}`,

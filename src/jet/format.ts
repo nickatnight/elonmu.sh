@@ -47,7 +47,9 @@ export const totalsLine = (t: Totals): string =>
 export const formatDuration = (min: number): string => {
   const h = Math.floor(min / 60);
   const m = min % 60;
+
   if (h === 0) return `${m} min`;
+
   return m === 0 ? `${h} h` : `${h} h ${m} min`;
 };
 
@@ -57,11 +59,16 @@ const city = (place: Place | null): string | null =>
 const route = (f: Flight): string => {
   const from = city(f.from);
   const to = city(f.to);
+
   if (f.status === 'airborne')
     return from ? `In the air from ${from}` : 'In the air';
+
   if (from && to) return `${from} → ${to}`;
+
   if (to) return `Arrived in ${to}`;
+
   if (from) return `Left ${from}`;
+
   return 'Unknown route';
 };
 
@@ -72,15 +79,20 @@ const airborneNote = (f: Flight): string | null =>
 
 export const latestSentence = (flights: readonly Flight[]): string | null => {
   const latest = flights[0];
+
   if (!latest) return null;
+
   const note = airborneNote(latest);
+
   if (note) return note;
+
   const at = flightTime(latest);
   const parts = [route(latest), at ? day.format(new Date(at)) : null].filter(
     Boolean
   );
   const duration =
     latest.durationMin === null ? null : formatDuration(latest.durationMin);
+
   return `Latest: ${parts.join(', ')}${duration ? ` · ${duration}` : ''}`;
 };
 
@@ -111,6 +123,7 @@ export type JetPage = {
 
 const row = (f: Flight, i: number): FlightRow => {
   const at = flightTime(f) ?? '';
+
   return {
     id: f.id,
     tail: f.tail,
@@ -131,17 +144,22 @@ const row = (f: Flight, i: number): FlightRow => {
 
 const byTailUnknownLast = (a: { tail: string }, b: { tail: string }) => {
   if (a.tail === UNKNOWN_TAIL) return 1;
+
   if (b.tail === UNKNOWN_TAIL) return -1;
+
   return a.tail.localeCompare(b.tail);
 };
 
 export const jetPage = (snapshot: JetSnapshot): JetPage => {
   const counts = new Map<string, number>();
+
   for (const f of snapshot.flights)
     counts.set(f.tail, (counts.get(f.tail) ?? 0) + 1);
+
   const tails = [...counts]
     .map(([tail, count]) => ({ tail, count }))
     .sort(byTailUnknownLast);
+
   return {
     year: snapshot.year,
     totals: formatTotals(snapshot.totals),

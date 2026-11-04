@@ -20,6 +20,7 @@ const setup = () => {
   const starlink = createStarlinkModule({
     get: async (url) => {
       celestrak.push(url);
+
       return { data: captures[url] };
     },
     clock: new FakeClock('2026-10-30T04:30:00.000Z'),
@@ -30,15 +31,18 @@ const setup = () => {
   const jet: JetQuery = {
     snapshot: () => {
       counted.jet++;
+
       return inner.snapshot();
     }
   };
+
   return { celestrak, counted, modules: { jet, starlink } };
 };
 
 describe('warmUpCaches', () => {
   it('downloads both CelesTrak catalogues and the flights at start', async () => {
     const { celestrak, counted, modules } = setup();
+
     await warmUpCaches(modules, {});
     expect(celestrak).toEqual([GP_URL, SATCAT_URL]);
     expect(counted.jet).toBe(1);
@@ -46,6 +50,7 @@ describe('warmUpCaches', () => {
 
   it('skips CelesTrak, but still warms the flights, when SKIP_STARLINK_WARM_UP is 1', async () => {
     const { celestrak, counted, modules } = setup();
+
     await warmUpCaches(modules, { SKIP_STARLINK_WARM_UP: '1' });
     expect(celestrak).toEqual([]);
     expect(counted.jet).toBe(1);
@@ -53,6 +58,7 @@ describe('warmUpCaches', () => {
 
   it('warms Starlink for any other value of SKIP_STARLINK_WARM_UP', async () => {
     const { celestrak, modules } = setup();
+
     await warmUpCaches(modules, { SKIP_STARLINK_WARM_UP: '' });
     expect(celestrak).toEqual([GP_URL, SATCAT_URL]);
   });

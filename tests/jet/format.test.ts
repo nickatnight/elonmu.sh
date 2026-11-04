@@ -121,6 +121,7 @@ describe('latestSentence', () => {
 describe('jetPage', () => {
   it('builds one row per flight with route, date, duration, fuel and post link', () => {
     const page = jetPage(snapshot());
+
     expect(page.flights).toEqual([
       {
         id: 'f1',
@@ -160,6 +161,7 @@ describe('jetPage', () => {
         })
       ])
     );
+
     expect(page.flights[0]).toMatchObject({
       route: 'In the air from Austin',
       note: 'In the air since 14:05 UTC from Austin',
@@ -176,6 +178,7 @@ describe('jetPage', () => {
     const page = jetPage(
       snapshot([flight({ sourceUrl: 'javascript:alert(1)' })])
     );
+
     expect(page.flights[0].sourceUrl).toBeNull();
   });
 
@@ -188,6 +191,7 @@ describe('jetPage', () => {
         flight({ id: 'd', tail: 'N8628' })
       ])
     );
+
     expect(page.tails).toEqual([
       { tail: 'N7628', count: 1 },
       { tail: 'N8628', count: 2 },
@@ -197,6 +201,7 @@ describe('jetPage', () => {
 
   it('carries the totals, year and attribution through', () => {
     const page = jetPage(snapshot());
+
     expect(page.year).toBe(2026);
     expect(page.totalsLine).toBe(
       '313 flights · 515 h · 153,000 gal · $1.08M fuel · 1,610 t CO₂'

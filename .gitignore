@@ -6,3 +6,5 @@ node_modules
 /docs/
 .claude/worktrees/
 .playwright-mcp/
+.emgee/
+.taste-skill/

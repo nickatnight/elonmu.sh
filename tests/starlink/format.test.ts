@@ -32,11 +32,13 @@ describe('starlinkPage', () => {
       inOrbit: 11_130,
       satellites: full.satellites ?? []
     });
+
     expect(page.state === 'loaded' && page.inOrbit).toBe('11,130');
   });
 
   it('heads the obituaries with the approved line', async () => {
     const page = starlinkPage(await snapshot());
+
     expect(page.state === 'loaded' && page.obituaries?.heading).toBe(
       '83 burned up in 2026. RIP.'
     );
@@ -46,6 +48,7 @@ describe('starlinkPage', () => {
     const full = await snapshot();
     const reentries = full.reentries && { ...full.reentries, count: 1_459 };
     const page = starlinkPage({ ...full, reentries });
+
     expect(page.state === 'loaded' && page.obituaries?.heading).toBe(
       '1,459 burned up in 2026. RIP.'
     );
@@ -53,7 +56,9 @@ describe('starlinkPage', () => {
 
   it('gives each obituary its launch year, re-entry day and lifespan', async () => {
     const page = starlinkPage(await snapshot());
+
     if (page.state !== 'loaded') throw new Error('not loaded');
+
     expect(page.obituaries?.list.slice(0, 3)).toEqual([
       {
         name: 'STARLINK-1309',
@@ -83,8 +88,10 @@ describe('starlinkPage', () => {
       const fresh = (await import(
         loadedInLosAngeles
       )) as typeof import('../../src/starlink/format');
+
       return fresh.starlinkPage(await snapshot());
     });
+
     expect(
       page.state === 'loaded' && page.obituaries?.list[0]?.reentered
     ).toEqual({ datetime: '2026-10-29', text: 'Oct 29' });
@@ -93,12 +100,14 @@ describe('starlinkPage', () => {
   it('leaves out the counter when the orbits failed', async () => {
     const full = await snapshot();
     const page = starlinkPage({ ...full, inOrbit: null, satellites: null });
+
     expect(page.state === 'loaded' && page.inOrbit).toBeNull();
     expect(page.state === 'loaded' && page.obituaries?.list).toHaveLength(12);
   });
 
   it('leaves out the obituaries when the re-entries failed', async () => {
     const page = starlinkPage({ ...(await snapshot()), reentries: null });
+
     expect(page.state === 'loaded' && page.obituaries).toBeNull();
     expect(page.state === 'loaded' && page.inOrbit).toBe('200');
   });
@@ -111,6 +120,7 @@ describe('starlinkPage', () => {
         { name: 'Bad', url: 'javascript:alert(1)' }
       ]
     });
+
     expect(page.state === 'loaded' && page.attribution).toEqual([
       { name: 'CelesTrak', url: 'https://celestrak.org' }
     ]);

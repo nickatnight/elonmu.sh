@@ -50,6 +50,7 @@ const gazetteer: Place[] = Object.entries(placesJson).map(
 let seed = 42;
 const rand = () => {
   seed = (seed * 1103515245 + 12345) % 2 ** 31;
+
   return seed / 2 ** 31;
 };
 const B32 = 'abcdefghijklmnopqrstuvwxyz234567';
@@ -82,6 +83,7 @@ const yearEnd: Flight[] = Array.from({ length: 390 }, (_, i) => {
   const departed =
     Date.UTC(2026, 0, 1) + i * 22 * 3600_000 + Math.floor(rand() * 3600_000);
   const id = rkey();
+
   return flight({
     id,
     tail: ['N628TS', 'N7628', 'N8628'][Math.floor(rand() * 3)],
@@ -102,11 +104,13 @@ const yearEnd: Flight[] = Array.from({ length: 390 }, (_, i) => {
 });
 
 let server: TestServer;
+
 beforeAll(async () => {
   const jet = new JetService(
     new InMemoryFlightSource(yearEnd),
     new FakeClock('2026-12-31T23:00:00.000Z')
   );
+
   server = await startTestServer(createApp({ jet }));
 });
 afterAll(() => server.close());
@@ -116,19 +120,23 @@ const gzippedSize = async (url: string): Promise<number> => {
     headers: { 'Accept-Encoding': 'gzip' },
     decompress: false
   });
+
   expect(res.headers.get('content-encoding')).toBe('gzip');
   const bytes = (await res.arrayBuffer()).byteLength;
+
   if (process.env.PRINT_BUDGETS) {
     console.log(
       `${new URL(url).pathname}: ${(bytes / KB).toFixed(1)} KB gzipped`
     );
   }
+
   return bytes;
 };
 
 describe('response budgets at a year-end volume', () => {
   it('serves the flights JSON in 30 KB or less gzipped', async () => {
     const body = await (await fetch(`${server.url}/api/jet/flights`)).json();
+
     expect((body as { flights: unknown[] }).flights).toHaveLength(390);
     expect(
       await gzippedSize(`${server.url}/api/jet/flights`)
@@ -137,6 +145,7 @@ describe('response budgets at a year-end volume', () => {
 
   it('serves the home page, teaser SVG included, in 30 KB or less gzipped', async () => {
     const html = await (await fetch(`${server.url}/`)).text();
+
     expect(
       (html.match(/<path class="teaser__arc/g) ?? []).length
     ).toBeGreaterThan(100);
@@ -148,7 +157,9 @@ describe('swappable data source', () => {
   const tsFiles = (dir: string): string[] =>
     readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
       const p = path.join(dir, e.name);
+
       if (e.isDirectory()) return tsFiles(p);
+
       return e.name.endsWith('.ts') ? [p] : [];
     });
 
@@ -160,6 +171,7 @@ describe('swappable data source', () => {
         (f) =>
           !f.startsWith('src/jet/sources/bluesky/') && f !== 'src/jet/index.ts'
       );
+
     expect(offenders).toEqual([]);
   });
 
@@ -169,6 +181,7 @@ describe('swappable data source', () => {
     ).json()) as {
       flights: Record<string, unknown>[];
     };
+
     expect(Object.keys(body.flights[0]).sort()).toEqual([
       'departedAt',
       'durationMin',

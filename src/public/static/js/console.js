@@ -17,14 +17,17 @@ class HiddenItems {
 export const trim = (value) => {
   if (Array.isArray(value)) {
     const kept = value.slice(0, KEEP).map(trim);
+
     return value.length > KEEP
       ? [...kept, new HiddenItems(value.length - KEEP)]
       : kept;
   }
+
   if (typeof value === 'object' && value !== null)
     return Object.fromEntries(
       Object.entries(value).map(([key, child]) => [key, trim(child)])
     );
+
   return value;
 };
 
@@ -42,6 +45,7 @@ export const tokenize = (value) => {
    */
   const push = (text, kind = null) => {
     const last = tokens.at(-1);
+
     if (kind === null && last?.kind === null) last.text += text;
     else tokens.push({ kind, text });
   };
@@ -54,14 +58,18 @@ export const tokenize = (value) => {
    */
   const writeAll = (entries, indent, open, close) => {
     if (entries.length === 0) return push(open + close);
+
     const inner = `${indent}  `;
+
     push(`${open}\n`);
     entries.forEach(([key, child], i) => {
       push(inner);
+
       if (key !== null) {
         push(JSON.stringify(key), 'key');
         push(': ');
       }
+
       write(child, inner);
       push(i < entries.length - 1 ? ',\n' : '\n');
     });
@@ -74,11 +82,15 @@ export const tokenize = (value) => {
    */
   const write = (v, indent) => {
     if (v instanceof HiddenItems) return push(`… ${v.count} more`, 'more');
+
     if (typeof v === 'string') return push(JSON.stringify(v), 'str');
+
     if (typeof v === 'number')
       return push(JSON.stringify(v), Number.isFinite(v) ? 'num' : 'lit');
+
     if (typeof v === 'boolean' || v === null || v === undefined)
       return push(String(v ?? null), 'lit');
+
     if (Array.isArray(v))
       return writeAll(
         v.map((item) => [null, item]),
@@ -86,10 +98,12 @@ export const tokenize = (value) => {
         '[',
         ']'
       );
+
     writeAll(Object.entries(/** @type {object} */ (v)), indent, '{', '}');
   };
 
   write(value, '');
+
   return tokens;
 };
 
@@ -99,6 +113,7 @@ export const tokenize = (value) => {
  */
 const announce = (doc, text) => {
   const live = doc.querySelector('.announce');
+
   if (live) live.textContent = text;
 };
 
@@ -108,12 +123,16 @@ const announce = (doc, text) => {
  */
 const renderJson = (code, body) => {
   const doc = code.ownerDocument;
+
   code.replaceChildren(
     ...tokenize(trim(body)).map(({ kind, text }) => {
       if (!kind) return doc.createTextNode(text);
+
       const span = doc.createElement('span');
+
       span.className = `tok-${kind}`;
       span.textContent = text;
+
       return span;
     })
   );
@@ -134,7 +153,9 @@ export const startSend = (send, { fetch }) => {
     figure?.querySelector('.code__full')
   );
   const api = send.dataset.api;
+
   if (!pre || !code || !label || !full || !api) return;
+
   let tallest = 0;
 
   /**
@@ -149,6 +170,7 @@ export const startSend = (send, { fetch }) => {
     label.textContent = `Preview · ${status}`;
     full.hidden = false;
     const error = /** @type {{ error?: unknown }} */ (body)?.error;
+
     announce(
       send.ownerDocument,
       typeof error === 'string'
@@ -161,11 +183,13 @@ export const startSend = (send, { fetch }) => {
     send.disabled = true;
     send.textContent = 'Sending…';
     label.textContent = 'Waiting for the Lord…';
+
     try {
       const res = await fetch(api, { headers: { accept: 'application/json' } });
       const body = await res.json().catch(() => ({
         error: 'The response was not JSON. Please try again.'
       }));
+
       show(`${res.status} ${res.ok ? 'OK' : 'Error'} · live`, body);
     } catch {
       show('No response', {
@@ -179,6 +203,7 @@ export const startSend = (send, { fetch }) => {
 
   send.addEventListener('click', run);
   send.hidden = false;
+
   return run;
 };
 
@@ -193,6 +218,7 @@ export const startCopy = (button, { clipboard, later }) => {
   const pre = /** @type {HTMLElement | null | undefined} */ (
     button.closest('figure')?.querySelector('pre')
   );
+
   if (!pre) return;
 
   const run = async () => {
@@ -204,6 +230,7 @@ export const startCopy = (button, { clipboard, later }) => {
     } catch {
       button.textContent = 'Failed';
     }
+
     announce(button.ownerDocument, button.textContent);
     later(() => {
       button.textContent = 'Copy';
@@ -212,6 +239,7 @@ export const startCopy = (button, { clipboard, later }) => {
 
   button.addEventListener('click', run);
   button.hidden = false;
+
   return run;
 };
 
@@ -220,7 +248,9 @@ const start = () => {
     startSend(/** @type {HTMLButtonElement} */ (send), {
       fetch: (...args) => fetch(...args)
     });
+
   if (!navigator.clipboard) return;
+
   for (const button of document.querySelectorAll('.copy'))
     startCopy(/** @type {HTMLButtonElement} */ (button), {
       clipboard: navigator.clipboard,
