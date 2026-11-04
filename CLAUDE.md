@@ -25,7 +25,10 @@ Commit (see below). The hooks are tested in `tests/hooks/`.
   `switch`, and after a group of `const`/`let`/`var` declarations. The edit
   hook and `bun run format` add them; `format:check` fails without them. Run
   it as `bun --bun eslint`, since ESLint under Node needs `jiti` to load the
-  TypeScript config.
+  TypeScript config. It checks the files Biome checks: the config asks git for
+  every `.gitignore` and `.git/info/exclude`, as Biome's `vcs.useIgnoreFile`
+  does, so add ignores to those files, not to `eslint.config.ts`
+  (`tests/format-scope.test.ts` holds the two tools to this).
 - Named exports only, no default exports (except `eslint.config.ts`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
