@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { GetJson, HttpConfig } from '../http-config';
 import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedFlightSource } from './cached-flight-source';
 import { JetService } from './jet.service';
@@ -6,10 +7,6 @@ import { GazetteerPlaceResolver } from './places/gazetteer-place-resolver';
 import places from './places/places.json';
 import type { JetQuery } from './ports';
 import { BlueskyFlightSource } from './sources/bluesky/bluesky-flight-source';
-
-type HttpConfig = { timeout: number; maxRedirects: number };
-
-type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const BLUESKY_CONFIG: HttpConfig = { timeout: 10_000, maxRedirects: 0 };
 

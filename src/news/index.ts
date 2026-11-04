@@ -1,17 +1,10 @@
 import axios, { AxiosError } from 'axios';
+import type { GetJson, HttpConfig } from '../http-config';
 import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedArticleSource } from './cached-article-source';
 import { NewsService } from './news.service';
 import { type NewsQuery, NewsUpstreamError } from './ports';
 import { NewsApiArticleSource } from './sources/newsapi/newsapi-article-source';
-
-type HttpConfig = {
-  timeout: number;
-  maxRedirects: number;
-  headers: Record<string, string>;
-};
-
-type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const systemClock: Clock = { now: () => new Date() };
 

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { version } from '../../package.json';
+import type { GetJson, HttpConfig } from '../http-config';
 import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedOrbitSource } from './cached-orbit-source';
 import { CachedReentrySource } from './cached-reentry-source';
@@ -7,15 +8,6 @@ import { type StarlinkQuery, UpstreamRefusedError } from './ports';
 import { CelesTrakOrbitSource } from './sources/celestrak/celestrak-orbit-source';
 import { CelesTrakReentrySource } from './sources/celestrak/celestrak-reentry-source';
 import { StarlinkService } from './starlink.service';
-
-export type HttpConfig = {
-  timeout: number;
-  maxContentLength: number;
-  maxRedirects: number;
-  headers: Record<string, string>;
-};
-
-type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const systemClock: Clock = { now: () => new Date() };
 
