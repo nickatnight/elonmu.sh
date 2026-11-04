@@ -81,6 +81,43 @@ describe('createNewsModule', () => {
     expect(logger.warnings).toEqual([]);
   });
 
+  it('warns when NEWS_API_KEY is unset in the environment', () => {
+    const saved = process.env.NEWS_API_KEY;
+
+    delete process.env.NEWS_API_KEY;
+
+    try {
+      const logger = new FakeLogger();
+
+      createNewsModule({ logger, get: async () => ({ data: {} }) });
+      expect(logger.warnings).toEqual([
+        { msg: expect.stringContaining('NEWS_API_KEY') }
+      ]);
+    } finally {
+      if (saved === undefined) delete process.env.NEWS_API_KEY;
+      else process.env.NEWS_API_KEY = saved;
+    }
+  });
+
+  it('reads the key from NEWS_API_KEY by default', async () => {
+    const configs: unknown[] = [];
+    const news = createNewsModule({
+      ...quiet,
+      get: async (_url, config) => {
+        configs.push(config);
+
+        return { data: { articles: [newsApiArticle] } };
+      }
+    });
+
+    await news.random();
+    expect(configs).toEqual([
+      expect.objectContaining({
+        headers: { 'X-Api-Key': 'test-news-api-key' }
+      })
+    ]);
+  });
+
   it('reports a NewsAPI redirect as an error response and never follows it', async () => {
     const upstream = serveRedirect({ articles: [newsApiArticle] });
 
