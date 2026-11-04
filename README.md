@@ -260,7 +260,7 @@ Example 200 response (`satellites` and `recent` shortened):
 
 ## Development
 
-Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key.
+Requires [Bun](https://bun.sh) 1.4.4+ and a free [NewsAPI](https://newsapi.org/) key. The server sends the key in the `X-Api-Key` header, never in the URL, and logs a warning at startup when `NEWS_API_KEY` is unset.
 
 ```shell
 $ bun install
@@ -278,7 +278,8 @@ Tests must not reach the network. `tests/setup/network-guard.ts`, preloaded
 from `bunfig.toml`, blocks `fetch`, axios and other `node:net`/`node:tls`
 connects, `node:dns` lookups and `Bun.connect` to any host but localhost, and
 fails the test that tried. Give `createApp` a fake for every module a test
-reaches.
+reaches. `tests/setup/env.ts`, also preloaded, replaces `NEWS_API_KEY` with a
+fake key, so tests never use the one in `.env`.
 
 `bun run dev` restarts on every save. It sets `SKIP_STARLINK_WARM_UP=1`, so a
 restart does not download the Starlink catalogues (about 9 MB from CelesTrak);

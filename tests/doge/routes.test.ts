@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createApp } from '../../src/app';
 import type { DogeComparison } from '../../src/doge/domain';
-import { createDogeModule, type HttpConfig } from '../../src/doge/index';
+import { createDogeModule } from '../../src/doge/index';
+import type { HttpConfig } from '../../src/http-config';
 import { FakeClock, FakeLogger } from '../fakes';
 import capture from '../fixtures/coingecko-simple-price.json';
 import { startTestServer, type TestServer } from '../helpers';

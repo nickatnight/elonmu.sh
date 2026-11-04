@@ -1,19 +1,11 @@
 import axios from 'axios';
 import { version } from '../../package.json';
+import type { GetJson, HttpConfig } from '../http-config';
 import type { Clock, HttpGet, Logger } from '../ports';
 import { CachedPriceSource } from './cached-price-source';
 import { DogeService } from './doge.service';
 import type { DogeQuery } from './ports';
 import { CoinGeckoPriceSource } from './sources/coingecko/coingecko-price-source';
-
-export type HttpConfig = {
-  timeout: number;
-  maxContentLength: number;
-  maxRedirects: number;
-  headers: Record<string, string>;
-};
-
-type GetJson = (url: string, config: HttpConfig) => Promise<{ data: unknown }>;
 
 const systemClock: Clock = { now: () => new Date() };
 

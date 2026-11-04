@@ -22,7 +22,10 @@ bundler. Bun runs the TypeScript directly.
   global `afterEach` fails the test that made the attempt, and a global
   `afterAll` fails the run for attempts after the last test. `Bun.fetch`
   (read-only), `WebSocket` and `dns.resolve*` are not guarded.
-  `tests/network-guard.test.ts` tests the guard.
+  `tests/network-guard.test.ts` tests the guard. A second preload,
+  `tests/setup/env.ts`, sets `NEWS_API_KEY` to a fake key, so no test reads
+  the key in `.env` and the real news module that `createApp()` builds does
+  not log the missing-key warning.
 - Each module in `src/routes/` exports `register(app, ...)`. When an upstream
   (NewsAPI, Bluesky, Wikimedia, CoinGecko, CelesTrak) fails, the route
   returns **200 with `{ error }`** through `upstreamFailure()`. Only our own
@@ -69,7 +72,15 @@ no re-export shim. The jet cache's tests passed with only their imports
 changed, which shows the move kept its behaviour.
 - `src/ports.ts` defines the ports every module uses: `Clock`, `HttpGet` and
   `Logger`. Only a composition root (`src/jet/index.ts`, `src/hype/index.ts`,
-  `src/doge/index.ts`, `src/news/index.ts`) builds the real ones.
+  `src/doge/index.ts`, `src/news/index.ts`, `src/starlink/index.ts`) builds
+  the real ones.
+- `src/http-config.ts` defines `HttpConfig`, the axios request config each
+  composition root passes, and `GetJson`, the shape of the `get` it accepts
+  (`axios.get` by default). Only composition roots and their tests import
+  it; core code sees `HttpGet`. `maxRedirects` is typed as `0`, so no module
+  can follow redirects without changing the shared type. `maxContentLength`
+  and `headers` are optional, because jet and news set no size cap and jet
+  sends no headers.
 - `src/cache/cached-value.ts` is a keyed TTL cache, `CachedValue<T>`. It
   shares one in-flight load between concurrent callers. When a load fails it
   serves the last good value and logs the `stale` message, or logs the
@@ -99,12 +110,15 @@ defines `ArticleSource` and `NewsQuery`, and `createNewsModule()` in
 NewsApiArticleSource → CachedArticleSource (15 min TTL, one key, 1 min retry) → NewsService → NewsQuery
 ```
 
-- `createNewsModule()` gives axios a 10 s timeout. It turns an `AxiosError`
-  into a `NewsUpstreamError` whose `failure` is `error-response`,
-  `no-response` or `not-sent`, so nothing past the composition root sees
-  axios. `src/routes/news.ts` maps each failure to the error body
-  `/api/news` has always sent, through a lookup table. Any other error is a
-  500.
+- `createNewsModule()` gives axios a 10 s timeout and no redirects, and
+  sends the key in the `X-Api-Key` header, so it never appears in a URL. It
+  turns an `AxiosError` into a `NewsUpstreamError` whose `failure` is
+  `error-response` (a 3xx counts as one), `no-response` or `not-sent`, so
+  nothing past the composition root sees axios. When it is created with an
+  empty key it logs one warning that `NEWS_API_KEY` is not set, because
+  NewsAPI would refuse every request. `src/routes/news.ts` maps
+  each failure to the error body `/api/news` has always sent, through a
+  lookup table. Any other error is a 500.
 - `sources/newsapi/parse.ts` turns NewsAPI's `articles` into `Article`s
   (`source`, `title`, `description`, `url`, `urlImage`, `publishDate`).
   NewsAPI field names (`urlToImage`, `publishedAt`, `source.name`) stay in
@@ -183,6 +197,8 @@ place that wires real adapters:
 BlueskyFlightSource → CachedFlightSource (5 min TTL, serves stale on error) → JetService → JetQuery
 ```
 
+- `createJetModule()` gives axios a 10 s timeout and no redirects, so a 3xx
+  from Bluesky is an upstream failure like any other.
 - `sources/bluesky/` reads @elonjet.net's posts. `feed-client` pages through
   the feed, `parse` turns posts into events, and `pair` joins each takeoff to
   its landing to make a flight. Fuel replies add the cost and CO₂.

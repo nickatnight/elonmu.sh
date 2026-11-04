@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import pkg from '../../package.json';
-import { createDogeModule, type HttpConfig } from '../../src/doge/index';
+import { createDogeModule } from '../../src/doge/index';
+import type { HttpConfig } from '../../src/http-config';
 import { FakeClock } from '../fakes';
 import capture from '../fixtures/coingecko-simple-price.json';
 

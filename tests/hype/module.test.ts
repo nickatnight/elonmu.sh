@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import pkg from '../../package.json';
-import { createHypeModule, type HttpConfig } from '../../src/hype/index';
+import type { HttpConfig } from '../../src/http-config';
+import { createHypeModule } from '../../src/hype/index';
 import { FakeClock } from '../fakes';
 import capture from '../fixtures/wikimedia-pageviews.json';
 
