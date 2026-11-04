@@ -44,10 +44,27 @@ jobs:
       - name: Test
         run: bun test
 
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        name: Check out repo
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Dependency advisories
+        run: bun run audit
+
   create-release:
     permissions:
       contents: write
-    needs: [lint, test]
+    needs: [lint, test, audit]
     uses: nickatnight/gha-workflows/.github/workflows/create-release.yml@main
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}

@@ -15,6 +15,7 @@
     "format": "biome check --write --linter-enabled=false . && eslint --fix .",
     "format:check": "biome check --linter-enabled=false . && eslint .",
     "test": "bun test",
+    "audit": "bun audit --audit-level=moderate",
     "check:static": "bun run format:check && bun run lint && bun run typecheck",
     "check": "bun run check:static && bun test"
   },

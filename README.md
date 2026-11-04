@@ -271,6 +271,7 @@ $ bun test tests/jet/parse.test.ts   # one file
 $ bun test -t 'pairs a takeoff'      # tests whose name matches
 $ bun run format          # apply Biome formatting, then ESLint's blank lines
 $ bun run check           # format check, lint, typecheck, tests (what CI runs)
+$ bun run audit           # dependency advisories, also in CI (needs network)
 ```
 
 Tests must not reach the network. `tests/setup/network-guard.ts`, preloaded
