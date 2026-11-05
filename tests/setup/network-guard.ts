@@ -82,16 +82,36 @@ Object.assign(Bun, {
 });
 
 // node:dns (callback and promises, imported by name or as a namespace) calls
-// Bun.dns.lookup at call time, so wrapping it here covers every form.
-const realLookup = Bun.dns.lookup;
+// the matching Bun.dns function at call time, so wrapping it here covers every
+// form. Bun's types declare only lookup, so the rest are read untyped.
+const DNS_QUERIES = [
+  'lookup',
+  'resolve',
+  'resolveSrv',
+  'resolveTxt',
+  'resolveSoa',
+  'resolveNaptr',
+  'resolveMx',
+  'resolveCaa',
+  'resolveNs',
+  'resolvePtr',
+  'resolveCname',
+  'resolveAny',
+  'reverse',
+  'lookupService'
+];
 
-Object.assign(Bun.dns, {
-  lookup: async (...args: Parameters<typeof Bun.dns.lookup>) => {
-    refuseOutside('dns lookup', args[0]);
+for (const name of DNS_QUERIES) {
+  const real: (...args: unknown[]) => unknown = Reflect.get(Bun.dns, name);
 
-    return realLookup(...args);
-  }
-});
+  Object.assign(Bun.dns, {
+    [name]: async (host: string, ...rest: unknown[]) => {
+      refuseOutside(`dns ${name}`, host);
+
+      return real(host, ...rest);
+    }
+  });
+}
 
 const failIfLeaked = (culprit: string): void => {
   const leaked = takeBlockedAttempts();

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import dns from 'node:dns';
-import { lookup } from 'node:dns/promises';
+import { lookup, resolveMx } from 'node:dns/promises';
 import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
@@ -31,6 +31,7 @@ describe('the network guard', () => {
     ],
     ['dns.promises.lookup', 'dns lookup', () => dns.promises.lookup(HOST)],
     ['a named dns/promises lookup', 'dns lookup', () => lookup(HOST)],
+    ['a named dns/promises resolveMx', 'dns resolveMx', () => resolveMx(HOST)],
     [
       'Bun.connect',
       'Bun.connect',
