@@ -33,6 +33,7 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 | Security headers | CSP and headers unchanged unless a spec says so                        | `tests/security-headers.test.ts`                  | task end, CI          |
 | Page weight      | Per-asset and per-page budgets hold                                    | `tests/jet/budgets.test.ts` and page budget tests | task end, CI          |
 | Dependencies     | No advisory at moderate or above, except those listed under Exceptions | `bun run audit`                                   | CI                    |
+| Install pins     | Exact minimatch override that `bun.lock` resolves; release age 3+ days | `tests/install-settings.test.ts`                  | task end, CI          |
 | Commits          | Conventional Commit subject                                            | `.claude/hooks/commit-msg-guard.ts`               | every commit          |
 
 `bun run check` runs the first four rows plus every test. It takes about five
