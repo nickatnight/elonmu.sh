@@ -233,7 +233,8 @@ describe('files ESLint checks', () => {
     'utf8'
   )
     .split('\n')
-    .filter((line) => line.endsWith('/'));
+    .map((line) => line.trim())
+    .filter((line) => !line.startsWith('#') && line.endsWith('/'));
   // Git anchors an entry to the root when it has a slash before the last one.
   const isAnchored = (entry: string): boolean =>
     entry.slice(0, -1).includes('/');
