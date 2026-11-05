@@ -1,4 +1,4 @@
-import { afterAll, afterEach, describe, expect, it } from 'bun:test';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test';
 import { rmSync } from 'node:fs';
 import { cp, mkdtemp, realpath, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -12,16 +12,32 @@ const installedNodeModules = path.resolve(
   '../../..'
 );
 
-// Biome panics on a project path behind a symlink, like macOS's /var.
-const sandbox = await realpath(
-  await mkdtemp(path.join(tmpdir(), 'format-on-edit-'))
-);
+let tempDir: string | undefined;
+let sandbox = '';
+let fixture = '';
 
-await cp(path.join(projectDir, 'biome.json'), path.join(sandbox, 'biome.json'));
-// With vcs.useIgnoreFile on, Biome refuses to run without an ignore file.
-await cp(path.join(projectDir, '.gitignore'), path.join(sandbox, '.gitignore'));
-await symlink(installedNodeModules, path.join(sandbox, 'node_modules'));
-const fixture = path.join(sandbox, 'fixture.ts');
+beforeAll(async () => {
+  tempDir = await mkdtemp(path.join(tmpdir(), 'format-on-edit-'));
+  // Biome panics on a project path behind a symlink, like macOS's /var.
+  sandbox = await realpath(tempDir);
+  fixture = path.join(sandbox, 'fixture.ts');
+  await cp(
+    path.join(projectDir, 'biome.json'),
+    path.join(sandbox, 'biome.json')
+  );
+  // With vcs.useIgnoreFile on, Biome refuses to run without an ignore file.
+  await cp(
+    path.join(projectDir, '.gitignore'),
+    path.join(sandbox, '.gitignore')
+  );
+  await symlink(installedNodeModules, path.join(sandbox, 'node_modules'));
+});
+
+afterAll(() => {
+  if (tempDir) {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
 
 const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
   runHook(
@@ -34,7 +50,6 @@ const formatFixture = () =>
   formatOnEdit(fixture, { CLAUDE_PROJECT_DIR: sandbox });
 
 afterEach(() => rmSync(fixture, { force: true }));
-afterAll(() => rmSync(sandbox, { recursive: true, force: true }));
 
 describe('isBiomeTarget', () => {
   it.each([
