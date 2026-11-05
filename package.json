@@ -12,8 +12,8 @@
     "start": "bun src/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint --error-on-warnings .",
-    "format": "biome check --write --linter-enabled=false . && eslint --fix .",
-    "format:check": "biome check --linter-enabled=false . && eslint .",
+    "format": "biome check --write --linter-enabled=false . && eslint --fix --max-warnings=0 .",
+    "format:check": "biome check --linter-enabled=false . && eslint --max-warnings=0 .",
     "test": "bun test",
     "audit": "bun audit --audit-level=moderate",
     "check:static": "bun run format:check && bun run lint && bun run typecheck",
@@ -54,6 +54,6 @@
     "typescript-eslint": "8.72.1"
   },
   "overrides": {
-    "minimatch": "^11.0.1"
+    "minimatch": "11.0.4"
   }
 }

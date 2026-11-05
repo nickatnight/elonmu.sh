@@ -1,6 +1,6 @@
 # Constraints
 
-Last reviewed: 2026-11-03 by @nickatnight
+Last reviewed: 2026-11-04 by @nickatnight
 
 Read this before writing code. Do not weaken it to make a change pass.
 CLAUDE.md holds the conventions; this file holds the bar a change must clear.
@@ -8,8 +8,10 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 ## Floor (always enforced)
 
 - No suppression comments: `@ts-ignore`, `@ts-expect-error`, `biome-ignore`,
-  and no `any`. There are none in the repo today. `tests/no-any.test.ts`
-  fails on an `any` type in TypeScript or JSDoc.
+  `eslint-disable` (or any other inline ESLint config), and no `any`. There
+  are none in the repo today. `tests/no-any.test.ts` fails on an `any` type
+  in TypeScript or JSDoc, and `bun run format:check` fails on an inline
+  ESLint config comment.
 - No unimplemented stubs (`throw new Error('Not implemented')`), and no empty
   `catch {}`.
 - No skipped (`.skip`, `.todo`) or deleted tests, and no assertions removed
@@ -31,10 +33,11 @@ CLAUDE.md holds the conventions; this file holds the bar a change must clear.
 | Security headers | CSP and headers unchanged unless a spec says so                        | `tests/security-headers.test.ts`                  | task end, CI          |
 | Page weight      | Per-asset and per-page budgets hold                                    | `tests/jet/budgets.test.ts` and page budget tests | task end, CI          |
 | Dependencies     | No advisory at moderate or above, except those listed under Exceptions | `bun run audit`                                   | CI                    |
+| Install pins     | Exact minimatch override that `bun.lock` resolves; release age 3+ days | `tests/install-settings.test.ts`                  | task end, CI          |
 | Commits          | Conventional Commit subject                                            | `.claude/hooks/commit-msg-guard.ts`               | every commit          |
 
-`bun run check` runs the first four rows plus every test. It takes about one
-second today. Run it before every commit. `bun run audit` stays out of it
+`bun run check` runs the first four rows plus every test. It takes about five
+seconds today. Run it before every commit. `bun run audit` stays out of it
 because it needs the network and the suite runs offline.
 
 ## Measured, not yet enforced

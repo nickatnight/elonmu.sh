@@ -5,11 +5,11 @@ import { parser } from 'typescript-eslint';
 const BLOCKS = ['if', 'for', 'while', 'do', 'try', 'switch'];
 const DECLARATIONS = ['const', 'let', 'var'];
 const GITIGNORED_DIRS = [
+  '**/.emgee/',
+  '**/.playwright-mcp/',
+  '**/.taste-skill/',
+  '**/dist/',
   '.claude/worktrees/',
-  '.emgee/',
-  '.playwright-mcp/',
-  '.taste-skill/',
-  'dist/',
   'docs/',
   'files/'
 ];
@@ -19,6 +19,7 @@ const BIOME_EXCLUDED_DIRS = ['src/public/static/vendor/'];
 export default defineConfig(
   // Flat config reads no ignore files.
   globalIgnores([...GITIGNORED_DIRS, ...BIOME_EXCLUDED_DIRS]),
+  { linterOptions: { noInlineConfig: true } },
   {
     files: ['**/*.ts', '**/*.js', '**/*.mjs'],
     plugins: { '@stylistic': stylistic },

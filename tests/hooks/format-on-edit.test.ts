@@ -1,17 +1,43 @@
-import { afterEach, describe, expect, it } from 'bun:test';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'bun:test';
 import { rmSync } from 'node:fs';
-import { cp, mkdtemp } from 'node:fs/promises';
+import { cp, mkdtemp, realpath, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { isBiomeTarget } from '../../.claude/hooks/lib';
 import { runHook } from './run-hook';
 
 const projectDir = path.join(import.meta.dir, '../..');
-// Lives in the repo so Biome applies biome.json.
-const fixture = path.join(
-  import.meta.dir,
-  `tmp-format-fixture-${crypto.randomUUID()}.ts`
+const installedNodeModules = path.resolve(
+  Bun.resolveSync('@biomejs/biome/package.json', projectDir),
+  '../../..'
 );
+
+let tempDir: string | undefined;
+let sandbox = '';
+let fixture = '';
+
+beforeAll(async () => {
+  tempDir = await mkdtemp(path.join(tmpdir(), 'format-on-edit-'));
+  // Biome panics on a project path behind a symlink, like macOS's /var.
+  sandbox = await realpath(tempDir);
+  fixture = path.join(sandbox, 'fixture.ts');
+  await cp(
+    path.join(projectDir, 'biome.json'),
+    path.join(sandbox, 'biome.json')
+  );
+  // With vcs.useIgnoreFile on, Biome refuses to run without an ignore file.
+  await cp(
+    path.join(projectDir, '.gitignore'),
+    path.join(sandbox, '.gitignore')
+  );
+  await symlink(installedNodeModules, path.join(sandbox, 'node_modules'));
+});
+
+afterAll(() => {
+  if (tempDir) {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
 
 const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
   runHook(
@@ -19,6 +45,9 @@ const formatOnEdit = (filePath: string, env: Record<string, string> = {}) =>
     JSON.stringify({ tool_name: 'Edit', tool_input: { file_path: filePath } }),
     { CLAUDE_PROJECT_DIR: projectDir, ...env }
   );
+
+const formatFixture = () =>
+  formatOnEdit(fixture, { CLAUDE_PROJECT_DIR: sandbox });
 
 afterEach(() => rmSync(fixture, { force: true }));
 
@@ -52,9 +81,13 @@ describe('isBiomeTarget', () => {
 });
 
 describe('format-on-edit hook', () => {
+  it('writes its fixture outside the checkout, where format:check cannot see it', () => {
+    expect(path.relative(projectDir, fixture)).toStartWith('..');
+  });
+
   it('rewrites a badly formatted file and exits 0', async () => {
     await Bun.write(fixture, 'export const   answer = {a:"b"}\n');
-    const result = await formatOnEdit(fixture);
+    const result = await formatFixture();
 
     expect(result).toEqual({ exitCode: 0, stderr: '' });
     expect(await Bun.file(fixture).text()).toBe(
@@ -78,7 +111,7 @@ describe('format-on-edit hook', () => {
         ...body
       ].join('\n')
     );
-    expect(await formatOnEdit(fixture)).toEqual({ exitCode: 0, stderr: '' });
+    expect(await formatFixture()).toEqual({ exitCode: 0, stderr: '' });
     expect(await Bun.file(fixture).text()).toBe(
       [
         "import path from 'node:path';",
@@ -91,7 +124,7 @@ describe('format-on-edit hook', () => {
   it('reports warnings too, since CI lints with --error-on-warnings', async () => {
     // noUnusedVariables is a warning whose fix is unsafe, so --write leaves it.
     await Bun.write(fixture, 'const unused = 1;\nexport const x = 2;\n');
-    const { exitCode, stderr } = await formatOnEdit(fixture);
+    const { exitCode, stderr } = await formatFixture();
 
     expect(exitCode).toBe(2);
     expect(stderr).toContain('noUnusedVariables');
@@ -102,7 +135,7 @@ describe('format-on-edit hook', () => {
       fixture,
       'export const isOne = (n: unknown): boolean => n == 1;\n'
     );
-    const { exitCode, stderr } = await formatOnEdit(fixture);
+    const { exitCode, stderr } = await formatFixture();
 
     expect(exitCode).toBe(2);
     expect(stderr).toContain('noDoubleEquals');

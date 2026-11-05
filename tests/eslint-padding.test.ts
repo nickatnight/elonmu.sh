@@ -131,6 +131,84 @@ describe('padding-line-between-statements', () => {
   });
 });
 
+describe('inline ESLint config comments', () => {
+  const { scripts }: { scripts: Partial<Record<string, string>> } = JSON.parse(
+    readFileSync(path.join(projectDir, 'package.json'), 'utf8')
+  );
+  const formatCheckEslintStep = scripts['format:check']
+    ?.split(' && ')
+    .find((step) => step.startsWith('eslint '));
+  const formatCheckEslintArgs =
+    formatCheckEslintStep
+      ?.split(' ')
+      .slice(1)
+      .filter((arg) => arg !== '.') ?? [];
+  const eslintBin = path.join(
+    path.dirname(Bun.resolveSync('eslint/package.json', projectDir)),
+    'bin/eslint.js'
+  );
+
+  const formatCheckExitCode = (code: string): Promise<number> =>
+    Bun.spawn(
+      [
+        process.execPath,
+        eslintBin,
+        ...formatCheckEslintArgs,
+        '--stdin',
+        '--stdin-filename',
+        path.join(projectDir, 'src/example.ts')
+      ],
+      {
+        cwd: projectDir,
+        stdin: Buffer.from(code),
+        stdout: 'ignore',
+        stderr: 'ignore'
+      }
+    ).exited;
+
+  it('finds the eslint step in the format:check script', () => {
+    expect(
+      formatCheckEslintStep,
+      'package.json format:check has no step starting with "eslint "'
+    ).toBeDefined();
+  });
+
+  it('passes format:check on a file without one', async () => {
+    expect(await formatCheckExitCode(lines('const a = 1;', '', 'a();'))).toBe(
+      0
+    );
+  });
+
+  it.each([
+    [
+      'an eslint-disable-next-line that hides a padding error',
+      lines(
+        'const a = 1;',
+        '// eslint-disable-next-line @stylistic/padding-line-between-statements',
+        'a();'
+      )
+    ],
+    [
+      'an eslint-disable block that hides a padding error',
+      lines('/* eslint-disable */', 'const a = 1;', 'a();')
+    ],
+    [
+      'an eslint rule comment that hides a padding error',
+      lines(
+        '/* eslint @stylistic/padding-line-between-statements: "off" */',
+        'const a = 1;',
+        'a();'
+      )
+    ],
+    [
+      'an eslint-disable with nothing to hide',
+      lines('/* eslint-disable */', 'const a = 1;', '', 'a();')
+    ]
+  ])('fails format:check on %s', async (_case, code) => {
+    expect(await formatCheckExitCode(code)).toBe(1);
+  });
+});
+
 describe('files ESLint checks', () => {
   it.each([
     'src/app.ts',
@@ -155,12 +233,37 @@ describe('files ESLint checks', () => {
     'utf8'
   )
     .split('\n')
-    .filter((line) => line.endsWith('/'))
-    .map((line) => line.replace(/^\//, ''));
-
-  it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (dir) => {
-    expect(await eslint.isPathIgnored(path.join(projectDir, dir, 'a.ts'))).toBe(
-      true
+    .map((line) => line.trim())
+    .filter((line) => !line.startsWith('#') && line.endsWith('/'));
+  // Git anchors an entry to the root when it has a slash before the last one.
+  const isAnchored = (entry: string): boolean =>
+    entry.slice(0, -1).includes('/');
+  const atRoot = (entry: string): string =>
+    path.join(projectDir, entry, 'a.ts');
+  const nested = (entry: string, parent: string): string =>
+    path.join(projectDir, parent, entry, 'a.ts');
+  const underEachParent = (entries: string[]): [string, string][] =>
+    entries.flatMap((entry) =>
+      ['src', 'tests/hooks'].map((parent): [string, string] => [entry, parent])
     );
+
+  it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (entry) => {
+    expect(await eslint.isPathIgnored(atRoot(entry))).toBe(true);
   });
+
+  it.each(
+    underEachParent(gitignoredDirs.filter((entry) => !isAnchored(entry)))
+  )(
+    'ignores %p at any depth (under %p), as .gitignore does',
+    async (entry, parent) => {
+      expect(await eslint.isPathIgnored(nested(entry, parent))).toBe(true);
+    }
+  );
+
+  it.each(underEachParent(gitignoredDirs.filter(isAnchored)))(
+    'lints %p below the root (under %p), where .gitignore does not match it',
+    async (entry, parent) => {
+      expect(await eslint.isPathIgnored(nested(entry, parent))).toBe(false);
+    }
+  );
 });
