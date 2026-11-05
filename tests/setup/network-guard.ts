@@ -67,6 +67,15 @@ Object.assign(net.Socket.prototype, {
 // Bun.fetch is a separate, read-only binding, so it cannot be guarded here.
 globalThis.fetch = guardFetch(globalThis.fetch);
 
+const RealWebSocket = globalThis.WebSocket;
+
+globalThis.WebSocket = class WebSocket extends RealWebSocket {
+  constructor(...args: ConstructorParameters<typeof RealWebSocket>) {
+    refuseOutside('WebSocket', urlHost(args[0]));
+    super(...args);
+  }
+};
+
 const realBunConnect = Bun.connect;
 
 Object.assign(Bun, {

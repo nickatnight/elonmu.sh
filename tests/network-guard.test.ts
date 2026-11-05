@@ -66,7 +66,8 @@ describe('the network guard', () => {
       'fetch.preconnect',
       'fetch.preconnect',
       () => fetch.preconnect(`https://${HOST}`)
-    ]
+    ],
+    ['WebSocket', 'WebSocket', () => new WebSocket(`wss://${HOST}/`)]
   ] as const)(
     'throws from %s to an outside host and records it',
     (_, api, call) => {
@@ -164,6 +165,22 @@ describe('loopback', () => {
     });
 
     socket.end();
+    expect(takeBlockedAttempts()).toEqual([]);
+  });
+
+  it('lets a WebSocket reach a local server', async () => {
+    const wsServer = Bun.serve({
+      port: 0,
+      fetch: (req, srv) => void srv.upgrade(req),
+      websocket: { message: () => undefined }
+    });
+    const socket = new WebSocket(`ws://localhost:${wsServer.port}/`);
+
+    await new Promise((resolve, reject) => {
+      socket.addEventListener('open', resolve);
+      socket.addEventListener('error', reject);
+    });
+    await wsServer.stop(true);
     expect(takeBlockedAttempts()).toEqual([]);
   });
 
