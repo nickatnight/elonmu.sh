@@ -132,15 +132,17 @@ describe('padding-line-between-statements', () => {
 });
 
 describe('inline ESLint config comments', () => {
-  const { scripts } = JSON.parse(
+  const { scripts }: { scripts: Partial<Record<string, string>> } = JSON.parse(
     readFileSync(path.join(projectDir, 'package.json'), 'utf8')
   );
-  const formatCheckEslintArgs: string[] = scripts['format:check']
-    .split(' && ')
-    .find((step: string) => step.startsWith('eslint '))
-    .split(' ')
-    .slice(1)
-    .filter((arg: string) => arg !== '.');
+  const formatCheckEslintStep = scripts['format:check']
+    ?.split(' && ')
+    .find((step) => step.startsWith('eslint '));
+  const formatCheckEslintArgs =
+    formatCheckEslintStep
+      ?.split(' ')
+      .slice(1)
+      .filter((arg) => arg !== '.') ?? [];
   const eslintBin = path.join(
     path.dirname(Bun.resolveSync('eslint/package.json', projectDir)),
     'bin/eslint.js'
@@ -163,6 +165,13 @@ describe('inline ESLint config comments', () => {
         stderr: 'ignore'
       }
     ).exited;
+
+  it('finds the eslint step in the format:check script', () => {
+    expect(
+      formatCheckEslintStep,
+      'package.json format:check has no step starting with "eslint "'
+    ).toBeDefined();
+  });
 
   it('passes format:check on a file without one', async () => {
     expect(await formatCheckExitCode(lines('const a = 1;', '', 'a();'))).toBe(
