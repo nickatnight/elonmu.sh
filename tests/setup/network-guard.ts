@@ -66,7 +66,7 @@ Object.assign(net.Socket.prototype, {
   }
 });
 
-// Bun.fetch is a separate, read-only binding, so it cannot be guarded here.
+// Bun.fetch is a separate, read-only binding, so ESLint bans it instead.
 globalThis.fetch = guardFetch(globalThis.fetch);
 
 const RealWebSocket = globalThis.WebSocket;

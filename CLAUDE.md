@@ -19,7 +19,7 @@ hooks are tested in `tests/hooks/`.
 
 - Biome decides formatting: 2 spaces, single quotes, no trailing commas,
   80 columns. Don't hand-format; the edit hook and `format:check` enforce it.
-- ESLint (`eslint.config.mjs`) runs one rule,
+- ESLint (`eslint.config.mjs`) runs two rules. The first is
   `@stylistic/padding-line-between-statements`: a blank line before `return`
   (unless it opens its block), around `if`, `for`, `while`, `do`, `try` and
   `switch`, and after a group of `const`/`let`/`var` declarations.
@@ -28,7 +28,9 @@ hooks are tested in `tests/hooks/`.
   `.gitignore` also goes in the config's `GITIGNORED_DIRS`: as `**/<dir>/`
   when git matches it at any depth, as-is when it has a `/` before the last
   one (`.claude/worktrees/`), or without its leading `/` (`/docs/` goes in as
-  `docs/`). `tests/eslint-padding.test.ts` checks both depths.
+  `docs/`). `tests/eslint-padding.test.ts` checks both depths. The second,
+  `no-restricted-properties`, bans `Bun.fetch`, which the test network guard
+  can't wrap.
 - Named exports only, no default exports (except `eslint.config.mjs`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
