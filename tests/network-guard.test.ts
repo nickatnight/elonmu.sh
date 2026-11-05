@@ -85,9 +85,9 @@ describe('the network guard', () => {
     expect(takeBlockedAttempts()).toEqual([{ api: 'dns lookup', host: HOST }]);
   });
 
-  const runFixture = async (name: string) => {
+  const runFixture = async (...names: string[]) => {
     const proc = Bun.spawn(
-      ['bun', 'test', path.join(import.meta.dir, 'fixtures', name)],
+      ['bun', 'test', ...names.map((name) => `./tests/fixtures/${name}`)],
       {
         cwd: path.join(import.meta.dir, '..'),
         stdout: 'ignore',
@@ -106,7 +106,9 @@ describe('the network guard', () => {
     const { exitCode, stderr } = await runFixture('swallowed-leak.ts');
 
     expect(exitCode).toBe(1);
-    expect(stderr).toContain(`fetch ${HOST}`);
+    expect(stderr).toContain(
+      `This test tried to reach the network (fetch ${HOST})`
+    );
     expect(stderr).toContain('(fail) answers "unavailable" when CoinGecko');
   });
 
@@ -115,7 +117,19 @@ describe('the network guard', () => {
 
     expect(exitCode).toBe(1);
     expect(stderr).toContain(
-      `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
+      `An afterAll hook or late callback in tests/fixtures/after-all-leak.ts tried to reach the network (fetch ${HOST})`
+    );
+  });
+
+  it('names the earlier file when its afterAll fails the next file', async () => {
+    const { exitCode, stderr } = await runFixture(
+      'after-all-leak.ts',
+      'passing.ts'
+    );
+
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain(
+      `An afterAll hook or late callback in tests/fixtures/after-all-leak.ts tried to reach the network (fetch ${HOST})`
     );
   });
 
@@ -124,7 +138,7 @@ describe('the network guard', () => {
 
     expect(exitCode).toBe(1);
     expect(stderr).toContain(
-      `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
+      `An afterAll hook or late callback in tests/fixtures/late-callback-leak.ts tried to reach the network (fetch ${HOST})`
     );
   });
 });

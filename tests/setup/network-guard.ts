@@ -1,11 +1,13 @@
 import { afterAll, afterEach } from 'bun:test';
 import net from 'node:net';
+import path from 'node:path';
 
 export type BlockedAttempt = { api: string; host: string };
 
-const attempts: BlockedAttempt[] = [];
+const attempts: (BlockedAttempt & { file: string })[] = [];
 
-export const takeBlockedAttempts = (): BlockedAttempt[] => attempts.splice(0);
+export const takeBlockedAttempts = (): BlockedAttempt[] =>
+  attempts.splice(0).map(({ api, host }) => ({ api, host }));
 
 const LOOPBACK = /^(?:localhost|127(?:\.\d{1,3}){3}|::1|\[::1\])$/i;
 
@@ -14,7 +16,7 @@ export const isLoopback = (host: string): boolean => LOOPBACK.test(host);
 const refuseOutside = (api: string, host: string): void => {
   if (host === '' || isLoopback(host)) return;
 
-  attempts.push({ api, host });
+  attempts.push({ api, host, file: Bun.main });
   throw new Error(`network guard: ${api} to ${host} is blocked in tests`);
 };
 
@@ -122,22 +124,31 @@ for (const name of DNS_QUERIES) {
   });
 }
 
-const failIfLeaked = (culprit: string): void => {
-  const leaked = takeBlockedAttempts();
+const REPO = path.join(import.meta.dir, '..', '..');
 
-  if (leaked.length === 0) return;
+const failIfLeaked = (testFile?: string): void => {
+  const reports = attempts.splice(0).map(({ api, host, file }) => {
+    const culprit =
+      file === testFile
+        ? 'This test'
+        : `An afterAll hook or late callback in ${path.relative(REPO, file)}`;
 
-  const list = leaked.map(({ api, host }) => `${api} ${host}`).join(', ');
+    return `${culprit} tried to reach the network (${api} ${host})`;
+  });
+
+  if (reports.length === 0) return;
 
   throw new Error(
-    `${culprit} tried to reach the network (${list}). Pass the module's fake to createApp.`
+    `${reports.join('; ')}. Pass the module's fake to createApp.`
   );
 };
 
-afterEach(() => failIfLeaked('This test'));
+// Bun runs no preload hook between files, so an attempt from an earlier file's
+// afterAll or late callback first shows up in the next file's afterEach.
+afterEach(() => failIfLeaked(Bun.main));
 // bun test never fires timers after the last test, but it does run
 // setImmediate callbacks, after this hook unless the hook yields to them first.
 afterAll(async () => {
   await new Promise((resolve) => setImmediate(resolve));
-  failIfLeaked('An afterAll hook or late callback');
+  failIfLeaked();
 });
