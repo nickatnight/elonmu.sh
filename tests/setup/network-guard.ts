@@ -135,4 +135,9 @@ const failIfLeaked = (culprit: string): void => {
 };
 
 afterEach(() => failIfLeaked('This test'));
-afterAll(() => failIfLeaked('An afterAll hook or late callback'));
+// bun test never fires timers after the last test, but it does run
+// setImmediate callbacks, after this hook unless the hook yields to them first.
+afterAll(async () => {
+  await new Promise((resolve) => setImmediate(resolve));
+  failIfLeaked('An afterAll hook or late callback');
+});

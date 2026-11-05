@@ -118,6 +118,15 @@ describe('the network guard', () => {
       `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
     );
   });
+
+  it('fails the run when a late callback reaches the network', async () => {
+    const { exitCode, stderr } = await runFixture('late-callback-leak.ts');
+
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain(
+      `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
+    );
+  });
 });
 
 describe('loopback', () => {
