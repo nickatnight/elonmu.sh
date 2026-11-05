@@ -276,10 +276,13 @@ $ bun run audit           # dependency advisories, also in CI (needs network)
 
 Tests must not reach the network. `tests/setup/network-guard.ts`, preloaded
 from `bunfig.toml`, blocks `fetch`, axios and other `node:net`/`node:tls`
-connects, `node:dns` lookups and `Bun.connect` to any host but localhost, and
-fails the test that tried. Give `createApp` a fake for every module a test
-reaches. `tests/setup/env.ts`, also preloaded, replaces `NEWS_API_KEY` with a
-fake key, so tests never use the one in `.env`.
+connects, `WebSocket`, `node:dns` queries and `Bun.connect` to any host but
+localhost, and fails the test that tried. An attempt from an `afterAll` hook or
+a late callback fails the run and names its file. ESLint bans `Bun.fetch`,
+which the guard can't wrap, and `dns.Resolver` instances are not guarded. Give
+`createApp` a fake for every module a test reaches. `tests/setup/env.ts`, also
+preloaded, replaces `NEWS_API_KEY` with a fake key, so tests never use the one
+in `.env`.
 
 `bun run dev` restarts on every save. It sets `SKIP_STARLINK_WARM_UP=1`, so a
 restart does not download the Starlink catalogues (about 9 MB from CelesTrak);

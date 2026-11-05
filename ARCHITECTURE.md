@@ -16,12 +16,14 @@ bundler. Bun runs the TypeScript directly.
   or card links must pass a fake for every page it reaches.
   `tests/setup/network-guard.ts`, preloaded from `bunfig.toml`, catches a
   missing fake. It blocks `fetch`, `node:net` and `node:tls` connects (axios's
-  http adapter goes through them), `node:dns` lookups and `Bun.connect` to
+  http adapter goes through them), `WebSocket`, `node:dns` and `Bun.connect` to
   any host that is not loopback, and records each attempt. The routes turn
   the resulting error into a 200, so a throw alone would fail nothing: a
   global `afterEach` fails the test that made the attempt, and a global
-  `afterAll` fails the run for attempts after the last test. `Bun.fetch`
-  (read-only), `WebSocket` and `dns.resolve*` are not guarded.
+  `afterAll` fails the run for attempts after the last test. An attempt from
+  an earlier file's `afterAll` or late callback fails the next test and names
+  that file. ESLint bans `Bun.fetch`, which is read-only. `dns.Resolver`
+  instances are not guarded.
   `tests/network-guard.test.ts` tests the guard. A second preload,
   `tests/setup/env.ts`, sets `NEWS_API_KEY` to a fake key, so no test reads
   the key in `.env` and the real news module that `createApp()` builds does
