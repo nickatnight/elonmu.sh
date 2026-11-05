@@ -239,24 +239,30 @@ describe('files ESLint checks', () => {
     entry.slice(0, -1).includes('/');
   const atRoot = (entry: string): string =>
     path.join(projectDir, entry, 'a.ts');
-  const nested = (entry: string): string =>
-    path.join(projectDir, 'src', entry, 'a.ts');
+  const nested = (entry: string, parent: string): string =>
+    path.join(projectDir, parent, entry, 'a.ts');
+  const underEachParent = (entries: string[]): [string, string][] =>
+    entries.flatMap((entry) =>
+      ['src', 'tests/hooks'].map((parent): [string, string] => [entry, parent])
+    );
 
   it.each(gitignoredDirs)('ignores %p, as .gitignore does', async (entry) => {
     expect(await eslint.isPathIgnored(atRoot(entry))).toBe(true);
   });
 
-  it.each(gitignoredDirs.filter((entry) => !isAnchored(entry)))(
-    'ignores %p at any depth, as .gitignore does',
-    async (entry) => {
-      expect(await eslint.isPathIgnored(nested(entry))).toBe(true);
+  it.each(
+    underEachParent(gitignoredDirs.filter((entry) => !isAnchored(entry)))
+  )(
+    'ignores %p at any depth (under %p), as .gitignore does',
+    async (entry, parent) => {
+      expect(await eslint.isPathIgnored(nested(entry, parent))).toBe(true);
     }
   );
 
-  it.each(gitignoredDirs.filter(isAnchored))(
-    'lints %p below the root, where .gitignore does not match it',
-    async (entry) => {
-      expect(await eslint.isPathIgnored(nested(entry))).toBe(false);
+  it.each(underEachParent(gitignoredDirs.filter(isAnchored)))(
+    'lints %p below the root (under %p), where .gitignore does not match it',
+    async (entry, parent) => {
+      expect(await eslint.isPathIgnored(nested(entry, parent))).toBe(false);
     }
   );
 });
