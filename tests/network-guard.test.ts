@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import dns from 'node:dns';
-import { lookup } from 'node:dns/promises';
+import { lookup, resolveMx } from 'node:dns/promises';
 import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
@@ -31,6 +31,7 @@ describe('the network guard', () => {
     ],
     ['dns.promises.lookup', 'dns lookup', () => dns.promises.lookup(HOST)],
     ['a named dns/promises lookup', 'dns lookup', () => lookup(HOST)],
+    ['a named dns/promises resolveMx', 'dns resolveMx', () => resolveMx(HOST)],
     [
       'Bun.connect',
       'Bun.connect',
@@ -65,7 +66,8 @@ describe('the network guard', () => {
       'fetch.preconnect',
       'fetch.preconnect',
       () => fetch.preconnect(`https://${HOST}`)
-    ]
+    ],
+    ['WebSocket', 'WebSocket', () => new WebSocket(`wss://${HOST}/`)]
   ] as const)(
     'throws from %s to an outside host and records it',
     (_, api, call) => {
@@ -83,9 +85,9 @@ describe('the network guard', () => {
     expect(takeBlockedAttempts()).toEqual([{ api: 'dns lookup', host: HOST }]);
   });
 
-  const runFixture = async (name: string) => {
+  const runFixture = async (...names: string[]) => {
     const proc = Bun.spawn(
-      ['bun', 'test', path.join(import.meta.dir, 'fixtures', name)],
+      ['bun', 'test', ...names.map((name) => `./tests/fixtures/${name}`)],
       {
         cwd: path.join(import.meta.dir, '..'),
         stdout: 'ignore',
@@ -104,7 +106,9 @@ describe('the network guard', () => {
     const { exitCode, stderr } = await runFixture('swallowed-leak.ts');
 
     expect(exitCode).toBe(1);
-    expect(stderr).toContain(`fetch ${HOST}`);
+    expect(stderr).toContain(
+      `This test tried to reach the network (fetch ${HOST})`
+    );
     expect(stderr).toContain('(fail) answers "unavailable" when CoinGecko');
   });
 
@@ -113,7 +117,28 @@ describe('the network guard', () => {
 
     expect(exitCode).toBe(1);
     expect(stderr).toContain(
-      `An afterAll hook or late callback tried to reach the network (fetch ${HOST})`
+      `An afterAll hook or late callback in tests/fixtures/after-all-leak.ts tried to reach the network (fetch ${HOST})`
+    );
+  });
+
+  it('names the earlier file when its afterAll fails the next file', async () => {
+    const { exitCode, stderr } = await runFixture(
+      'after-all-leak.ts',
+      'passing.ts'
+    );
+
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain(
+      `An afterAll hook or late callback in tests/fixtures/after-all-leak.ts tried to reach the network (fetch ${HOST})`
+    );
+  });
+
+  it('fails the run when a late callback reaches the network', async () => {
+    const { exitCode, stderr } = await runFixture('late-callback-leak.ts');
+
+    expect(exitCode).toBe(1);
+    expect(stderr).toContain(
+      `An afterAll hook or late callback in tests/fixtures/late-callback-leak.ts tried to reach the network (fetch ${HOST})`
     );
   });
 });
@@ -163,6 +188,22 @@ describe('loopback', () => {
     });
 
     socket.end();
+    expect(takeBlockedAttempts()).toEqual([]);
+  });
+
+  it('lets a WebSocket reach a local server', async () => {
+    const wsServer = Bun.serve({
+      port: 0,
+      fetch: (req, srv) => void srv.upgrade(req),
+      websocket: { message: () => undefined }
+    });
+    const socket = new WebSocket(`ws://localhost:${wsServer.port}/`);
+
+    await new Promise((resolve, reject) => {
+      socket.addEventListener('open', resolve);
+      socket.addEventListener('error', reject);
+    });
+    await wsServer.stop(true);
     expect(takeBlockedAttempts()).toEqual([]);
   });
 

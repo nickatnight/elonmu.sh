@@ -31,6 +31,14 @@ export default defineConfig(
         { blankLine: 'always', prev: BLOCKS, next: '*' },
         { blankLine: 'always', prev: DECLARATIONS, next: '*' },
         { blankLine: 'any', prev: DECLARATIONS, next: DECLARATIONS }
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'Bun',
+          property: 'fetch',
+          message: 'Use fetch, which the test network guard can see.'
+        }
       ]
     }
   },

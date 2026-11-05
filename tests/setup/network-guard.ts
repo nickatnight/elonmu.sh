@@ -1,11 +1,13 @@
 import { afterAll, afterEach } from 'bun:test';
 import net from 'node:net';
+import path from 'node:path';
 
 export type BlockedAttempt = { api: string; host: string };
 
-const attempts: BlockedAttempt[] = [];
+const attempts: (BlockedAttempt & { file: string })[] = [];
 
-export const takeBlockedAttempts = (): BlockedAttempt[] => attempts.splice(0);
+export const takeBlockedAttempts = (): BlockedAttempt[] =>
+  attempts.splice(0).map(({ api, host }) => ({ api, host }));
 
 const LOOPBACK = /^(?:localhost|127(?:\.\d{1,3}){3}|::1|\[::1\])$/i;
 
@@ -14,7 +16,7 @@ export const isLoopback = (host: string): boolean => LOOPBACK.test(host);
 const refuseOutside = (api: string, host: string): void => {
   if (host === '' || isLoopback(host)) return;
 
-  attempts.push({ api, host });
+  attempts.push({ api, host, file: Bun.main });
   throw new Error(`network guard: ${api} to ${host} is blocked in tests`);
 };
 
@@ -64,8 +66,17 @@ Object.assign(net.Socket.prototype, {
   }
 });
 
-// Bun.fetch is a separate, read-only binding, so it cannot be guarded here.
+// Bun.fetch is a separate, read-only binding, so ESLint bans it instead.
 globalThis.fetch = guardFetch(globalThis.fetch);
+
+const RealWebSocket = globalThis.WebSocket;
+
+globalThis.WebSocket = class WebSocket extends RealWebSocket {
+  constructor(...args: ConstructorParameters<typeof RealWebSocket>) {
+    refuseOutside('WebSocket', urlHost(args[0]));
+    super(...args);
+  }
+};
 
 const realBunConnect = Bun.connect;
 
@@ -82,28 +93,62 @@ Object.assign(Bun, {
 });
 
 // node:dns (callback and promises, imported by name or as a namespace) calls
-// Bun.dns.lookup at call time, so wrapping it here covers every form.
-const realLookup = Bun.dns.lookup;
+// the matching Bun.dns function at call time, so wrapping it here covers every
+// form. Bun's types declare only lookup, so the rest are read untyped.
+const DNS_QUERIES = [
+  'lookup',
+  'resolve',
+  'resolveSrv',
+  'resolveTxt',
+  'resolveSoa',
+  'resolveNaptr',
+  'resolveMx',
+  'resolveCaa',
+  'resolveNs',
+  'resolvePtr',
+  'resolveCname',
+  'resolveAny',
+  'reverse',
+  'lookupService'
+];
 
-Object.assign(Bun.dns, {
-  lookup: async (...args: Parameters<typeof Bun.dns.lookup>) => {
-    refuseOutside('dns lookup', args[0]);
+for (const name of DNS_QUERIES) {
+  const real: (...args: unknown[]) => unknown = Reflect.get(Bun.dns, name);
 
-    return realLookup(...args);
-  }
-});
+  Object.assign(Bun.dns, {
+    [name]: async (host: string, ...rest: unknown[]) => {
+      refuseOutside(`dns ${name}`, host);
 
-const failIfLeaked = (culprit: string): void => {
-  const leaked = takeBlockedAttempts();
+      return real(host, ...rest);
+    }
+  });
+}
 
-  if (leaked.length === 0) return;
+const REPO = path.join(import.meta.dir, '..', '..');
 
-  const list = leaked.map(({ api, host }) => `${api} ${host}`).join(', ');
+const failIfLeaked = (testFile?: string): void => {
+  const reports = attempts.splice(0).map(({ api, host, file }) => {
+    const culprit =
+      file === testFile
+        ? 'This test'
+        : `An afterAll hook or late callback in ${path.relative(REPO, file)}`;
+
+    return `${culprit} tried to reach the network (${api} ${host})`;
+  });
+
+  if (reports.length === 0) return;
 
   throw new Error(
-    `${culprit} tried to reach the network (${list}). Pass the module's fake to createApp.`
+    `${reports.join('; ')}. Pass the module's fake to createApp.`
   );
 };
 
-afterEach(() => failIfLeaked('This test'));
-afterAll(() => failIfLeaked('An afterAll hook or late callback'));
+// Bun runs no preload hook between files, so an attempt from an earlier file's
+// afterAll or late callback first shows up in the next file's afterEach.
+afterEach(() => failIfLeaked(Bun.main));
+// bun test never fires timers after the last test, but it does run
+// setImmediate callbacks, after this hook unless the hook yields to them first.
+afterAll(async () => {
+  await new Promise((resolve) => setImmediate(resolve));
+  failIfLeaked();
+});
