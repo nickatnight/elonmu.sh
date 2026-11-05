@@ -196,7 +196,7 @@ describe('inline ESLint config comments', () => {
       lines('/* eslint-disable */', 'const a = 1;', '', 'a();')
     ]
   ])('fails format:check on %s', async (_case, code) => {
-    expect(await formatCheckExitCode(code)).not.toBe(0);
+    expect(await formatCheckExitCode(code)).toBe(1);
   });
 });
 
