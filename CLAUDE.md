@@ -26,8 +26,9 @@ hooks are tested in `tests/hooks/`.
   `bun run format` adds them and `format:check` fails without them; the edit
   hook runs only Biome. ESLint reads no ignore files, so a directory added to
   `.gitignore` also goes in the config's `GITIGNORED_DIRS`: as `**/<dir>/`
-  when git matches it at any depth, or as-is when it has a leading `/` or a
-  `/` before the last one (`tests/eslint-padding.test.ts` checks both).
+  when git matches it at any depth, as-is when it has a `/` before the last
+  one (`.claude/worktrees/`), or without its leading `/` (`/docs/` goes in as
+  `docs/`). `tests/eslint-padding.test.ts` checks both depths.
 - Named exports only, no default exports (except `eslint.config.mjs`, because
   ESLint only loads a default export). Prefer `const` arrow functions;
   use classes for adapters that implement a port (`implements FlightSource`).
